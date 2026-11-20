@@ -1,0 +1,2207 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-04-spec42-c28-perf-antipatterns/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #42 C28 性能反模式修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #42 C28 性能反模式修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-04-spec42-c28-perf-antipatterns.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-04-spec42-c28-perf-antipatterns/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #42 C28 性能反模式修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-04-spec42-c28-perf-antipatterns.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-42-c28-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #42 C28 性能反模式修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="验收覆盖表（spec 验收 → task → 验证命令）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-r4-jieba-f415-0814" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: R4 门禁懒加载 + jieba 移函数体 + F415-0814 行号引用修正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r2a-registry-path-mtime_ns-size-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R2a registry (path, mtime_ns, size) 缓存 + truth 模板前置短路
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-r2b-sentencetransformer-ttl-genesis-store-close" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: R2b SentenceTransformer 单例 + TTL 负缓存 + genesis store close
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-r1-audit_context_cache-raw_files-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: R1 audit_context_cache 四处路径修复 + raw_files 读抑制 + checklist 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-r3a-no-op" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: R3a 标题有界前缀读取 + 双提取点 no-op 修正 + 语料变换器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-r3b-content_uniqueness-integrity-append" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: R3b content_uniqueness 指纹缓存 + integrity 真 append
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: benchmark 三基线 + 簇级验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-8-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        收尾（阶段 7-8 前置，非独立 task）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-42-c28-implementation-plan">Spec #42 C28 性能反模式修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or coordinator-inline per SDD v6 leaf/infra routing. <strong>本计划全部 task 为 infra</strong>（涉及 <code>src/shenbi/pipeline/</code>、<code>src/shenbi/contracts/</code>、<code>src/shenbi/gates/</code>）——按 SDD v6 阶段 6 分流规则由协调者亲自实现，不派 implementer 子 agent；每 task commit 后必须产出 fresh-context 审查 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>。</p>
+</blockquote>
+<p><strong>Goal:</strong> 落实 spec #42（C28）四项性能修复：审计波读抑制（I/O 9→1）、registry/模型缓存、gate 侧 O(N²) 重读消除、门禁懒加载（&lt;50ms）。</p>
+<p><strong>Architecture:</strong> 全部为既有热路径的等价优化：R1 用 <code>SharedAuditContext.raw_files</code>（原始字节表）在磁盘读循环前拦截重复读取（prompt 字节不变）；R2 以 (path, mtime_ns, size) 键做进程内缓存 + SentenceTransformer 单例/负缓存；R3 有界前缀读取 + 指纹缓存 + 真 append；R4 import 拓扑重排（零行为变化）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+、pathlib、threading.Lock、pytest + pytest-benchmark（<code>-m benchmark</code>）、pytest monkeypatch spy。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>全部 infra task：协调者亲自实现，TDD（先红后绿），逐 task commit + fresh-context 审查（audit-T<N>.md）</li>
+<li>验证命令一律 <code>uv run</code> / <code>just</code> 形态（与 CI <code>uv run --frozen</code> 同构）；系统 python 结果不算证据</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；pathlib 文件 I/O；gate 检查器保持幂等纯校验（进程内 memoization 无输出文件副作用）</li>
+<li>G0.9：测试输入只引用 <code>tests/fixtures/</code> 真实产物（含其复制/变体）；禁手写 fixture</li>
+<li>G3.4：本 spec 无 LLM 产物评分场景（全部确定性测试），不涉独立评分调度</li>
+<li>commit 走 Conventional Commits；显式列文件路径（pathspec commit），禁 <code>git add -A</code></li>
+<li>字节等价闸：R1 读抑制开关开/关产出的 prompt 字节必须完全一致（唯一例外=spec 声明的 F312 路径修复效果，不在闸内）</li>
+</ul>
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1-1 raw_files 完整原文（5 文件）</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k raw_files -q</code></td>
+</tr>
+<tr>
+<td>R1-2 章节 read_text 次数 == 1（当前 9）</td>
+<td>T4</td>
+<td>同上 <code>-k read_count_is_one</code></td>
+</tr>
+<tr>
+<td>R1-3 读抑制开/关 prompt 字节等价</td>
+<td>T4</td>
+<td>同上 <code>-k byte_equality_suppression_switch</code></td>
+</tr>
+<tr>
+<td>R1-4 world/rules.md 键存在</td>
+<td>T4</td>
+<td>同上 <code>-k world_rules_key_present</code></td>
+</tr>
+<tr>
+<td>R2-1 registry 解析次数（不变 1 / touch 2）</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/contracts/test_legacy_registry_cache.py -q</code></td>
+</tr>
+<tr>
+<td>R2-2 模板齐全不扫描</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k shortcircuit -q</code>（T2 新建该测试文件；T4 追加 R1 部分）</td>
+</tr>
+<tr>
+<td>R2-3 Route B 负缓存（第二次无网络）</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/pipeline/test_truth_embed_singleton.py -k negative_cache -q</code></td>
+</tr>
+<tr>
+<td>R2-4 单例并发构造 == 1</td>
+<td>T3</td>
+<td>同上 <code>-k concurrent_init</code></td>
+</tr>
+<tr>
+<td>R3-1 标题读取 ≤4096B×N + meta-first 双提取非空</td>
+<td>T5</td>
+<td><code>uv run pytest tests/unit/pipeline/test_chapter_titles.py -q</code></td>
+</tr>
+<tr>
+<td>R3-2 content_uniqueness 二遍读取 == N</td>
+<td>T6</td>
+<td><code>uv run pytest tests/gates/g4/test_content_uniqueness_cache.py -q</code></td>
+</tr>
+<tr>
+<td>R3-3 append 200 次内容逐字节一致 + O(k)</td>
+<td>T6</td>
+<td><code>uv run pytest tests/unit/pipeline/test_integrity_append.py -q</code></td>
+</tr>
+<tr>
+<td>R4 importtime &lt;50ms + 11 门行为不变</td>
+<td>T1</td>
+<td><code>uv run python -X importtime -c "from shenbi.gates import cli" 2&gt;&amp;1 \| tail -3</code>；<code>uv run pytest tests/gates/ tests/unit/test_gates_cli.py -q</code></td>
+</tr>
+<tr>
+<td>簇级 benchmark 三基线</td>
+<td>T7</td>
+<td><code>uv run pytest tests/ -m benchmark -q</code></td>
+</tr>
+<tr>
+<td>簇级回归</td>
+<td>全部</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-r4-jieba-f415-0814">Task 1: R4 门禁懒加载 + jieba 移函数体 + F415-0814 行号引用修正</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/cli.py:11-31</code>（顶层 import 块 + <code>log</code> 绑定）、main() 内各分支
+- Modify: <code>src/shenbi/text/cjk.py:10-11</code>（jieba 顶层 import 移函数体）
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:93</code>
+- Test: <code>tests/unit/test_gates_cli_import_cost.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（独立 task）
+- Produces: <code>gates/cli.py</code> 顶层仅 <code>import json/sys</code>；<code>_load_gate(gate: str)</code> 懒加载器；<code>cjk.py</code> 对外函数签名不变（<code>find_terms</code> 等）；后续 task 不依赖本 task 内部结构</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试（import 开销）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_gates_cli_import_cost.py</span>
+<span class="sd">&quot;&quot;&quot;T1604: gates.cli top-level import must stay under 50ms (importtime cumulative).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_importtime_cumulative_us</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-X&quot;</span><span class="p">,</span> <span class="s2">&quot;importtime&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;from shenbi.gates import </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># importtime lines: &quot;import time: self [us] | cumulative | imported package&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;| shenbi.gates.</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;import time:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> not found in importtime output&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_gates_cli_top_level_import_under_50ms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">_importtime_cumulative_us</span><span class="p">(</span><span class="s2">&quot;cli&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50_000</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_gates_cli_import_cost.py -q</code>
+Expected: FAIL（当前 ~370,000µs ≥ 50,000）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现——gates/cli.py 懒加载</strong></li>
+</ul>
+<p>顶层只留 <code>import json</code> / <code>import sys</code>；11 个门禁模块改为懒加载器（保持 main() 各分支调用的函数名不变）：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="c1"># T1604 (C28 R4): lazy per-gate loading — the 11 gate modules (plus</span>
+<span class="c1"># logging/cli_utils/gates.shared chains) cost ~370ms of the ~380ms</span>
+<span class="c1"># subprocess spawn; only the requested gate&#39;s module is imported now.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gate_G0</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G0</span>
+
+    <span class="k">return</span> <span class="n">gate_G0</span>
+
+<span class="c1"># ...（g1-g7、g_dispatch、g_reconcile、g_transition 同构 11 个 loader）</span>
+
+
+<span class="n">_GATES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;G0&quot;</span><span class="p">:</span> <span class="n">_gate_G0</span><span class="p">,</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>main() 内：<code>configure_logging()</code>/<code>emit_json</code>/<code>PROJECT</code>/<code>write_gate_marker</code>/<code>GateStatus</code>/<code>log</code> 的 import 与绑定移入 main() 函数体（<code>log</code> 移为 main() 内局部 + 各分支按需使用）；各分支局部 <code>from shenbi.gates.gX import gate_GX</code>（G4 分支需导全部三个 callable：<code>gate_G4</code>/<code>gate_G4_bughunt</code>/<code>gate_G4_clean</code>）。<code>from typing import</code> 改 <code>from collections.abc import Callable</code>（repo 风格，UP035）。SHORT_MAP 纯数据保留模块级（无 import 成本）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 实现——cjk.py jieba 懒单例（模块级 <code>_TOKENIZER</code>/<code>_POSEG</code> 才是 import 成本载体）</strong></li>
+</ul>
+<p>顶层删除 <code>import jieba</code> / <code>import jieba.posseg as pseg</code> 与 <code>:138-139</code> 的即刻构造；<code>find_terms</code> 不用 jieba（纯子串匹配）无需改。tokenizer 改 None 哨兵懒单例（保持 spec #32 F615 隔离语义：私有实例、不动全局 <code>jieba.dt</code>）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/text/cjk.py</span>
+<span class="n">_TOKENIZER</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># lazy: jieba import costs ~105ms and only G6 path needs it</span>
+<span class="n">_POSEG</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_TOKENIZER_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_tokenizers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lazily construct the isolated tokenizers (T1604: jieba off the</span>
+<span class="sd">    import critical path; isolation semantics of spec #32 F615 preserved).&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_TOKENIZER</span><span class="p">,</span> <span class="n">_POSEG</span>
+    <span class="k">if</span> <span class="n">_TOKENIZER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">_TOKENIZER_LOCK</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_TOKENIZER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">jieba</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">jieba.posseg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pseg</span>
+
+                <span class="n">tok</span> <span class="o">=</span> <span class="n">jieba</span><span class="o">.</span><span class="n">Tokenizer</span><span class="p">()</span>
+                <span class="n">poseg</span> <span class="o">=</span> <span class="n">pseg</span><span class="o">.</span><span class="n">POSTokenizer</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span>
+                <span class="c1"># publish order: _POSEG first, _TOKENIZER (the sentinel/flag) last —</span>
+                <span class="c1"># a lock-free fast-path reader must never see tokenizer set with</span>
+                <span class="c1"># _POSEG still None</span>
+                <span class="n">_POSEG</span> <span class="o">=</span> <span class="n">poseg</span>
+                <span class="n">_TOKENIZER</span> <span class="o">=</span> <span class="n">tok</span>
+    <span class="k">return</span> <span class="n">_TOKENIZER</span><span class="p">,</span> <span class="n">_POSEG</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">domain_dict</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Token</span><span class="p">]:</span>
+    <span class="n">tokenizer</span><span class="p">,</span> <span class="n">poseg</span> <span class="o">=</span> <span class="n">_get_tokenizers</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">domain_dict</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">domain_dict</span><span class="p">:</span>
+            <span class="n">tokenizer</span><span class="o">.</span><span class="n">add_word</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="n">word</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">poseg</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 实现——F415-0814 行号引用改符号引用</strong></li>
+</ul>
+<p><code>src/shenbi/gates/g4/chapter_drafting.py:93</code>：<code>"title must not include chapter number (SKILL.md:125)"</code> → <code>"title must not include chapter number (SKILL.md「章节标题不要包含章节号」)"</code></p>
+<ul>
+<li>[ ] <strong>Step 6: 跑测试确认通过 + 门禁行为回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_gates_cli_import_cost.py tests/gates/ tests/unit/test_gates_cli.py -q</code>
+Expected: 全 PASS</p>
+<p>Run: <code>uv run python -X importtime -c "from shenbi.gates import cli" 2&gt;&amp;1 | tail -3</code>
+Expected: <code>shenbi.gates.cli</code> 累计 &lt; 50,000µs</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/cli.py<span class="w"> </span>src/shenbi/text/cjk.py<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/unit/test_gates_cli_import_cost.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R4 lazy gate loading (&lt;50ms import), jieba into function body, F415 symbol ref&quot;</span>
+</code></pre></div>
+产出 <code>.superpowers/sdd/audit-T1.md</code>（fresh-context 审查）后方可开始 T2。</p>
+<hr />
+<h3 id="task-2-r2a-registry-path-mtime_ns-size-truth">Task 2: R2a registry (path, mtime_ns, size) 缓存 + truth 模板前置短路</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/legacy.py:106-126</code>（<code>load_registry</code>）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（<code>_init_truth_templates</code> :1596-1615 前置短路）
+- Test: <code>tests/unit/contracts/test_legacy_registry_cache.py</code>（新建——<code>tests/unit/contracts/test_registry.py</code> 测的是另一 registry，勿混）、<code>tests/unit/pipeline/test_dispatch_helper_read_suppression.py</code>（新建，含 T2/T4 测试）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_registry() -&gt; TruthFilesRegistry</code>（现签名）
+- Produces: 同名同签名函数（内部缓存）；<code>_parse_registry_uncached() -&gt; TruthFilesRegistry</code>（供 benchmark 基线复用）；<code>_init_truth_templates(project_dir: Path) -&gt; None</code>（签名不变）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contracts/test_legacy_registry_cache.py（新建）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_load_registry_caches_until_mtime_changes</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;T1613/F215: same mtime_ns+size -&gt; exactly 1 YAML parse; touch -&gt; re-parse.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>  <span class="c1"># noqa: F401  (module 顶部统一 import：Path/pytest)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.contracts.legacy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">legacy</span>
+
+    <span class="n">reg_src</span> <span class="o">=</span> <span class="n">legacy</span><span class="o">.</span><span class="n">REGISTRY_PATH</span>  <span class="c1"># canonical docs/framework/truth-files.yaml</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real_safe_load</span> <span class="o">=</span> <span class="n">legacy</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">counting_safe_load</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+        <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">real_safe_load</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">legacy</span><span class="o">.</span><span class="n">yaml</span><span class="p">,</span> <span class="s2">&quot;safe_load&quot;</span><span class="p">,</span> <span class="n">counting_safe_load</span><span class="p">)</span>
+    <span class="c1"># os.utime 只动真实 registry 的 mtime（内容不变，ns 键缓存语义内安全）；</span>
+    <span class="c1"># 缓存重置经 monkeypatch 保证测试隔离</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">legacy</span><span class="p">,</span> <span class="s2">&quot;_REGISTRY_CACHE&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">legacy</span><span class="o">.</span><span class="n">load_registry</span><span class="p">()</span>
+    <span class="n">legacy</span><span class="o">.</span><span class="n">load_registry</span><span class="p">()</span>
+    <span class="n">legacy</span><span class="o">.</span><span class="n">load_registry</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="n">st</span> <span class="o">=</span> <span class="n">reg_src</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">reg_src</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_atime_ns</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span> <span class="o">+</span> <span class="mi">1_000_000</span><span class="p">))</span>
+    <span class="n">legacy</span><span class="o">.</span><span class="n">load_registry</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_dispatch_helper_read_suppression.py（新建，T2 部分）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_init_truth_templates_shortcircuits_when_all_exist</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;T1606: with every template present, the 74-skill scan must not run.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dh</span>
+
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">dh</span><span class="o">.</span><span class="n">_TRUTH_FILE_TITLES</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">truth</span> <span class="o">/</span> <span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">update_mode: replace</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_collect_declared_truth_fields&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span><span class="p">:</span> <span class="n">calls</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">dh</span><span class="o">.</span><span class="n">_init_truth_templates</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_legacy_registry_cache.py -q</code> 和 <code>uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k template -q</code>
+Expected: FAIL（无缓存：n==3；无短路：n==1）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/legacy.py</span>
+<span class="n">_REGISTRY_CACHE</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="s2">&quot;TruthFilesRegistry&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_REGISTRY_CACHE_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_registry_uncached</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">TruthFilesRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Original parse path (kept public for the benchmark baseline).&quot;&quot;&quot;</span>
+    <span class="c1"># ...原 load_registry 的 exists 检查 + safe_load + model_validate 全文...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_registry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">TruthFilesRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(path, mtime_ns, size)-keyed process cache.</span>
+
+<span class="sd">    Same-second in-place edits are covered by mtime_ns granularity; the</span>
+<span class="sd">    deliberate no-cache rationale at audit/snapshot.py:22-29 (cross-round</span>
+<span class="sd">    vocabulary changes) is satisfied because any file change alters the key.</span>
+<span class="sd">    Cached instance is shared — callers must not mutate (audited: zero</span>
+<span class="sd">    mutation call sites as of 2026-09-04).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_REGISTRY_CACHE</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">REGISTRY_PATH</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;registry missing&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">REGISTRY_PATH</span><span class="p">))</span>
+    <span class="n">stat</span> <span class="o">=</span> <span class="n">REGISTRY_PATH</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">_REGISTRY_CACHE_LOCK</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_REGISTRY_CACHE</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_REGISTRY_CACHE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_REGISTRY_CACHE</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">_parse_registry_uncached</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">_REGISTRY_CACHE_LOCK</span><span class="p">:</span>
+        <span class="n">_REGISTRY_CACHE</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div>
+<p>（spec R2「扫描结果同键缓存」在短路落地后残益可忽略——记 spec-deviations T2 声明性偏差，不实施。）<code>_init_truth_templates</code> 开头加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">truth_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="c1"># T1606: skip the 74-skill contract scan (~655ms) when every template</span>
+    <span class="c1"># already exists — the scan result is only needed to fill new templates.</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="n">truth_dir</span> <span class="o">/</span> <span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">_TRUTH_FILE_TITLES</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">truth_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># ...原体（删去重复的 mkdir）...</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/ tests/unit/pipeline/test_dispatch_helper_read_suppression.py -q</code>
+Expected: PASS</p>
+<p>Run: <code>bash tests/lock-tool-hashes.sh</code>（legacy.py 改动）并把 <code>tests/tiers/deps.json</code> 并入 commit。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/legacy.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/contracts/test_legacy_registry_cache.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper_read_suppression.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R2a registry (mtime_ns,size) cache + truth template short-circuit&quot;</span>
+</code></pre></div>
+产出 <code>audit-T2.md</code>。</p>
+<hr />
+<h3 id="task-3-r2b-sentencetransformer-ttl-genesis-store-close">Task 3: R2b SentenceTransformer 单例 + TTL 负缓存 + genesis store close</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/truth_embed.py</code>（<code>embed_and_store</code> :99-131 + 新增 <code>get_shared_model</code>）
+- Modify: <code>src/shenbi/pipeline/context_assemble.py:136-179</code>（<code>_route_b</code> 用单例/负缓存）
+- Modify: <code>src/shenbi/pipeline/genesis.py:150-188</code>（<code>_update_route_b</code> finally close store）
+- Test: <code>tests/unit/pipeline/test_truth_embed_singleton.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>get_shared_model() -&gt; Any | None</code>（None = 不可用或负缓存期内；模块级单例 + <code>threading.Lock</code> 双检 + 失败 TTL 10min）；<code>embed_and_store(store, text, chunk_id, source_file, chunk_type, chapter_ref=None, entity_refs="[]") -&gt; bool</code>（签名不变，内部改单例）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_truth_embed_singleton.py</span>
+<span class="sd">&quot;&quot;&quot;T1603/F328: shared model singleton, TTL negative cache, defensive concurrency.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_embed</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">te</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_FakeST</span><span class="p">:</span>
+    <span class="n">instances</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_FakeST</span><span class="o">.</span><span class="n">instances</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_patch_st</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">ctor</span><span class="o">=</span><span class="n">_FakeST</span><span class="p">):</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="s2">&quot;is_embed_available&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">fake_mod</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">SentenceTransformer</span><span class="o">=</span><span class="n">ctor</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">te</span><span class="o">.</span><span class="n">importlib</span><span class="p">,</span> <span class="s2">&quot;import_module&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">name</span><span class="p">:</span> <span class="n">fake_mod</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_singleton_constructs_once</span><span class="p">(</span><span class="n">te_reset_cache</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_patch_st</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">_FakeST</span><span class="o">.</span><span class="n">instances</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_concurrent_init_constructs_once</span><span class="p">(</span><span class="n">te_reset_cache</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_patch_st</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+    <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">_FakeST</span><span class="o">.</span><span class="n">instances</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># defensive: no concurrent path today</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_negative_cache_suppresses_retry</span><span class="p">(</span><span class="n">te_reset_cache</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">constructed</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_Boom</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">constructed</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;HF 401&quot;</span><span class="p">)</span>
+
+    <span class="n">_patch_st</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">_Boom</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># failure cached (constructed 1)</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># within TTL: suppressed</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">constructed</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># no retry within TTL</span>
+    <span class="n">te</span><span class="o">.</span><span class="n">_NEG_CACHE_UNTIL</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># expire</span>
+    <span class="k">assert</span> <span class="n">te</span><span class="o">.</span><span class="n">get_shared_model</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># retries once, fails again</span>
+    <span class="k">assert</span> <span class="n">constructed</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre></div>
+<p>conftest fixture（同文件或 conftest）：</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">te_reset_cache</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="s2">&quot;_MODEL_SINGLETON&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="s2">&quot;_NEG_CACHE_UNTIL&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_truth_embed_singleton.py -q</code>
+Expected: FAIL（<code>get_shared_model</code> 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/truth_embed.py 模块级新增</span>
+<span class="n">_MODEL_SINGLETON</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_MODEL_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+<span class="n">_NEG_CACHE_UNTIL</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># time.monotonic() deadline for retry suppression</span>
+<span class="n">_NEG_CACHE_TTL_S</span> <span class="o">=</span> <span class="mf">600.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_shared_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process-level bge-large-zh singleton with TTL negative cache.</span>
+
+<span class="sd">    Construction failure (e.g. HF 401 in offline deployments, T1603) is</span>
+<span class="sd">    remembered for ``_NEG_CACHE_TTL_S`` so the chapter loop does not pay</span>
+<span class="sd">    0.3-3.5s per assembly retry. ``None`` means unavailable-or-cached-fail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_MODEL_SINGLETON</span><span class="p">,</span> <span class="n">_NEG_CACHE_UNTIL</span>
+    <span class="k">if</span> <span class="n">_MODEL_SINGLETON</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_MODEL_SINGLETON</span>
+    <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">_NEG_CACHE_UNTIL</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">with</span> <span class="n">_MODEL_LOCK</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_MODEL_SINGLETON</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_MODEL_SINGLETON</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">_NEG_CACHE_UNTIL</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;sentence_transformers&quot;</span><span class="p">)</span>
+            <span class="n">_MODEL_SINGLETON</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;bge-large-zh&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">_NEG_CACHE_UNTIL</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">_NEG_CACHE_TTL_S</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;embed_model_unavailable_cached&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">ttl_s</span><span class="o">=</span><span class="n">_NEG_CACHE_TTL_S</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_MODEL_SINGLETON</span>
+</code></pre></div>
+<p><code>embed_and_store</code> 内 <code>st = importlib.import_module(...)</code> + <code>model = st.SentenceTransformer(...)</code> 两行 → <code>model = get_shared_model()</code>；<code>if model is None: log.info("route_b_unavailable", chunk_id=chunk_id); return False</code>。
+<code>_route_b</code> 同改（<code>model = get_shared_model()</code>；None → <code>return [], True</code>）。
+<code>genesis._update_route_b</code>：<code>store = EmbeddingStore(...)</code> 之后整段 try/finally，<code>finally: store.close()</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_truth_embed_singleton.py tests/unit/pipeline/ -q</code>
+Expected: PASS（含既有 context_assemble/genesis 相关测试）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/truth_embed.py<span class="w"> </span>src/shenbi/pipeline/context_assemble.py<span class="w"> </span>src/shenbi/pipeline/genesis.py<span class="w"> </span>tests/unit/pipeline/test_truth_embed_singleton.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R2b ST singleton + TTL negative cache + genesis store close&quot;</span>
+</code></pre></div>
+产出 <code>audit-T3.md</code>。</p>
+<hr />
+<h3 id="task-4-r1-audit_context_cache-raw_files-checklist">Task 4: R1 audit_context_cache 四处路径修复 + raw_files 读抑制 + checklist 接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_context_cache.py</code>（:49/:53/:71 路径 + <code>raw_files</code> 字段 + 填充）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（读循环 :645-676 缓存优先 + 注入块 :683/:691 键修正 + checklist 传参）
+- Modify: <code>src/shenbi/pipeline/review_checklist.py</code>（:271/:272/:354 三读点接收缓存内容）
+- Modify: <code>src/shenbi/gates/shared.py</code>（<code>word_count_md</code> 拆出 <code>word_count_md_text(content: str) -&gt; int</code>）
+- Test: <code>tests/unit/pipeline/test_dispatch_helper_read_suppression.py</code>（追加 R1 部分）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>SharedAuditContext.raw_files: dict[str, str]</code>（键 = 项目相对路径 POSIX 字符串，与 <code>_input_key</code> 同形态）；<code>word_count_md_text(content: str) -&gt; int</code>（<code>word_count_md(fp)</code> 改为读文件后委托）；review_checklist 两个函数新增可选参 <code>chapter_content: str | None = None</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试（fixture 项目组装 helper + 四验收）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_dispatch_helper_read_suppression.py 追加</span>
+<span class="n">_FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_assemble_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-output fixture project (G0.9): copies, never hand-writes.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;chapters&quot;</span><span class="p">,</span> <span class="s2">&quot;truth&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="n">sub</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">_FIX</span> <span class="o">/</span> <span class="s2">&quot;multi-chapter-example&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="n">src</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_FIX</span> <span class="o">/</span> <span class="s2">&quot;snapshots/chapter-025/truth/character_matrix.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_FIX</span> <span class="o">/</span> <span class="s2">&quot;snapshots/chapter-025/truth/pending_hooks.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_FIX</span> <span class="o">/</span> <span class="s2">&quot;world-rules-example.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_FIX</span> <span class="o">/</span> <span class="s2">&quot;style-profile-example.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="n">AUDIT_SKILLS</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># the 6-skill wave (CHAPTER_STEPS is_audit)</span>
+    <span class="s2">&quot;shenbi-review-group-factual&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-group-character&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-group-plan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-sensitivity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_raw_files_hold_full_content</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_assemble_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-3.md&quot;</span><span class="p">,</span> <span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;style/style_profile.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="n">rel</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="n">rel</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;truncated&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="n">rel</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_world_rules_key_present</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_assemble_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;world/rules.md&quot;</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span>  <span class="c1"># was truth/world_rules.md dead path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_read_count_is_one</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_assemble_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">chapter_file</span> <span class="o">=</span> <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-3.md&quot;</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real_read</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">read_text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">counting_read</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">chapter_file</span><span class="p">:</span>
+            <span class="n">counter</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">real_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;read_text&quot;</span><span class="p">,</span> <span class="n">counting_read</span><span class="p">)</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># the ONE legitimate read</span>
+    <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">AUDIT_SKILLS</span><span class="p">:</span>
+        <span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;审计本章&quot;</span><span class="p">,</span>
+                            <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">counter</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># was 9 (6 contract + 3 checklist cold path)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_byte_equality_switch_on_off</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_assemble_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">ctx_on</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">prompts_on</span> <span class="o">=</span> <span class="p">[</span><span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;审计本章&quot;</span><span class="p">,</span>
+                                      <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">ctx_on</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">AUDIT_SKILLS</span><span class="p">]</span>
+    <span class="n">ctx_off</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">ctx_on</span><span class="p">,</span> <span class="n">raw_files</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># suppression OFF (path fixes stay)</span>
+    <span class="n">prompts_off</span> <span class="o">=</span> <span class="p">[</span><span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;审计本章&quot;</span><span class="p">,</span>
+                                       <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">ctx_off</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">AUDIT_SKILLS</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">prompts_on</span> <span class="o">==</span> <span class="n">prompts_off</span>
+</code></pre></div>
+<p>（<code>_build_skill_prompt</code> 实际签名 <code>(skill, project_dir, prompt: str, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None) -&gt; tuple[str, str, list[str]]</code>——<code>prompt</code> 必填，测试已含。返回三元组，取 <code>[0]</code>/<code>[1]</code>（system/user）做字节对比。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -q</code>
+Expected: FAIL（raw_files 不存在；:03d 死键致 chapter_text 空；计数 9；等）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><code>audit_context_cache.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SharedAuditContext</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="n">raw_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Full original bytes keyed by project-relative path (matches</span>
+<span class="sd">    dispatch_helper._input_key). Read-suppression source — the summarized</span>
+<span class="sd">    fields above are truncated values and MUST NOT back suppression.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rel</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SharedAuditContext</span><span class="p">:</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">SharedAuditContext</span><span class="p">()</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span>   <span class="c1"># was :03d dead key</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">,</span>                    <span class="c1"># was truth/ dead</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">,</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span><span class="p">,</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="n">_rel</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="c1"># 摘要字段填充：chapter_text/world_rules/character_list/style_profile/</span>
+    <span class="c1"># pending_hooks 从 raw_files 派生（volume_context 路径修正 outline/ 但不入 raw_files）</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p>（摘要字段逻辑保持现状语义：从对应原文做 <code>_summarize_if_large</code>/切片；<code>:71</code> 的 volume_map 路径改 <code>outline/volume_map.md</code>。）</p>
+<p><code>dispatch_helper.py</code> 读循环 ：663-676：</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">for</span> <span class="n">full_path</span> <span class="ow">in</span> <span class="n">resolved_paths</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+            <span class="n">cached</span> <span class="o">=</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">raw_files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">if</span> <span class="n">shared_context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">cached</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[binary or unreadable: </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+                <span class="n">content</span><span class="p">,</span> <span class="n">_matched</span> <span class="o">=</span> <span class="n">filter_to_fields</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">))</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">_strip_meta_for_non_drafting</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+            <span class="n">raw_inputs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+</code></pre></div>
+<p>注入块 ：683/:691 键改 <code>world/rules.md</code>、<code>style/style_profile.md</code>。
+checklist 接线：<code>_build_skill_prompt</code> 调 review_checklist 处传 <code>chapter_content=shared_context.raw_files.get(f"chapters/chapter-{chapter}.md")</code>（shared_context 为 None 时传 None，走原路径）；<code>chapter_content: str | None = None</code> 沿 <strong>四层签名</strong> 穿透：<code>generate_review_checklist</code> → <code>_build_checklist</code> → <code>_deterministic_precompute</code>（+ 其内 <code>_extract_voice_constraints</code> 如需）——非 None 时三读点全用之（<code>wc = word_count_md_text(chapter_content)</code>）；<code>word_count_md(fp)</code> 重构为 <code>word_count_md_text(Path(fp).read_text(...))</code> 委托。byte-equality 测试的 OFF 侧会吃到 checklist mtime 缓存（第二遍不重走磁盘路径）——命名已如实（对比的是装配产物，非每遍重读）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 既有回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/ -q</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_context_cache.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/review_checklist.py<span class="w"> </span>src/shenbi/gates/shared.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper_read_suppression.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R1 raw-files read suppression (9-&gt;1 reads) + 4-site F312 path fix + checklist wiring&quot;</span>
+</code></pre></div>
+产出 <code>audit-T4.md</code>。</p>
+<hr />
+<h3 id="task-5-r3a-no-op">Task 5: R3a 标题有界前缀读取 + 双提取点 no-op 修正 + 语料变换器</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2135-2170</code>（<code>_extract_chapter_title</code> + <code>_load_previous_titles</code>）
+- Create: <code>tests/pipeline/helpers/__init__.py</code> + <code>tests/pipeline/helpers/c28_corpus.py</code>（确定性语料扩展器；tests/ 是常规包，统一 <code>from tests.pipeline.helpers.c28_corpus import ...</code> 包导入，禁 sys.path.insert）
+- Test: <code>tests/unit/pipeline/test_chapter_titles.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_TITLE_PREFIX_BYTES = 4096</code>；<code>_read_title_prefix(path: Path) -&gt; str</code>（读前 4096B，utf-8 errors="ignore"）；两提取函数改 <code>re.search(r"^#\s+(.+?)$", prefix, re.MULTILINE)</code>；<code>expand_chapter_corpus(src: Path, dst: Path, n: int) -&gt; None</code>（H1 重写 <code># 第{i}章 · {原标题}（变体 {i}）</code>，正文原样）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_chapter_titles.py</span>
+<span class="sd">&quot;&quot;&quot;T1609: bounded-prefix title reads + meta-first no-op fix (both extractors).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_chapter_title</span><span class="p">,</span> <span class="n">_load_previous_titles</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_meta_first_fixture_title_extracted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real fixture (H1 at ~line 10 after PRE_WRITE_CHECK block) — both</span>
+<span class="sd">    extractors returned &#39;&#39; before (anchored re.match): dedup was a no-op.&quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapter-7-example.md&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">_extract_chapter_title</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_previous_titles_include_meta_first_chapters</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapter-7-example.md&quot;</span><span class="p">),</span> <span class="n">chapters</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapter-8-example.md&quot;</span><span class="p">),</span> <span class="n">chapters</span> <span class="o">/</span> <span class="s2">&quot;chapter-2.md&quot;</span><span class="p">)</span>
+    <span class="n">titles</span> <span class="o">=</span> <span class="n">_load_previous_titles</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">titles</span>  <span class="c1"># non-empty: meta-first chapters now contribute titles</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_title_lookup_reads_bounded_bytes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tests.pipeline.helpers.c28_corpus</span><span class="w"> </span><span class="kn">import</span> <span class="n">expand_chapter_corpus</span>
+
+    <span class="n">expand_chapter_corpus</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">),</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">56</span><span class="p">)</span>
+    <span class="n">read_bytes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real_open</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">open</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">counting_open</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.md&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;chapters&quot;</span><span class="p">:</span>
+            <span class="n">read_bytes</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># count reads; bounded-ness asserted via total below</span>
+        <span class="k">return</span> <span class="n">real_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="n">counting_open</span><span class="p">)</span>
+    <span class="n">titles</span> <span class="o">=</span> <span class="n">_load_previous_titles</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">56</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">titles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">55</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_title_lookup_reads_at_most_4kb_per_file</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R3-1 spec acceptance: 单章标题查重文件读取字节数 &lt;= 4096*N (was ~24KB*N).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tests.pipeline.helpers.c28_corpus</span><span class="w"> </span><span class="kn">import</span> <span class="n">expand_chapter_corpus</span>
+
+    <span class="n">expand_chapter_corpus</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">),</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">read_bytes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real_open</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">open</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounded_open</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="n">real_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.md&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;chapters&quot;</span><span class="p">:</span>
+            <span class="n">orig_read</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">counting_read</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">orig_read</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="n">read_bytes</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">data</span>
+
+            <span class="n">fh</span><span class="o">.</span><span class="n">read</span> <span class="o">=</span> <span class="n">counting_read</span>
+        <span class="k">return</span> <span class="n">fh</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;open&quot;</span><span class="p">,</span> <span class="n">bounded_open</span><span class="p">)</span>
+    <span class="n">_load_previous_titles</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">read_bytes</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">4096</span> <span class="o">*</span> <span class="mi">7</span>  <span class="c1"># 7 previous chapters, &lt;=4KB each</span>
+    <span class="c1">#（spec 载 N=56/112/224；此处 n=8 断言每文件 ≤4KB 的等价单文件界——N 规模在</span>
+    <span class="c1">#  T7 基线与 T5 语料测试覆盖，语义相同）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_titles.py -q</code>
+Expected: FAIL（meta-first 提取为空 / 语料器不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py</span>
+<span class="n">_TITLE_PREFIX_BYTES</span> <span class="o">=</span> <span class="mi">4096</span>
+<span class="n">_H1_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^#\s+(.+?)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_title_prefix</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the first 4KB (title H1 lives in the file head; real outputs</span>
+<span class="sd">    front-load a PRE_WRITE_CHECK block, H1 at ~line 10).&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_TITLE_PREFIX_BYTES</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_chapter_title</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;First H1 via MULTILINE search — re.match anchored at position 0 and</span>
+<span class="sd">    returned &#39;&#39; for meta-first chapters (title dedup was a silent no-op).&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_H1_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_read_title_prefix</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_previous_titles</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="c1"># 同原体，但循环内 read_text(...) 改 _read_title_prefix(ch_file)，</span>
+    <span class="c1"># re.match(...) 改 _H1_RE.search(prefix)；章号清洗逻辑不变</span>
+</code></pre></div>
+<p><code>tests/pipeline/helpers/c28_corpus.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_chapter_corpus</span><span class="p">(</span><span class="n">src_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deterministically expand real fixture chapters to n files.</span>
+
+<span class="sd">    Variant transform: rewrite the H1 line to `# 第{i}章 · {orig}（变体 {i}）`;</span>
+<span class="sd">    body bytes are preserved verbatim. Source = real outputs (G0.9).&quot;&quot;&quot;</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">src_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">))</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">dst</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">h1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^#\s+(.+?)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">srcs</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">srcs</span><span class="p">)]</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">new_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# 第</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">章 · </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">（变体 </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">）&quot;</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;# 第</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">章&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">h1</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">new_title</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">chapters</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + chapter_loop 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_titles.py tests/unit/pipeline/test_chapter_loop.py -q</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/helpers/__init__.py<span class="w"> </span>tests/pipeline/helpers/c28_corpus.py<span class="w"> </span>tests/unit/pipeline/test_chapter_titles.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R3a bounded-prefix title reads + dual extractor no-op fix&quot;</span>
+</code></pre></div>
+产出 <code>audit-T5.md</code>。</p>
+<hr />
+<h3 id="task-6-r3b-content_uniqueness-integrity-append">Task 6: R3b content_uniqueness 指纹缓存 + integrity 真 append</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:279-309</code>（指纹缓存）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:1132-1152</code>（<code>_append_integrity_findings</code> 真 append）
+- Test: <code>tests/gates/g4/test_content_uniqueness_cache.py</code>、<code>tests/unit/pipeline/test_integrity_append.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: chapter_drafting 模块级 <code>_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[int]]</code> + <code>_fingerprint_of(path: Path) -&gt; frozenset[int]</code>（<code>_text_fingerprint</code> 返回 <code>set[int]</code> 段落哈希）（(path, mtime_ns, size) 键，读失败返回 frozenset() 不缓存）；<code>_append_integrity_findings</code> 改 <code>open("a")</code>（同 flock 临界区，jsonl 语义不变）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/gates/g4/test_content_uniqueness_cache.py</span>
+<span class="sd">&quot;&quot;&quot;F415-0815: content_uniqueness fingerprint cache — second in-process pass</span>
+<span class="sd">reads each chapter once (cache hits N-1).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tests.pipeline.helpers.c28_corpus</span><span class="w"> </span><span class="kn">import</span> <span class="n">expand_chapter_corpus</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_second_pass_reads_each_chapter_once</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_drafting</span> <span class="k">as</span> <span class="n">cd</span>
+
+    <span class="n">expand_chapter_corpus</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">),</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">read_text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">counting</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">reads</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;read_text&quot;</span><span class="p">,</span> <span class="n">counting</span><span class="p">)</span>
+    <span class="n">cd</span><span class="o">.</span><span class="n">_FINGERPRINT_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">cd</span><span class="o">.</span><span class="n">_fingerprint_of</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span>
+    <span class="n">first_pass</span> <span class="o">=</span> <span class="n">reads</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">first_pass</span> <span class="o">==</span> <span class="mi">8</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">cd</span><span class="o">.</span><span class="n">_fingerprint_of</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">reads</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">first_pass</span>  <span class="c1"># zero new reads: all cache hits</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_integrity_append.py</span>
+<span class="sd">&quot;&quot;&quot;T1610: true-append integrity findings — byte-identical output, O(1) reads/append.</span>
+
+<span class="sd">现状 locked_transact 每 append 全量 read_text 该 jsonl（O(k^2) 字节搬运）——</span>
+<span class="sd">本测试 spy read_text 计数做红灯判别（现状 199 次读——首次 append 无文件可读，append 后 0 次）。</span>
+<span class="sd">注：locked_transact 的写路径经 tempfile+os.replace，不走 Path.write_text——</span>
+<span class="sd">不能用 write_text 计数判别（那是绿前绿后的假测试）。&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_append_integrity_findings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_append_output_matches_and_reads_constant</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;.integrity-findings-1.jsonl&quot;</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">real_read</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">read_text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">counting</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">reads</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">real_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;read_text&quot;</span><span class="p">,</span> <span class="n">counting</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+        <span class="n">_append_integrity_findings</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;issue-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">reads</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># was 200: locked_transact re-read the whole file per append</span>
+    <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">,</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;issue-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">reference</span>  <span class="c1"># 逐字节一致 vs 直接构造参照</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/gates/g4/test_content_uniqueness_cache.py tests/unit/pipeline/test_integrity_append.py -q</code>
+Expected: FAIL（缓存不存在；现状 locked_transact 每 append 全量 read_text jsonl → reads==200）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_drafting.py</span>
+<span class="n">_FINGERPRINT_CACHE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1"># In-process memoization only: production G4 runs are subprocess-per-call</span>
+<span class="c1"># (cold per spawn); benefits in-process multi-file callers (g5.5, tests).</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fingerprint_of</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+        <span class="n">hit</span> <span class="o">=</span> <span class="n">_FINGERPRINT_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hit</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">_text_fingerprint</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;file_read_failed&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>  <span class="c1"># 保持原循环的观测语义</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span>
+    <span class="n">_FINGERPRINT_CACHE</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">fp</span>
+    <span class="k">return</span> <span class="n">fp</span>
+</code></pre></div>
+<p>content_uniqueness 循环内：<code>other_content = other.read_text(...)</code> + <code>other_fp = _text_fingerprint(other_content)</code> → <code>other_fp = _fingerprint_of(other)</code>（读失败语义保持：空集 → overlap 0，与原 except 分支一致）。</p>
+<p><code>_append_integrity_findings</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_append_integrity_findings</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist post-write integrity findings for the G4 checker to read.</span>
+
+<span class="sd">    True append (O(k) total bytes, was O(k^2) read-rewrite) inside the same</span>
+<span class="sd">    directory-flock critical section as locked_transact (spec #37 F347).</span>
+<span class="sd">    Reader (g4/generic.py) already skips undecodable tail lines, tolerating</span>
+<span class="sd">    a torn final line on crash.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">acquire_write_lock</span> <span class="k">as</span> <span class="n">_acquire_lock</span>  <span class="c1"># 公开别名（safe_write.py:184），跨实例写者同一锁域</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_CHAPTER_NUM_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.integrity-findings-</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)),</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="n">issue</span><span class="p">},</span>
+            <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span>
+    <span class="p">)</span>
+    <span class="n">lock_fd</span><span class="p">,</span> <span class="n">lockfile</span> <span class="o">=</span> <span class="n">_acquire_lock</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>  <span class="c1"># 与 locked_transact 同一锁序</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">out</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># write-audit-exempt: true-append under flock (T1610, O(k) vs O(k^2))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">lock_fd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lockfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">lockfile</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">pass</span>
+</code></pre></div>
+<p>（<code># write-audit-exempt:</code> 注释必须与 <code>open("a")</code> 同行或上一行——<code>tools/lint_bare_writes.py</code> 对 src/ 内裸 append 模式执法，缺注记 <code>just check</code> 红。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/gates/g4/ tests/unit/pipeline/test_integrity_append.py -q</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/gates/g4/test_content_uniqueness_cache.py<span class="w"> </span>tests/unit/pipeline/test_integrity_append.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec42 C28 R3b fingerprint mtime cache + integrity true-append&quot;</span>
+</code></pre></div>
+产出 <code>audit-T6.md</code>。</p>
+<hr />
+<h3 id="task-7-benchmark">Task 7: benchmark 三基线 + 簇级验证</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/benchmark/test_c28_baselines.py</code>
+- Test: 即本 task 交付物</p>
+<p><strong>Interfaces:</strong>
+- Consumes: T2 <code>_parse_registry_uncached</code>、T1 gates.cli 冷启动、T5 <code>expand_chapter_corpus</code> + <code>_load_previous_titles</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写基线测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/benchmark/test_c28_baselines.py</span>
+<span class="sd">&quot;&quot;&quot;C28 防回归基线三条：registry 解析 / 门禁冷启动 / 标题有界读取（spec 簇级验收）。&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.legacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_registry_uncached</span>
+
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">benchmark</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_registry_parse_baseline</span><span class="p">(</span><span class="n">benchmark</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">benchmark</span><span class="p">(</span><span class="n">_parse_registry_uncached</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_gate_cold_start_baseline</span><span class="p">(</span><span class="n">benchmark</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cold_import_ms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;from shenbi.gates import cli&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="n">benchmark</span><span class="p">(</span><span class="n">_cold_import_ms</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_title_bounded_read_baseline</span><span class="p">(</span><span class="n">benchmark</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tests.pipeline.helpers.c28_corpus</span><span class="w"> </span><span class="kn">import</span> <span class="n">expand_chapter_corpus</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_load_previous_titles</span>
+
+    <span class="n">expand_chapter_corpus</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">),</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">112</span><span class="p">)</span>
+    <span class="n">benchmark</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_load_previous_titles</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">112</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑基线 + 簇级验证命令</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/ -m benchmark -q</code>
+Expected: 3 条 PASS（基线记录，无阈值断言）</p>
+<p>Run: <code>uv run python -X importtime -c "from shenbi.gates import cli" 2&gt;&amp;1 | tail -3</code>
+Expected: &lt;50ms</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit + 审查</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/benchmark/test_c28_baselines.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec42 C28 benchmark baselines (registry parse, gate cold start, title reads)&quot;</span>
+</code></pre></div>
+产出 <code>audit-T7.md</code>。</p>
+<hr />
+<h2 id="7-8-task">收尾（阶段 7-8 前置，非独立 task）</h2>
+<ol>
+<li><code>just check</code> 全绿（Iron Law：当轮消息粘贴输出）</li>
+<li><code>ls .superpowers/sdd/audit-T*.md | wc -l</code> == 7 == plan task 数</li>
+<li>spec 全部验收条目按覆盖表逐条跑过并粘贴 progress.md <code>## 验收证据</code></li>
+<li>改动了 <code>src/shenbi/**</code> 的 task 提交前跑 <code>bash tests/lock-tool-hashes.sh</code> 更新 <code>tests/tiers/deps.json</code> 哈希并随 commit 提交（repo 惯例；R3-2 验收证据注明 <code>_fingerprint_of</code> 直测是 spec「N 章两遍」验收的组件级代理）</li>
+<li>新 benchmark 会在 <code>just check</code> 的 <code>-m "not last"</code> 段内运行（marker 未被排除）——门禁冷启动基线带 warmup ~10 次 spawn，CI 时长 +~5s 可接受</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

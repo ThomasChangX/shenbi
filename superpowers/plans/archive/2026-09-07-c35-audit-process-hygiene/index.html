@@ -1,0 +1,1377 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-07-c35-audit-process-hygiene/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C35 审计过程自身卫生 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C35 审计过程自身卫生 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-07-c35-audit-process-hygiene.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-07-c35-audit-process-hygiene/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C35 审计过程自身卫生 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-07-c35-audit-process-hygiene.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c35-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C35 审计过程自身卫生 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-toolslint_audit_runpy-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: tools/lint_audit_run.py — 行格式 lint + 豁免机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-zones-ledger-final-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 三方计数对账检查（zones ↔ ledger ↔ final-report）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-carryover-verify-carryover-run-just" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: carryover 生成器 + verify-carryover + 冻结 run 豁免落地 + just 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-id-toolscount_active_specspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: ID 命名空间裁决注记 + tools/count_active_specs.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-r3-prompt-r4-triage-severity-t1502" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: R3 审计 prompt 两规则 + R4 卫生（分支删除、triage 记录、severity 注记、T1502 记录）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-c35-18-agentsmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: C35 簇回写关闭（18 条）+ AGENTS.md 命令补登
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c35-implementation-plan">C35 审计过程自身卫生 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 为审计闭环自身建立机械校验：ledger/记账 lint、跨轮承接机制、审计 prompt 规则补丁、分支与 INDEX 卫生清偿，关闭 C35 全部 18 条 findings。</p>
+<p><strong>Architecture:</strong> 三个新工具脚本（<code>tools/lint_audit_run.py</code>、<code>tools/generate_carryover.py</code>、<code>tools/count_active_specs.py</code>）全部接入 <code>just check</code>（CI ci.yml 已含逐条 lint 命令，同步补登）；冻结历史 run（2026-08-14/15）只加豁免注记不改行；ledger 回写沿用既有 <code>→ closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #N)</code> 注记格式。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+（tools/ 脚本，同仓既有 lint_* 模式：argparse + sys.exit(0/1) + print 输出；tools/ 不受 structlog 约束——AGENTS.md:114 该规则限 src/shenbi/）、pytest（tests/unit/）、just。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>tools/ 脚本模式：<code>uv run python tools/&lt;name&gt;.py</code>，无参或 <code>--check</code> = 全量模式，输出 PASS/FAIL 行，失败 <code>sys.exit(1)</code>（对齐 lint_repo_consistency.py 先例）</li>
+<li>冻结 run 目录（docs/superpowers/audit-runs/2026-08-14、2026-08-15）：<strong>只新增文件</strong>（carryover.md、audit-lint-exemptions.json、注记列追加），<strong>不修改既有行内容</strong></li>
+<li>豁免 schema（spec R1）：<code>{"exemptions": [{"check": str, "id": str, "reason": str, "date": "YYYY-MM-DD"}]}</code>；<code>id</code> 为 F/T 编号、行标识或 run 级 <code>run:&lt;check&gt;</code>；豁免不命中=FAIL</li>
+<li>测试引用真实审计产物路径 <code>docs/superpowers/audit-runs/2026-08-14|15/</code>（G0.9：真实产物，非手写 mock）；单元测试造的临时 run 目录用 tmp_path 组装（测试输入非 fixture 声明面）</li>
+<li>ledger 行格式：11 列管道表 <code>| ID | 标题 | 类别 | 严重度 | 证据 | 根因 | 验证 | 影响 | 建议方向 | 深度 | 状态 |</code>，回写注记以追加列形态（既有先例：<code>... | open | → closed (...) (...) |</code>）</li>
+<li>全程禁 <code>shenbi-dispatch</code> / <code>pipeline</code>（核心原则 8）；验证命令一律 <code>uv run</code> / <code>just</code></li>
+</ul>
+<hr />
+<h3 id="task-1-toolslint_audit_runpy-lint">Task 1: <code>tools/lint_audit_run.py</code> — 行格式 lint + 豁免机制</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_audit_run.py</code>
+- Test: <code>tests/unit/test_lint_audit_run.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>lint_run(run_dir: Path) -&gt; list[Finding]</code>（Finding: dataclass{check, id, message}）；<code>apply_exemptions(findings, exemptions) -&gt; list[Finding]</code>（消音后剩余）；<code>load_exemptions(run_dir: Path) -&gt; dict[str, set[str]]</code>（check → ids 集合，<code>run:&lt;check&gt;</code> 键并入）；<code>validate_exemptions(run_dir, exemptions, findings) -&gt; list[Finding]</code>（schema 校验 + 不命中豁免=FAIL）；CLI：无参=lint 全部 <code>docs/superpowers/audit-runs/*/</code>；<code>&lt;run-dir&gt;</code> 参数=单目录；<code>--verify-carryover</code> 开关（Task 3 实现 diff 前，先保留参数占位并 pass-through）
+- 检查项（check 名）：<code>row_columns</code>（主体列数≠11，<strong>或</strong>第 12+ 列不匹配注记列语法 <code>→ closed (…)</code>/<code>→ merged-into-…</code> 白名单——既有回写先例是追加列，11 列硬约束会让 Task 5/6 回写后 check 自爆）、<code>pipe_escape</code>（单元格拉管道）、<code>id_unique</code>（同 ID 复现）、<code>dup_row</code>（整行重复）、<code>title_placeholder</code>（标题==ID，F979）
+- 豁免 id 形态：<code>F/T 编号</code>、<code>row:&lt;ledger 行号&gt;</code>、<code>run:&lt;check&gt;</code>（run 级整检查豁免——08-14 的 16 条 F972 畸形行整组用 run:row_columns，避免逐行豁免爆炸）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（row_columns/pipe_escape/id_unique/dup_row/title_placeholder 各一例 + 豁免加载/消音/不命中=FAIL + run 级豁免；输入用 tmp_path 组装的 11 列管道表与真实 08-15 run 目录引用）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_lint_audit_run.py 关键用例骨架（全部 @pytest.mark.unit）</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_audit_run</span><span class="w"> </span><span class="kn">import</span> <span class="n">lint_run</span><span class="p">,</span> <span class="n">load_exemptions</span><span class="p">,</span> <span class="n">validate_exemptions</span><span class="p">,</span> <span class="n">apply_exemptions</span>
+
+<span class="n">GOOD</span> <span class="o">=</span> <span class="s2">&quot;| F1 | 标题 | error | P1 | e | r | v | i | s | d | open |&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_row_columns</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;run&quot;</span><span class="p">;</span> <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;findings-ledger.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;| ID | t |</span><span class="se">\n</span><span class="s2">|---|---|</span><span class="se">\n</span><span class="s2">| F1 | x |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">lint_run</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">check</span> <span class="o">==</span> <span class="s2">&quot;row_columns&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_exemption_mutes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="o">...</span>  <span class="c1"># exemptions json 消音 row_columns:F1；剩余 findings 为空</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_stale_exemption_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="o">...</span>  <span class="c1"># 豁免 id 无对应命中 → validate_exemptions 产出 stale-exemption FAIL</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_real_0815_run_lint</span><span class="p">():</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">lint_run</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/superpowers/audit-runs/2026-08-15&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">raw</span>  <span class="c1"># 豁免前原始命中非空（豁免落地前的事实 pin）</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/superpowers/audit-runs/2026-08-15&quot;</span><span class="p">)</span><span class="o">/</span><span class="s2">&quot;audit-lint-exemptions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Task 3 豁免未落地&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_real_0815_run_after_exemptions</span><span class="p">():</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">lint_run</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/superpowers/audit-runs/2026-08-15&quot;</span><span class="p">))</span>
+    <span class="n">exemptions</span> <span class="o">=</span> <span class="n">load_exemptions</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/superpowers/audit-runs/2026-08-15&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">apply_exemptions</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">exemptions</span><span class="p">)</span>  <span class="c1"># Task 3 豁免落地后消音为空</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong> <code>uv run pytest tests/unit/test_lint_audit_run.py -v</code> → ModuleNotFoundError</li>
+<li>[ ] <strong>Step 3: 实现</strong> <code>tools/lint_audit_run.py</code>：markdown 表逐行 <code>line.strip().strip('|').split('|')</code>（注意 <code>\|</code> 转义先保护再切分）；豁免文件 <code>&lt;run-dir&gt;/audit-lint-exemptions.json</code>；CLI argparse（无参默认全目录 glob）；输出 <code>PASS &lt;run&gt;</code>/<code>FAIL &lt;run&gt;: &lt;check&gt; &lt;id&gt; &lt;msg&gt;</code> 行</li>
+<li>[ ] <strong>Step 4: 跑测试通过</strong> <code>uv run pytest tests/unit/test_lint_audit_run.py -v</code></li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add tools/lint_audit_run.py tests/unit/test_lint_audit_run.py &amp;&amp; git commit -m "feat: audit-run ledger format lint with exemption mechanism (spec #49 R1, C35)"</code></li>
+</ul>
+<h3 id="task-2-zones-ledger-final-report">Task 2: 三方计数对账检查（zones ↔ ledger ↔ final-report）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_audit_run.py</code>
+- Test: <code>tests/unit/test_lint_audit_run.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>lint_run</code> 骨架
+- Produces: <code>reconcile(run_dir: Path) -&gt; list[Finding]</code>，检查名 <code>counts_reconcile</code>（run 级聚合，豁免 id=<code>run:counts_reconcile</code>）：
+  - ledger 条目数（按 ID 前缀 F/T/D 分组）↔ final-report 统计（<strong>双格式抽取</strong>：代码块 <code>F=… T=… D=… G=… total=…</code> 行与 markdown 表 <code>| P0 | n |</code>/<code>**总 findings: N**</code> 行——08-14 报告无机械统计段，数字全在表与 prose 里）
+  - zones 并集 = <code>cat zones/*.files | sort -u</code>（glob 钉死 <code>*.files</code>，排除 d2-drift-sampling.txt 类杂项）↔ final-report 表 A/tracked 声称数（08-14 实测 2755 vs 2738 即 F973 命中形态；报告侧单数字也须与并集一致）
+- Produces: <code>report_internal(run_dir: Path) -&gt; list[Finding]</code>，检查名 <code>report_internal</code>（run 级聚合）：
+  - 报告声称 total/severity 分布 ↔ <strong>计算出的 ledger 现值</strong>（08-14 报告 781 vs ledger 786 = F969 命中形态）
+  - severity 单元格归一化：剥离全/半角括号后缀（<code>M（升级证据已具备…）</code>→<code>M</code>）
+  - final-report 内同量两处声称须相等 + <code>sum=N</code> 行须等于分量之和（F1176 历史形态——<strong>注意 08-15 报告该矛盾已被修正</strong>（:40「含 F1176 修正（1083）」），F1176 以核实注记闭合，不造豁免）
+- <strong>F975/F1176 均无现存机械命中面</strong>：闭环口径为「执行期核实注记 + 随簇回写关闭」（spec 验收已同步降级），不造豁免——豁免不命中=FAIL 纪律下，无命中就不许有豁免条目
+- <strong>豁免清单冻结程序</strong>：豁免 json 不许按 plan 预写——实现后先 dry-run <code>uv run python tools/lint_audit_run.py</code>（全目录）拿真实命中清单，再按「命中项 → spec 成员映射」生成豁免（08-15 的 report_internal 命中系 PR #147 严重度校准后报告冻结的历史漂移，run 级豁免 reason 注明）；pipe 击伤行（severity 列含「漏报」等错位）按实际命中入豁免</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>：tmp_path 组装 mini run（ledger 3 行 + zones 2 文件 + final-report 双格式统计（表+代码块）数字故意错 1 处）→ <code>counts_reconcile</code>/<code>report_internal</code> 命中；真实 08-14 run 引用 → 至少命中 F969（781↔786）与 F973（2755↔2738）（豁免前）</li>
+<li>[ ] <strong>Step 2: 确认失败 → 实现 → 通过</strong>（正则抽取 final-report 代码块内统计行；zones 并集去重计数）</li>
+<li>[ ] <strong>Step 3: Commit</strong> <code>test: count reconciliation checks zones↔ledger↔final-report (spec #49 R1)</code></li>
+</ul>
+<h3 id="task-3-carryover-verify-carryover-run-just">Task 3: carryover 生成器 + verify-carryover + 冻结 run 豁免落地 + just 接线</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/generate_carryover.py</code>
+- Create: <code>docs/superpowers/audit-runs/2026-08-14/carryover.md</code>（真实生成物）
+- Create: <code>docs/superpowers/audit-runs/2026-08-14/audit-lint-exemptions.json</code>、<code>docs/superpowers/audit-runs/2026-08-15/audit-lint-exemptions.json</code>
+- Modify: <code>tools/lint_audit_run.py</code>（<code>--verify-carryover</code> 实现：run 目录有 carryover.md 时，逐条目 grep 本轮 ledger 承接状态注记，未承接=FAIL；无 carryover.md=显式 skip log）
+- Modify: <code>justfile</code>（<code>audit-lint</code> recipe + <code>check</code> 增行）、<code>.github/workflows/ci.yml</code>（lint 步骤增行，对齐既有 lint_repo_consistency 位置）
+- Test: <code>tests/unit/test_generate_carryover.py</code>、<code>tests/unit/test_lint_audit_run.py</code>（追加 verify-carryover 用例）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>generate_carryover(prev_ledger: Path, out: Path) -&gt; int</code>（抽取 status ∈ {verified, open} 全 severity 条目，行格式 <code>&lt;ID&gt; &lt;severity&gt; &lt;status&gt; &lt;标题&gt;</code>）；CLI <code>uv run python tools/generate_carryover.py &lt;prev-run-dir&gt;</code> 默认写 <code>&lt;prev-run-dir&gt;/carryover.md</code>
+- <code>--verify-carryover</code> 语义：run 目录含 carryover.md 时，next-run = <code>docs/superpowers/audit-runs/</code> 下字典序<strong>下一个</strong> run 目录（08-14→08-15；末轮无 next = 显式 skip log）；逐条目 grep next-run ledger 的承接注记/同 ID 行，未承接=FAIL（08-14 演示文件的断链本体以 run:verify-carryover 豁免）
+- 验收演示（spec R2）：<code>grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md</code> ≥3
+- 豁免内容（从 dry-run 真实命中生成，非预写；聚合检查一律 run 级 id，F 编号写进 reason 而非 id——聚合缺口无机械可得的条目 ID，id 用 F 编号必触发 stale-exemption FAIL）：08-14 run（run:row_columns（reason 引 F972 畸形行组+既有 12 列 specced/verified 行）、run:counts_reconcile（reason 引 F973 2755↔2738）、run:report_internal（reason 引 F969 781↔786）、run:verify-carryover 演示豁免）；08-15 run（<strong>run:counts_reconcile 预授权豁免</strong>——zones 并集 3019 vs 表A 2937 系表A 排除审计自身产物、非记账错误；run:report_internal=PR #147 校准后报告冻结漂移；dry-run 实际命中的 pipe/列错位行）；counts_reconcile 的 total 检查覆盖 G 前缀行、F/T/D 前缀含 08-14 块式 ID（F0-01/D1-01）按首字母归类</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>：generate_carryover 用真实 08-14 ledger → 输出含 F1301/F1302/F1320 verified 行、不含 closed/merged 条目；verify-carryover：tmp mini run carryover 2 条 1 条未承接 → FAIL 1；无 carryover.md → skip 不 FAIL</li>
+<li>[ ] <strong>Step 2: 实现两脚本 + 落两份豁免 json（reason 注明冻结历史 run + spec #49）</strong></li>
+<li>[ ] <strong>Step 3: 实跑验收</strong>：<code>uv run python tools/generate_carryover.py docs/superpowers/audit-runs/2026-08-14</code> + grep ≥3；<code>uv run python tools/lint_audit_run.py</code>（全目录无参）→ 全 PASS（豁免生效）</li>
+<li>[ ] <strong>Step 4: justfile/ci.yml 接线</strong>：<code>audit-lint: uv run python tools/lint_audit_run.py</code>（无参=全目录+verify-carryover）；<code>check</code> 与 ci.yml lint 步骤各增一行</li>
+<li>[ ] <strong>Step 5: <code>uv run pytest tests/unit/test_generate_carryover.py tests/unit/test_lint_audit_run.py -v</code> 通过</strong></li>
+<li>[ ] <strong>Step 6: Commit</strong> <code>feat: cross-round carryover generator + verify-carryover + frozen-run exemptions + just/ci wiring (spec #49 R1/R2)</code></li>
+</ul>
+<h3 id="task-4-id-toolscount_active_specspy">Task 4: ID 命名空间裁决注记 + <code>tools/count_active_specs.py</code></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/superpowers/audit-runs/ID-NAMESPACE-MIGRATION.md</code>（裁决：新轮采用 <code>&lt;轮日期&gt;-F&lt;NN&gt;</code> 前缀（<code>2026-08-16-F117</code> 形态），旧轮与既有 spec 引用不动，新轮生效；记录 F978/F956 证据）
+- Create: <code>tools/count_active_specs.py</code>
+- Modify: <code>justfile</code>、<code>.github/workflows/ci.yml</code>（各增一行）
+- Test: <code>tests/unit/test_count_active_specs.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>count_active(path: str) -&gt; int</code>（<strong>文件数口径</strong>：<code>docs/superpowers/specs/*.md</code> 顶层 .md 文件数、排除 INDEX.md；archive/ 子目录不被该 glob 命中）；CLI 核对 INDEX 头计数——<strong>抽取规则钉死：<code>活跃 spec 数**：</code> 之后、<code>（</code> 之前的第一个整数</strong>（prose 括注防误parse）；差值非零 → exit 1</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>：tmp specs 目录（3 spec + INDEX 头写 3 → PASS；写 4 → FAIL）；真实 main 当前应 PASS（19==19）</li>
+<li>[ ] <strong>Step 2: 实现 + 接线 + <code>just check</code> 局部跑通</strong></li>
+<li>[ ] <strong>Step 3: Commit</strong> <code>feat: active-spec count lint + ID namespace migration note (spec #49 R2/R4)</code></li>
+</ul>
+<h3 id="task-5-r3-prompt-r4-triage-severity-t1502">Task 5: R3 审计 prompt 两规则 + R4 卫生（分支删除、triage 记录、severity 注记、T1502 记录）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/full-project-audit-prompt.md</code>（补两规则：①跨段重复立案须显式 merged 标注；②「N tests」类声称必须附文件名与命令——置于 Iron Law 段后）
+- Create: <code>docs/superpowers/audit-runs/2026-08-15/dependabot-triage-2026-09-07.md</code>（10 条 PR 逐条 upgrade/close + 理由；安全补丁类标 urgent 建议另开 chore PR）
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（F771/F772 行附 phase4 §4 提案引用注记，<strong>注记形态 <code>→ closed (C-35 spec #49) (ref phase4-clustering.md §4)</code>——落在 row_columns 白名单语法内</strong>，不改严重度列）</p>
+<p><strong>动作：</strong>
+- [ ] <strong>Step 1</strong>: prompt 两规则落文，验收 <code>grep -n "跨段重复立案须显式\|必须附文件名与命令" docs/superpowers/full-project-audit-prompt.md</code> 命中
+- [ ] <strong>Step 2</strong>: <code>gh pr view &lt;N&gt;</code> 逐条核对 10 个 dependabot PR 内容 → 写 triage 记录（决策口径：主版本升级=close 待专门批次；补丁级=upgrade 建议；安全公告=urgent）
+- [ ] <strong>Step 3</strong>: F771/F772 注记 + T1502 处置记录写入（progress.md + 本 task commit message 附裁决）
+- [ ] <strong>Step 4</strong>: <code>git push origin --delete docs/archive-spec44-c30</code>（唯一已合并残留；操作后 <code>git branch -r --merged origin/main</code> 除 main/HEAD 外为空——核验输出粘贴 progress）
+- [ ] <strong>Step 5: Commit</strong> <code>docs: audit prompt assertion rules + dependabot triage record + severity proposal annotations (spec #49 R3/R4)</code></p>
+<h3 id="task-6-c35-18-agentsmd">Task 6: C35 簇回写关闭（18 条）+ AGENTS.md 命令补登</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（18 条成员行追加 <code>→ closed (C-35 spec #49) (merged-into-F1177, spec #49, PR #&lt;N&gt;)</code> 注记列——PR 号在阶段 9 开 PR 后回填该 commit；F1176 软残条保留原文仅附注记）
+- Modify: <code>AGENTS.md</code>（Key Commands 增 <code>just audit-lint</code> 一行）
+- Modify: <code>docs/superpowers/specs/INDEX.md</code>（#49 条目状态改 Done（PR 回填）→ 归档在阶段 12，本 task 只改状态字段）</p>
+<p><strong>验收（spec 簇级）：</strong> <code>just check</code> 全绿；18 条 closed 注记 grep 计数 = 18
+- [ ] <strong>Step 4</strong>: PR 号回填 = 开 PR 后<strong>追加 commit</strong>（禁 amend/force-push，pre-push hook 在）
+- [ ] <strong>Step 1</strong>: 回写 18 条 + grep 核验 <code>grep -c "closed (C-35 spec #49)" findings-ledger.md</code> = 18
+- [ ] <strong>Step 2</strong>: AGENTS.md 增行
+- [ ] <strong>Step 3</strong>: <code>just check</code> 全绿 → Commit <code>docs: close C35 cluster — 18 findings merged-into F1177 writeback (spec #49)</code></p>
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 lint 抓出 F969/F972/F973 且豁免闭合</td>
+<td>T2/T3</td>
+<td><code>just audit-lint</code>（无参）全 PASS；08-14 豁免 json 含 run:row_columns/run:counts_reconcile/run:report_internal（reason 引 F972/F973/F969）；F975/F1176 核实注记闭合（无豁免条目）</td>
+</tr>
+<tr>
+<td>R1 just check 接线</td>
+<td>T3/T4</td>
+<td><code>just check</code> 含 audit-lint 行且全绿</td>
+</tr>
+<tr>
+<td>R2 承接演示 ≥3</td>
+<td>T3</td>
+<td><code>grep -Ecw "F1301|F1302|F1320" docs/superpowers/audit-runs/2026-08-14/carryover.md</code> ≥3</td>
+</tr>
+<tr>
+<td>R3 prompt 两规则</td>
+<td>T5</td>
+<td>grep 两规则字符串命中</td>
+</tr>
+<tr>
+<td>R4 分支无残留</td>
+<td>T5</td>
+<td><code>git branch -r --merged origin/main</code> 仅 main/HEAD</td>
+</tr>
+<tr>
+<td>R4 INDEX 计数机械核对</td>
+<td>T4</td>
+<td><code>uv run python tools/count_active_specs.py</code> PASS</td>
+</tr>
+<tr>
+<td>R4 severity 12 项核实注记</td>
+<td>T5</td>
+<td>F771/F772 注记 + 12 项逐项对照 phase4 §4 表</td>
+</tr>
+<tr>
+<td>簇级 18 条关闭</td>
+<td>T6</td>
+<td>grep 计数 18</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

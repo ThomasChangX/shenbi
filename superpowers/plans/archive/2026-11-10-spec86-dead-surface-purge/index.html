@@ -1,0 +1,1589 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-10-spec86-dead-surface-purge/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #86 死面清扫批（dead-surface-purge）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #86 死面清扫批（dead-surface-purge）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-10-spec86-dead-surface-purge.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-10-spec86-dead-surface-purge/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #86 死面清扫批（dead-surface-purge）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-10-spec86-dead-surface-purge.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-86-dead-surface-purgeimplementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #86 死面清扫批（dead-surface-purge）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-scr_extractor-chapter_loop-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: scr_extractor 缩编 + chapter_loop 两调用点换源（spec T1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-review_checklist-lint-spec-t2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: review_checklist 死半边 + lint 白名单承诺锚（spec T2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-chapter_loop-4-manifest-helperspec-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: chapter_loop 死分支 ×4 + manifest 三函数 + 孤儿 helper（spec T3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-trace-materializereplay-6-spec-t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: trace materialize/replay 删除 + 6 测试文件（spec T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-capability_fs-testssupportspec-t5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: capability_fs 迁 tests/support（spec T5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-executor_config-registry-kindspec-t6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: executor_config 六死块 + registry 死 kind（spec T6）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-spec-t9-2-1-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 生成物重同步 + 全验收跑（spec T9 + §2 验收 1-4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f947" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F947 合规
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-86-dead-surface-purgeimplementation-plan">Spec #86 死面清扫批（dead-surface-purge）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 删除 6 处零引用死面（src 净减 ~906 行），为 spec #87 god 文件拆分减重——纯删除批，零新机制、零新 FAIL 门、零付费 dispatch。</p>
+<p><strong>Architecture:</strong> 按 spec r3.4 的 T1-T6 分七个 task：scr_extractor 缩编（唯一新代码=~40 行单函数）、review_checklist 死半边、chapter_loop 死分支+manifest+孤儿 helper、trace 两模块删除、capability_fs 迁 tests、executor_config 死块+registry 死 kind，收尾生成物重同步+全验收跑。所有 task 均 infra（触 <code>pipeline/</code>/<code>contracts/</code>），协调者亲实现。</p>
+<blockquote>
+<p><strong>Plan r2（2026-11-10 审查轮 1 修订）</strong>：C1/C2 补 Task 6 两钉死测试（test_executor_config discriminative 列表裁 5+docstring 9→5；test_registry kinds 删 short+名 16→15）· I3 Task 3 补删 :45 HookState/parse_hook_state 悬空 import · I4 <code>_write_chapter</code> META 改规范 <code>&lt;!--META-BEGIN--&gt;…&lt;!--META-END--&gt;</code> 形态且内置不在期望集的 location 字钉剥离序 · I5 steps_restructured/adaptive_triggers 两 patch 直测钉死整测删 · M6 删已 rm 文件的 pytest 参数+补 skipped 基线步 · M7 t4_scatter :129/:130 调用点 · M8 truth_readers:34 docstring · M9 world-freshness NOTE docstring 同步 · M10 STATIC/DYNAMIC 区间与笔误修正。验收 4 计数 16→<strong>18</strong>（spec r3.5 同步）。</p>
+<p><strong>Plan r3（2026-11-10 审查轮 2 修订）</strong>：C1 <code>_read_events</code> docstring 去 <code>shenbi.trace.replay</code> 字面量（否则植入两测试文件后 T4 grep 永久非零）· I1 steps_restructured 区间改 :41-52+:76-102 删/<strong>保 :55-73 两活测试</strong>（r2 的 :41-76 夹活测试=静默覆盖损失；Files/Self-Review 陈旧措辞同步清）+test_chapter_loop 锚精（:337-375 整类/:545-568 整测）· I2 T4 判据 deps.json:292-293 陈旧键预期假红注记（Task 7 重生成后 canonical 全零）· M1 双剥离钉（标题内置「镇」）· M4 三锚修（:51-69/:551-558/:4812-4813 含 NOTE 段）· M5 spec 验收 4 同步 18（spec r3.5）。</p>
+<p><strong>Plan r4（2026-11-10 审查轮 3 修订）</strong>：I1 test_chapter_loop 类区间锚精 <code>:334-376</code>（banner+整类；r3 终点 :375 差末行孤立断言语法红）· I2 test_adaptive_triggers Files 条目钉死整测删（「亲读后定」陈旧措辞清除——与 Step 3/Self-Review 一致）· M1 deps.json 预期命中改恰 :292（:293 不匹配判据模式）· M2 truth_readers.py 入 Task 3 Files（pathspec 防漏提交）· M3 review_checklist :547-549 孤儿 banner 同删。</p>
+</blockquote>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pytest / just（CI 同构）/ uv run</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>行号为 2026-11-10 树快照（HEAD 145bb384）；<strong>每 task 开工前按符号 re-anchor</strong>（chapter_loop 在本批 Task 1/3 内会再漂移）</li>
+<li>验收命令全部走 <code>just</code>/<code>uv run</code>（环境同构）；禁系统 python</li>
+<li><code>src/shenbi/</code> 无 <code>print()</code>（structlog）；pathlib 文件 IO；gate/lint 检查器纯函数幂等</li>
+<li><strong>禁止 <code>git add -A</code>/<code>git add .</code></strong>——所有 commit 显式列路径</li>
+<li>不触 SKILL.md reads/writes（全批已核零触及）；不触发任何 <code>shenbi-dispatch</code>/<code>pipeline</code> 子命令（核心原则 8）</li>
+<li>死桩证据写入 Task 2 commit message（spec T2 留档要求）：<code>third_person_limited</code>/<code>multi_pov</code> 捏造、<code>truth/world_rules.md</code> 不存在（活半边读 <code>world/rules.md</code>）、<code>chapter-{ch:03d}</code> 零填充与全管线不一致、<code>sensitivity_flags: 0</code> int 冒充 list</li>
+<li>每 task commit 后产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 重审）；无 audit 不得进下一 task</li>
+</ul>
+<hr />
+<h3 id="task-1-scr_extractor-chapter_loop-spec-t1">Task 1: scr_extractor 缩编 + chapter_loop 两调用点换源（spec T1）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: tdd_red_green</strong>（新函数）+ regression_guard（删除面）</p>
+<p><strong>Files:</strong>
+- Rewrite: <code>src/shenbi/pipeline/scr_extractor.py</code>（493 行 → ~40 行）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2266-2282</code>（world freshness 换源）、<code>:2177-2190</code>（删 <code>_run_post_draft_extract</code>）、<code>:4492</code>（删调用行）、<code>:4491</code> 附近 import 无（函数内 import 随删）
+- Test: <code>tests/pipeline/test_scr_extractor.py</code>（189 行重写为 ~70 行）
+- Delete: <code>tests/pipeline/test_scr_cache_invalidation.py</code>（整文件，4 测试专测缓存）
+- Modify: <code>tests/pipeline/test_bundle_stepping.py:322</code>（删 mock 行）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>recent_location_terms(project_dir: Path, chapter: int, lookback: int = 10) -&gt; set[str]</code>（scr_extractor 新唯一公共面；Task 1 内 chapter_loop 换源消费）
+- Deletes: <code>extract_scr</code> / <code>StructuredChapterRepresentation</code> / <code>extract_prose</code> / <code>_extract_world_references</code> / <code>_scan_fatigue_words</code> 及其余全部私有抽取器；<code>_run_post_draft_extract</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写新函数的红测</strong>——重写 <code>tests/pipeline/test_scr_extractor.py</code> 全文件：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;recent_location_terms: the surviving world-freshness face of the old SCR.</span>
+
+<span class="sd">spec #86 T1: the 17-field StructuredChapterRepresentation had exactly one</span>
+<span class="sd">live consumer (world freshness reading world_refs[category==&quot;location&quot;]);</span>
+<span class="sd">everything else was dead weight. This module now exposes a single function.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.scr_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">recent_location_terms</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_chapter</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 双剥离钉（plan r3 审查 M1）：标题内置「镇」、META 块内置「林/谷」——三者</span>
+    <span class="c1"># 均不在任何期望集：META 剥离失效→林/谷泄漏红；H1 剥离失效→镇泄漏红。</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">chapters</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;# 第</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">章 镇志</span><span class="se">\n\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&lt;!--META-BEGIN--&gt;林 # 非散文 META 行</span><span class="se">\n</span><span class="s2">第二行谷&lt;!--META-END--&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collects_location_terms_across_window</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;他走进山口，望见远处的城。&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;山&quot;</span><span class="p">,</span> <span class="s2">&quot;城&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_window_excludes_current_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;旧章的山&quot;</span><span class="p">)</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;本章的河&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;山&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lookback_bounds_at_chapter_one</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;第一章的林&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;林&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_chapter_tolerated</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;存在的海&quot;</span><span class="p">)</span>  <span class="c1"># chapter 1 absent</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;海&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_non_location_categories_ignored</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 灵石=cultivation、金币=currency 必须被过滤；山/河=location 保留</span>
+    <span class="n">_write_chapter</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;他掏出灵石和金币，翻过山，渡过河。&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;山&quot;</span><span class="p">,</span> <span class="s2">&quot;河&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_empty_project_returns_empty</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 红跑确认</strong>——<code>uv run pytest tests/pipeline/test_scr_extractor.py -q</code>（期望 FAIL: cannot import recent_location_terms）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 重写 <code>src/shenbi/pipeline/scr_extractor.py</code> 全文件</strong>：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Recent location terms for the world-freshness check (spec #86 T1).</span>
+
+<span class="sd">The old 17-field StructuredChapterRepresentation had one live consumer:</span>
+<span class="sd">world freshness reading world_refs filtered to category==&quot;location&quot;. The</span>
+<span class="sd">per-chapter disk cache existed only to serve the full extraction; with the</span>
+<span class="sd">single-function face there is nothing worth caching.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">META_BLOCK_RE</span>
+
+<span class="n">_LOCATION_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(山|河|城|镇|村|谷|林|海|原)&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">recent_location_terms</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lookback</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Location terms referenced in chapters ``[max(1, chapter-lookback), chapter)``.</span>
+
+<span class="sd">    Mirrors the pre-#86 consumption shape verbatim: window excludes the</span>
+<span class="sd">    current chapter; a missing/incomplete chapter is tolerated (its absence</span>
+<span class="sd">    contributes nothing) — the old loop&#39;s per-chapter ``except: continue``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">terms</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">chapter</span> <span class="o">-</span> <span class="n">lookback</span><span class="p">),</span> <span class="n">chapter</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">prose</span> <span class="o">=</span> <span class="n">META_BLOCK_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">prose</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(#\s+.+?\n\s*)+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">prose</span><span class="p">)</span>
+        <span class="n">terms</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_LOCATION_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">prose</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">terms</span>
+</code></pre></div>
+<p>（文件级验收 ≤60 行：此实现 ~40 行 ✓）</p>
+<ul>
+<li>[ ] <strong>Step 4: chapter_loop 换源</strong>——<code>src/shenbi/pipeline/chapter_loop.py</code>（行号按符号找）：</li>
+<li>world freshness 块（原 :2266-2282）：删 try-import 守卫（<code>try: from shenbi.pipeline.scr_extractor import extract_scr ... return</code> 五行）与整个 for 循环（<code>recent_locations: set[str] = set()</code> 到 <code>continue</code> 十行），替换为（<strong>并同步改写函数头 :2252-2255 的 Plan 17 NOTE docstring——守卫删除后失败会传播而非静默降级，原注释失实</strong>）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.scr_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">recent_location_terms</span>
+
+    <span class="n">recent_locations</span> <span class="o">=</span> <span class="n">recent_location_terms</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>删 <code>_run_post_draft_extract</code> 整函数（原 :2177-2190）</li>
+<li>
+<p>删 :4492 调用行 <code>_run_post_draft_extract(state, n)</code>（step-5 scene-split 尾 bundle 循环内）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: 删测试文件 + 改 mock 点</strong>——<code>git rm tests/pipeline/test_scr_cache_invalidation.py</code>；<code>tests/pipeline/test_bundle_stepping.py</code> 删 <code>:322</code> 行 <code>mp.setattr(cl, "_run_post_draft_extract", lambda *a, **kw: None)</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: 绿跑 + 零翻转面</strong>——<code>uv run pytest tests/pipeline/test_scr_extractor.py tests/pipeline/test_bundle_stepping.py tests/unit/pipeline/test_chapter_loop.py -q</code>（bundle_stepping/全章环零翻转）；<code>uv run pytest tests/ -q -k "world_freshness or scene_split"</code> 相关面；记录 <code>uv run pytest tests/ -q --collect-only 2&gt;/dev/null | tail -2</code> 的用例总数与 skipped 基线（验收 4 比对用）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 7: 判据跑</strong>——<code>grep -rn "StructuredChapterRepresentation\|extract_scr" src/ tools/ tests/ | grep -v scr_extractor.py</code> 期望零输出；<code>wc -l src/shenbi/pipeline/scr_extractor.py</code> 期望 ≤60</p>
+</li>
+<li>
+<p>[ ] <strong>Step 8: Commit</strong>（路径显式列出）+ audit-T1</p>
+</li>
+</ol>
+<hr />
+<h3 id="task-2-review_checklist-lint-spec-t2">Task 2: review_checklist 死半边 + lint 白名单承诺锚（spec T2）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/review_checklist.py</code>（删 8 死函数 :572-655 区段逐个删 + STATIC_FIELDS :551-558 + DYNAMIC_FIELDS :559-569 + <strong>:547-549「Static/Dynamic Split」孤儿 banner 同删</strong> + <code>__all__</code> 收缩至 4 公共名）
+- Modify: <code>tools/lint_truth_format_single_source.py</code>（删 NAMED_WHITELIST 条目 :57 + 模块 docstring :18-19 两行）
+- Delete: <code>tests/pipeline/test_review_checklist.py</code>（整文件 57 行——两测试全测死函数 get_checklist/generate_chapter_delta）</p>
+<p><strong>Interfaces:</strong>
+- Keeps（唯一公共面，消费者 dispatch_helper.py:1580-1594）: <code>ReviewChecklist</code> / <code>ENDING_PATTERNS</code> / <code>generate_review_checklist</code> / <code>inject_checklist_into_prompt</code>
+- Deletes: <code>generate_static_template</code> / <code>generate_chapter_delta</code> / <code>get_checklist</code> / <code>_extract_hooks_from_plan</code> / <code>_load_blacklist</code> / <code>_load_voice_constraints</code> / <code>_load_pov_mode</code> / <code>_load_world_rules_brief</code> / <code>STATIC_FIELDS</code> / <code>DYNAMIC_FIELDS</code>（<code>__all__</code> 中 5 死 <code>_</code> 名随之）</p>
+<ul>
+<li>[ ] <strong>Step 1: 逐个删 8 死函数</strong>（:572/:584/:594/:611/:634/:643/:647/:651——<strong>逐个定位删除，禁止整段区间</strong>；中间夹的活私有函数（<code>_get_recent_ending_types</code> 等 9 活 <code>_</code> 名对应的函数体在 :103-:550 区间）不动）</li>
+<li>[ ] <strong>Step 2: 删 STATIC_FIELDS（:551-558）与 DYNAMIC_FIELDS（:559-569）两死常量</strong>；<code>__all__</code> 改为恰四名：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ENDING_PATTERNS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ReviewChecklist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generate_review_checklist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject_checklist_into_prompt&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: lint 白名单兑现</strong>——<code>tools/lint_truth_format_single_source.py</code> 删 :57 条目 <code>"src/shenbi/pipeline/review_checklist.py": "hook_pattern",</code> 与 :18-19 模块 docstring 中提及该白名单的两行（NAMED_WHITELIST 若因此为空 dict，保留空 dict+注释「spec #85 r8 承诺锚已随 #86 T2 兑现」）</li>
+<li>[ ] <strong>Step 4: 删测试文件</strong>——<code>git rm tests/pipeline/test_review_checklist.py</code></li>
+<li>[ ] <strong>Step 5: 验证</strong>——<code>uv run pytest tests/ -q -k "review_checklist or precompute"</code>（tests/unit/pipeline/test_review_checklist*.py 两文件只 import 保留面，应零翻转）；<code>uv run python tools/lint_truth_format_single_source.py</code>（期望 exit 0——<code>hook_pattern</code> 死代码随之消失，白名单条目删除后无残留命中）；<code>uv run python tools/lint_key_reconciliation.py</code>（不触，应绿）</li>
+<li>[ ] <strong>Step 6: 判据跑</strong>——<code>grep -rn "generate_static_template\|generate_chapter_delta\|get_checklist\|_extract_hooks_from_plan\|_load_blacklist\|_load_voice_constraints\|_load_pov_mode\|_load_world_rules_brief\|STATIC_FIELDS\|DYNAMIC_FIELDS" src/ tools/ tests/</code> 期望零输出</li>
+<li>[ ] <strong>Step 7: Commit（含死桩证据四条于 message）</strong> + audit-T2</li>
+</ul>
+<hr />
+<h3 id="task-3-chapter_loop-4-manifest-helperspec-t3">Task 3: chapter_loop 死分支 ×4 + manifest 三函数 + 孤儿 helper（spec T3）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（删 :3044-3048/:4810-4813/:4909-4910 死分支；_check_conditional_resolve :2814-：函数体含 :2832 dispatch_skill；_is_volume_boundary :2967；_drift_guidance_triggered :2977；_load_manifest :2924；_save_manifest :2937；_update_last_drift_manifest :2960——<strong>三段不连续，:2944 _get_recent_resonance_scores 是活函数勿伤</strong>）
+- Modify: <code>src/shenbi/pipeline/truth_readers.py:34</code>（docstring「(chapter_loop conditional-resolve)」悬空指认改写——Step 3 顺手项入 Files 防 pathspec 漏提交）
+- Modify: <code>tools/lint_key_reconciliation.py</code>（删两 ReadKey 锚 :132-138 <code>chapterloop/drift-guidance</code> 与 :139-145 <code>chapterloop/pending-hooks</code>——整 ReadKey 块）
+- Modify: <code>tests/unit/pipeline/test_spec83_stale_declarations.py</code>（删 :87 参数化行 + <strong>:105 canary <code>== 13</code> 改 <code>== 12</code></strong>）
+- Modify: <code>tests/unit/pipeline/test_chapter_loop.py</code>（删 <strong>:334-376「Conditional foreshadowing-resolve」banner+<code>class TestConditionalResolve</code> 整类</strong>（类实止 :376——r4 锚精：r3 的 :337-375 差末行孤立断言语法红）与 <strong>:545-568 <code>test_track_step_with_triggered_hooks_dispatches_resolve</code> 整测</strong>）
+- Modify: <code>tests/pipeline/test_chapter_steps_restructured.py</code>（<strong>删 :41-52 <code>test_intent_management_boundary_only</code> + :76-102 <code>test_drift_guidance_triggered_by_alerts</code> 两死分支直测；保 :55-73 两活测试</strong>（<code>test_non_conditional_steps_always_run</code>/<code>test_conditional_snapshot_manage_runs</code>——删分支后仍过、钉默认 fallthrough）；r3 钉死：改 patch 目标不可行——<code>_should_run_step</code> 删 :3044-3048 后 conditional 步落默认 <code>return True</code>，<code>is False</code> 断言无解）
+- Modify: <code>tests/unit/pipeline/test_adaptive_triggers.py:34-55</code>（<code>test_intent_management_gated_by_volume_boundary</code> 整测删至文件尾（文件实止 :55）——r4 钉死与 steps_restructured 同理：改 patch 目标不可行，<code>_should_run_step</code> 删分支后对 conditional 步恒 <code>return True</code>，<code>is False</code> 断言无解）
+- Modify: <code>docs/framework/truth-files.yaml:102-104</code>（:102-103 注释历史化：「历史遗留：写方 <code>_update_last_drift_manifest</code> 已于 spec #86 删除；存量项目盘上文件容忍，无新写入」；:104 条目 <code>producer: pipeline</code> <strong>保留原值</strong>）
+- Modify: <code>tools/regen_reset.py</code>（删 :149-156 <code>_clear_snapshots_key</code> 整函数 + :228 调用行 + :186 动作标签行）
+- Modify: <code>src/shenbi/records/writer.py:6</code>（docstring「(via chapter_loop._check_conditional_resolve)」→「(via chapter_loop pending-hooks consumption)」）
+- Modify: <code>docs/superpowers/plans/2026-10-26-spec79-regen-acceptance.md:12</code>（行尾加注记「（spec #86：<code>last_drift_chapter</code> 清理已随死面删除，regen-reset 不再触碰该键）」）</p>
+<p><strong>Interfaces:</strong>
+- Deletes: <code>_check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -&gt; None</code>、<code>_is_volume_boundary(project_dir: Path, chapter: int) -&gt; bool</code>、<code>_drift_guidance_triggered(state: PipelineState) -&gt; bool</code>、<code>_load_manifest(project_dir: Path) -&gt; dict[str, Any]</code>、<code>_save_manifest(project_dir: Path, manifest: dict[str, Any]) -&gt; None</code>、<code>_update_last_drift_manifest(project_dir: Path, chapter: int) -&gt; None</code>
+- Keeps: <code>shenbi.pipeline.triggers.is_volume_boundary(chapter: int, project_dir: Path | str) -&gt; bool</code>（活函数 :318——<strong>test_triggers.py:233 不动</strong>）；<code>_get_recent_resonance_scores</code>（:2944 活）</p>
+<ul>
+<li>[ ] <strong>Step 1: 先跑 canary 红证</strong>——<code>uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py -q</code>（批前绿基线记录）；删 chapter_loop 死分支+三函数+孤儿 helper 后先跑一次看 canary <code>==13</code> 红 dispatch 计数（13→12 变动实锚）+ lint_key_reconciliation 红（reader anchor FAIL）——两红即「删对了地方」的证据，随后改 :105 与 lint 锚转绿</li>
+<li>[ ] <strong>Step 2: chapter_loop 删除</strong>——按符号定位（Task 1 已使行号漂移）：死分支①②（<code>if step.skill == "shenbi-intent-management":</code> / <code>elif</code>/<code>if step.skill == "shenbi-drift-guidance":</code> 含 return 两块 :3044-3048）、③（<code>if "foreshadowing-lifecycle" in step.skill: _check_conditional_resolve(...)</code> :4812-4813——<strong>连同其上方 :4806-4811 NOTE 注释段一并删</strong>，字面删 if/call 两行会留孤儿注释）、④（<code>if step.skill == "shenbi-drift-guidance": _update_last_drift_manifest(...)</code> :4909-4910）；manifest 三函数两段；孤儿 helper 三函数；<strong>删 :45 行 <code>from shenbi.contracts.schemas.hooks import HookState, parse_hook_state</code>（全文件唯一消费点在 _check_conditional_resolve 体内 :2828——删前 grep 复核两符号零残余使用，否则 ruff F401 悬空）</strong></li>
+<li>[ ] <strong>Step 3: 连带面逐项落</strong>——lint 两 ReadKey 块删；spec83 :87 行删+:105 <code>13</code>→<code>12</code>；test_chapter_loop 整类+整测删；<strong>steps_restructured 删 :41-52+:76-102（保 :55-73 两活测试）与 adaptive_triggers :34-56 两处 <code>_is_volume_boundary</code> patch 直测整测删</strong>（r3 钉死：分支删除后 <code>_should_run_step</code> 对 conditional 步落默认 <code>return True</code>，<code>is False</code> 断言无论 patch 指向哪必失败——改 patch 目标不可行）；truth-files.yaml 注释；regen_reset 三处；writer.py docstring；spec79 plan 注记；truth_readers.py:34 docstring「(chapter_loop conditional-resolve)」悬空指认顺手改写</li>
+<li>[ ] <strong>Step 4: 验证</strong>——<code>uv run pytest tests/unit/pipeline/test_spec83_stale_declarations.py tests/pipeline/test_chapter_steps_restructured.py tests/unit/pipeline/test_adaptive_triggers.py tests/unit/pipeline/test_triggers.py tests/unit/pipeline/test_chapter_loop.py tests/unit/tools/test_regen_reset.py -q</code> 全绿；<code>uv run python tools/lint_key_reconciliation.py --strict</code> exit 0</li>
+<li>[ ] <strong>Step 5: 判据跑</strong>——T3 两条 grep（spec r3.4 文本）期望零输出</li>
+<li>[ ] <strong>Step 6: Commit</strong> + audit-T3</li>
+</ul>
+<hr />
+<h3 id="task-4-trace-materializereplay-6-spec-t4">Task 4: trace materialize/replay 删除 + 6 测试文件（spec T4）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Delete: <code>src/shenbi/trace/materialize.py</code>（163 行）、<code>src/shenbi/trace/replay.py</code>（63 行）、<code>tests/unit/trace/test_materialize.py</code>、<code>tests/unit/trace/test_replay.py</code>（整文件）
+- Modify: <code>src/shenbi/trace/__init__.py</code>（删 :5-6 两 import + <code>__all__</code> 中 <code>materialize_progress</code>/<code>replay</code> 两名）
+- Modify: <code>tests/unit/trace/test_compaction.py</code>（:6 import 换本地 helper；:22/:44 <code>replay(tmp_path)</code> 换 <code>_read_events</code>）
+- Modify: <code>tests/property/trace/test_chain_invariants.py</code>（:10 import；:22/:37 同换）
+- Modify: <code>tests/unit/test_t4_scatter_guards.py:127-130</code>（:127 <code>from shenbi.trace.materialize import _round_field</code> → 本地 helper <strong>换名 <code>round_field</code></strong>——沿用旧名会使验收 grep 非零；:129/:130 两处调用点同步换名）
+- Modify: <code>tests/unit/pipeline/test_concurrency_regression.py</code>（:132-150 <code>test_f630_materialize_clobbers_foreign_keys</code> <strong>整测删</strong>——守护对象已删；:188-213 <code>test_record_audit_outcome_g7_no_false_tamper</code> 的 :192 import 与 <code>replay(tmp_path)</code> 换本地 helper；:268-274 <code>test_periodic_materialize_removed</code> 整测删）
+- Modify: <code>docs/framework/status-vocab.md:20</code>（materialize/replay 提及行改写）、<code>docs/superpowers/full-project-audit-prompt.md:335</code>（<code>trace/replay.py</code> 引用改写）</p>
+<p><strong>Interfaces:</strong>
+- Produces（测试本地 helper，<strong>三文件各一份同形</strong>——test_compaction/test_chain_invariants/test_concurrency_regression g7 测）:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_read_events</span><span class="p">(</span><span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TraceEvent</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pure reader: parse trace.jsonl, stop at first torn line / bad signature.</span>
+
+<span class="sd">    The pre-#86 replay reader also truncated the file on torn lines; tests</span>
+<span class="sd">    only consume the returned events, so the helper is read-only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.trace.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">GENESIS_PREV</span><span class="p">,</span> <span class="n">TraceEvent</span><span class="p">,</span> <span class="n">canonical_payload</span><span class="p">,</span> <span class="n">sign</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">GENESIS_PREV</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TraceEvent</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">TraceEvent</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">ln</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">sign</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">canonical_payload</span><span class="p">(</span><span class="n">event</span><span class="p">),</span> <span class="n">event</span><span class="o">.</span><span class="n">schema_version</span><span class="p">)</span> <span class="o">!=</span> <span class="n">event</span><span class="o">.</span><span class="n">signature</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">signature</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div>
+<p>test_t4_scatter_guards.py 本地 helper（F614 语义）:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">round_field</span><span class="p">(</span><span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Derive round number from ``round-&lt;N&gt;`` dir name; else &quot;unknown&quot; (F614).&quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="s2">&quot;round-&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tail</span> <span class="k">if</span> <span class="n">tail</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 1: 删模块与两专测文件</strong>——<code>git rm src/shenbi/trace/materialize.py src/shenbi/trace/replay.py tests/unit/trace/test_materialize.py tests/unit/trace/test_replay.py</code></li>
+<li>[ ] <strong>Step 2: <code>__init__.py</code> 收缩</strong>——删两 import 行与 <code>__all__</code> 两名</li>
+<li>[ ] <strong>Step 3: 四文件改写</strong>——test_compaction/test_chain_invariants 植入 <code>_read_events</code> helper 换调用；t4_scatter_guards 植入 <code>round_field</code>；concurrency 删两整测+g7 测换 helper</li>
+<li>[ ] <strong>Step 4: 文档两处改写</strong>（status-vocab.md:20 行内提及；audit-prompt:335 trace/replay.py 引用——按上下文最小改写）</li>
+<li>[ ] <strong>Step 5: 验证</strong>——<code>uv run pytest tests/unit/trace/ tests/property/trace/ tests/unit/test_t4_scatter_guards.py tests/unit/pipeline/test_concurrency_regression.py -q</code> 全绿</li>
+<li>[ ] <strong>Step 6: 判据跑</strong>——两条 grep（含 <code>--exclude-dir=coverage</code> 与私有导入面）：<strong>T4 时点预期命中 <code>tests/tiers/deps.json:292</code>（<code>trace/replay.py</code> 陈旧键——<code>.</code> 通配 <code>/</code>；:293 的 materialize 键同陈旧但两判据模式均不命中它，随重生成同灭）</strong>；其余命中须为零。canonical 判据（全零）在 Task 7 Step 3 重生成后统一跑</li>
+<li>[ ] <strong>Step 7: Commit</strong> + audit-T4</li>
+</ul>
+<hr />
+<h3 id="task-5-capability_fs-testssupportspec-t5">Task 5: capability_fs 迁 tests/support（spec T5）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Move: <code>src/shenbi/capability_fs.py</code> → <code>tests/support/capability_fs.py</code>（内容原样，git mv）
+- Create: <code>tests/support/__init__.py</code>（空文件）
+- Modify: <code>tests/unit/test_capability_fs.py:7</code> 与 <code>tests/property/gates/test_capability_fs_properties.py:9</code>（<code>from shenbi.capability_fs import CapabilityFS</code> → <code>from tests.support.capability_fs import CapabilityFS</code>）
+- Modify: <code>pyproject.toml:432</code>（<code>"src/shenbi/capability_fs.py" = [...]</code> → <code>"tests/support/capability_fs.py" = [...]</code> 键名迁移，豁免列表原样）
+- Modify: <code>docs/superpowers/full-project-audit-prompt.md:336</code>（capability_fs 列为 T12 审计对象的行——改写为 tests/support 路径注记）</p>
+<p><strong>Interfaces:</strong>
+- Keeps: <code>class CapabilityFS</code>（内容零改动，仅位置）</p>
+<ul>
+<li>[ ] <strong>Step 1: git mv + <strong>init</strong> + import 改写 + pyproject 键迁移</strong></li>
+<li>[ ] <strong>Step 2: 验证</strong>——<code>uv run pytest tests/unit/test_capability_fs.py tests/property/gates/test_capability_fs_properties.py -q</code> 全绿；<code>uvx ruff check tests/support/capability_fs.py</code>（pyproject 迁移键生效=零命中）</li>
+<li>[ ] <strong>Step 3: 判据跑</strong>——<code>test ! -e src/shenbi/capability_fs.py</code> 期望 exit 0</li>
+<li>[ ] <strong>Step 4: Commit</strong> + audit-T5</li>
+</ul>
+<hr />
+<h3 id="task-6-executor_config-registry-kindspec-t6">Task 6: executor_config 六死块 + registry 死 kind（spec T6）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>executor_config.toml</code>（<strong>按键删 6 块</strong>：<code>[overrides."shenbi-review-continuity"]</code> :120、<code>[overrides."shenbi-review-anti-ai"]</code> :124、<code>[overrides."shenbi-review-memo-compliance"]</code> :157、<code>[overrides."shenbi-review-world-rules"]</code> :161、<code>[overrides."shenbi-review-pov"]</code> :169、<code>[overrides."shenbi-review-dialogue"]</code> :189——<strong>每块含其键值对至下一 <code>[</code> 前；禁按行区间整删</strong>——区间夹 10 活块）
+- Modify: <code>src/shenbi/contracts/schemas/registry.py</code>（:38 Literal 删 <code>"short"</code> 行；:9 docstring「16 kind values (the real yaml uses all 16)」→「15 kind values (the real yaml uses all 15)」）
+- Modify: <code>tests/pipeline/test_executor_config.py:51-69</code>（<code>test_discriminative_review_queue_has_low_temperature</code> discriminative 列表 :55-65 含将删 4 键且断言 <code>skill in overrides</code>——<strong>列表裁至存活 5 技能</strong>（arc-payoff/era/fanfic/sensitivity/spinoff），docstring「9 discriminative」改「5」）
+- Modify: <code>tests/unit/contracts/schemas/test_registry.py:49-70</code>（<code>test_kind_literal_all_16</code> kinds 列表 :63 钉死 <code>"short"</code>——删该元素；测试名与 docstring <code>16</code>→<code>15</code>）</p>
+<p><strong>Interfaces:</strong>
+- Keeps: <code>RegistryKind</code> Literal 其余 15 值；executor_config 其余 29 活 override 块</p>
+<ul>
+<li>[ ] <strong>Step 1: 按键删 6 块</strong>（逐键定位 <code>[overrides."&lt;key&gt;"]</code> 起至下一节头）</li>
+<li>[ ] <strong>Step 2: registry 删 "short" + docstring 16→15</strong>；同步两测试：executor_config discriminative 列表裁至存活 5 技能+docstring 9→5；registry 测试 kinds 删 "short"+名与 docstring 16→15</li>
+<li>[ ] <strong>Step 3: 验证</strong>——<code>uv run pytest tests/pipeline/test_executor_config.py tests/unit/contracts/schemas/test_registry.py -q</code> 全绿；<code>uv run python -c "import tomllib; cfg=tomllib.loads(open('executor_config.toml').read()); assert len(cfg['overrides'])==29"</code>；<code>uv run python -c "from shenbi.contracts.schemas.registry import RegistryKind; assert 'short' not in RegistryKind.__args__"</code></li>
+<li>[ ] <strong>Step 4: 判据跑</strong>——六键 grep executor_config.toml 零输出</li>
+<li>[ ] <strong>Step 5: Commit</strong> + audit-T6</li>
+</ul>
+<hr />
+<h3 id="task-7-spec-t9-2-1-4">Task 7: 生成物重同步 + 全验收跑（spec T9 + §2 验收 1-4）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Regenerate: <code>tests/tiers/deps.json</code>（<code>_tool_hashes</code> 面全变）、<code>docs/skills/</code>（如 generate 触及）
+- Verify: spec §2 四条验收全跑</p>
+<ul>
+<li>[ ] <strong>Step 1: <code>just generate</code></strong>（shenbi-sync-contracts 重生成 deps.json/docs/skills）→ <code>git add</code> 生成物（<strong>流序：锁→生成→commit→check</strong>——本批不动 pyproject 依赖，uv.lock 不需动）</li>
+<li>[ ] <strong>Step 2: <code>just check</code></strong>——期望 EXIT=0（契约 lints 三件+repo 一致性+状态字面量+ruff+mypy+basedpyright+幂等 diff+两段 pytest）</li>
+<li>[ ] <strong>Step 3: 验收 1 判据全跑</strong>——T1/T2/T3/T4/T5/T6 六组 grep + 存在性断言全零输出，粘贴进 progress.md 验收证据</li>
+<li>[ ] <strong>Step 4: 验收 2</strong>——<code>git diff --stat origin/main...HEAD -- src/ | tail -1</code> 核 src 净减 ≥650（预期 ~906）；<code>wc -l src/shenbi/pipeline/scr_extractor.py</code> ≤60</li>
+<li>[ ] <strong>Step 5: 验收 4</strong>——skip 计数比对（批前基线在 Task 1 Step 6 记录；<code>uv run pytest tests/ -q 2&gt;&amp;1 | tail -3</code> 的 skipped 数不增）；18 文件改写后全绿已由各 task 证明（r2：T1 三+T2 一+T3 四+T4 六+T5 两+T6 两）</li>
+<li>[ ] <strong>Step 6: Commit（生成物）</strong> + audit-T7</li>
+</ul>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 每 T grep 判据零输出</td>
+<td>T1-T6 各 Step「判据跑」+ T7 Step 3 汇总</td>
+<td>六组 grep（spec r3.4 全文判据段）</td>
+</tr>
+<tr>
+<td>2 src 净减 ≥650 + scr ≤60 行</td>
+<td>T7 Step 4</td>
+<td><code>git diff --stat origin/main...HEAD -- src/</code> + <code>wc -l</code></td>
+</tr>
+<tr>
+<td>3 just check exit 0</td>
+<td>T7 Step 2</td>
+<td><code>just check</code>（前置：lint 两锚 T3/白名单 T2/pyproject 键 T5 均已落）</td>
+</tr>
+<tr>
+<td>4 skip 不增 + 18 文件改写后过</td>
+<td>各 task Step 验证 + T7 Step 5</td>
+<td>pytest skipped 计数比对</td>
+</tr>
+</tbody>
+</table>
+<h2 id="f947">F947 合规</h2>
+<p>全批零 LLM dispatch 依赖；所有验收=离线 grep/pytest/just。G3.4 不适用（无生成物评分场景）。</p>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li>覆盖：spec T1-T6+T7(不动面)+T8(更正已在 spec)+T9 ↔ Task 1-7 一一对应 ✓</li>
+<li>占位符：无 TBD/「适当处理」类；steps_restructured/adaptive_triggers 两处 patch 直测的处置已在 r3 <strong>钉死为整测删</strong>（分支删除后 <code>_should_run_step</code> 对 conditional 步落默认 <code>return True</code>——改 patch 目标不可行；steps_restructured 保 :55-73 两活测试）✓</li>
+<li>类型一致：<code>recent_location_terms</code> 签名 Task 1 Step 1/3/4 三处一致；<code>_read_events</code>/<code>round_field</code> helper 名与 T4 验收 grep 判据（<code>_round_field</code> 零输出）自洽 ✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

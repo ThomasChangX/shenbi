@@ -1,0 +1,1528 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-17-spec6-token-efficiency-p2/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #6 Token 效率 P2（终版范围）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #6 Token 效率 P2（终版范围）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-17-spec6-token-efficiency-p2.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-17-spec6-token-efficiency-p2/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #6 Token 效率 P2（终版范围）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-17-spec6-token-efficiency-p2.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-6-token-p2implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #6 Token 效率 P2（终版范围）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t_a-system-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T_A — system prompt 字节稳定回归测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t_c-1-chapter-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T_C-1 — chapter-pattern 熵教学段外置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t_c-2-pacing-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T_C-2 — pacing-design 教学节外置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        度量与验收证据（执行期动作，非 task）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-6-token-p2implementation-plan">Spec #6 Token 效率 P2（终版范围）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 落地 spec #6 阶段 3 终裁范围——T_A system prompt 字节稳定回归测试 + T_C 两个 skill（chapter-pattern / pacing-design）教学段外置瘦身；T_B（缓存）与 T_D（IDE 分离强形态）已裁决不实施（T_D：codex CLI 无 <code>--system-prompt</code> flag，openai/codex#11588 仍为 open feature request，本机无真 CLI 可实测）。</p>
+<p><strong>Architecture:</strong> 全部改动为「测试 + SKILL.md body 编辑 + 各 skill 目录内新增维护者参考文件」。零 <code>src/shenbi/</code> 生产代码改动（dispatcher 只注入 <code>SKILL.md</code>，同目录其他文件天然不注入——<code>anti-ai-reference.md</code>/<code>era-reference.md</code>/<code>truth-files-reference.md</code> 三先例）。外置文件以裸文件名在 body 引用（<code>lint_contract_prose.py:186</code> branch-b 的 <code>skills_root.glob(f"*/{base}")</code> 存在性检查构成 dead-link 机械防护）。验收全离线：测试内构建 <code>_build_skill_prompt</code> 量 system prompt 字符数 + <code>estimate_prompt_tokens</code> 估算 token。</p>
+<p><strong>Tech Stack:</strong> pytest（tests/pipeline/ 层，T1）、<code>shenbi.pipeline.dispatch_helper._build_skill_prompt</code>、<code>shenbi.cost.estimate.estimate_prompt_tokens</code>、<code>just check</code>。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><strong>环境</strong>：本机 <code>/usr/bin/git</code> 被 Xcode license 拦截——git 一律用 <code>/Library/Developer/CommandLineTools/usr/bin/git</code>，命令前缀 <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH</code>；测试走 <code>uv run pytest</code>（与 CI <code>uv run --frozen</code> 同构）。</li>
+<li><strong>度量单位</strong>：测试断言用<strong>字符数</strong>（<code>len()</code>，与 <code>_build_skill_prompt</code> 产出一致）与 <code>estimate_prompt_tokens</code>；字节换算记录进验收证据。spec §3.5 的原 741B/723B 净省估算按 146B 引用行预算（不含必需的 H2/H3 标题锚）——plan 审查实测锚块 198B/237B，spec 下限已随 plan 修订为字符/est 双口径（≥450/≥140 与 ≥280/≥130）。</li>
+<li><strong>Pre-slim 基线常量</strong>（2026-09-17 于 branch f64d13c5 实测，已固化进测试）：chapter-pattern system prompt = 7,629 字符 / 2,681 估算 token；pacing-design = 6,829 字符 / 2,511 估算 token。</li>
+<li><strong>不可触碰不变量</strong>（spec §3.7）：DOT flowchart、<code>## Anti-Rationalization</code> 表、frontmatter 契约、输出契约段（chapter-pattern 的 13×13 矩阵 / <code>### 熵评级阈值</code> / <code>### 熵计算公式输入文档化要求</code>；pacing 的 <code>## 输出格式</code> EXACT 模板与 <code>### 单调性检测阈值</code>）。</li>
+<li><strong>引用行</strong>：裸文件名（禁斜杠路径）、诚实表述（禁"本章已提供"类伪陈述）。</li>
+<li><strong>提交</strong>：conventional commits（<code>test:</code> / <code>perf:</code>，perf 有先例 PR #153）；pathspec 显式列文件，禁 <code>git add -A</code>。</li>
+<li><strong>每个 task commit 后</strong>：全量 fresh-context 重审产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（SDD 阶段 6 规则，执行期由协调者调度）。</li>
+</ul>
+<hr />
+<h3 id="task-1-t_a-system-prompt">Task 1: T_A — system prompt 字节稳定回归测试</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/pipeline/test_dispatch_helper_system_stability.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_build_skill_prompt(skill, project_dir, prompt, chapter, ...) -&gt; tuple[str, str, list[str]]</code>（<code>src/shenbi/pipeline/dispatch_helper.py:601</code>）；<code>_strip_autogen_blocks(text) -&gt; str</code>（:201）
+- Produces: 无下游依赖（纯回归护栏，固化"同 skill 两次构建 system prompt 字节相等"隐式契约——API 路径 provider cache 命中的前提）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写测试</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #6 T_A: system prompt byte-stability regression (offline).</span>
+
+<span class="sd">Fixes the implicit contract that the system prompt for a given skill is</span>
+<span class="sd">byte-identical across consecutive _build_skill_prompt calls. The API</span>
+<span class="sd">path relies on a stable system prefix for provider prompt-cache hits;</span>
+<span class="sd">_strip_autogen_blocks must stay deterministic (pure regex, no</span>
+<span class="sd">timestamps/random) for that to hold.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+
+<span class="n">STABILITY_SKILLS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;shenbi-chapter-pattern&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;skill&quot;</span><span class="p">,</span> <span class="n">STABILITY_SKILLS</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_system_prompt_byte_stable_across_calls</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sys1</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;prompt A&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">sys2</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;prompt B&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">sys1</span> <span class="o">==</span> <span class="n">sys2</span>
+</code></pre></div>
+（strip 确定性由参数化字节稳定测试传递性覆盖，不设同义反复的单测——plan 审查 M3）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_dispatch_helper_system_stability.py -v</code>
+Expected: 3 passed（当前实现已字节稳定——本测试是固化护栏，非修 bug，故直接绿）</p>
+<ul>
+<li>[ ] <strong>Step 3: just check 全量</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH just check</code>
+Expected: EXIT=0</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">G</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin/git
+<span class="nv">$G</span><span class="w"> </span>add<span class="w"> </span>tests/pipeline/test_dispatch_helper_system_stability.py
+<span class="nv">$G</span><span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec6 T_A — system prompt byte-stability regression</span>
+
+<span class="s2">Fixes the implicit contract that consecutive _build_skill_prompt calls</span>
+<span class="s2">yield byte-identical system prompts (provider prompt-cache prefix</span>
+<span class="s2">stability on the API path). Covers three heavy skills.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-t_c-1-chapter-pattern">Task 2: T_C-1 — chapter-pattern 熵教学段外置</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-chapter-pattern/SKILL.md:296-332</code>（删 <code>## 熵计算公式</code> 的公式+算例子段，换锚点节；<code>:334</code> 起的 <code>### 熵评级阈值</code> 与 <code>:344+</code> 文档化要求<strong>逐字不动</strong>——:333 为空行，保留锚点块与 <code>### 熵评级阈值</code> 之间恰好一个空行）
+- Create: <code>skills/shenbi-chapter-pattern/chapter-pattern-reference.md</code>（被移内容的 verbatim 归档 + 维护者注记头）
+- Create: <code>tests/pipeline/test_spec6_prompt_slimming.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 无依赖；<code>_build_skill_prompt</code>、<code>estimate_prompt_tokens</code>
+- Produces: <code>chapter-pattern-reference.md</code>（维护者参考，无代码消费者）；测试常量与断言形态（Task 3 复用文件扩展 pacing 用例）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #6 T_C: externalized-teaching-block slimming assertions (offline).</span>
+
+<span class="sd">Pre-slim baselines measured 2026-09-17 on branch f64d13c5 via</span>
+<span class="sd">_build_skill_prompt (chars via len(); tokens via estimate_prompt_tokens).</span>
+<span class="sd">Spec §3.5&#39;s 887B/869B figures are UTF-8 BYTES — different unit, both</span>
+<span class="sd">recorded in acceptance evidence.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.estimate</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_prompt_tokens</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+
+<span class="n">SKILLS_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span>
+
+<span class="c1"># Pre-slim constants (captured before externalization, branch f64d13c5)</span>
+<span class="n">PRE_LEN_CHAPTER_PATTERN</span> <span class="o">=</span> <span class="mi">7629</span>
+<span class="n">PRE_EST_CHAPTER_PATTERN</span> <span class="o">=</span> <span class="mi">2681</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_system_prompt</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">system</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;measure&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">system</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_pattern_slimmed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">_system_prompt</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-pattern&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># net char drop: removed 627 chars, anchor block 104 chars (plan-review simulated)</span>
+    <span class="k">assert</span> <span class="n">PRE_LEN_CHAPTER_PATTERN</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">450</span>
+    <span class="c1"># estimated-token drop (simulated 159, threshold with margin)</span>
+    <span class="k">assert</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">PRE_EST_CHAPTER_PATTERN</span> <span class="o">-</span> <span class="mi">140</span>
+
+    <span class="c1"># externalized file exists + bare-filename reference line in body</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">SKILLS_DIR</span> <span class="o">/</span> <span class="s2">&quot;shenbi-chapter-pattern&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-pattern-reference.md&quot;</span>
+    <span class="k">assert</span> <span class="n">ref</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS_DIR</span> <span class="o">/</span> <span class="s2">&quot;shenbi-chapter-pattern&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;`chapter-pattern-reference.md`&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+
+    <span class="c1"># runtime sections kept inline (invariants)</span>
+    <span class="k">assert</span> <span class="s2">&quot;### 熵评级阈值&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+    <span class="k">assert</span> <span class="s2">&quot;### 熵计算公式输入文档化要求&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+
+    <span class="c1"># moved teaching markers no longer in the system prompt</span>
+    <span class="k">assert</span> <span class="s2">&quot;H = -Σ(p_i × log₂(p_i))&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system</span>
+    <span class="k">assert</span> <span class="s2">&quot;假设模式分布为&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py -v</code>
+Expected: FAIL（<code>PRE_LEN - len(system) &gt;= 450</code> 断言失败——尚未瘦身，drop = 0）</p>
+<ul>
+<li>[ ] <strong>Step 3: 建参考文件</strong> <code>skills/shenbi-chapter-pattern/chapter-pattern-reference.md</code></li>
+</ul>
+<p>内容 = 维护者注记头 + 被移段 verbatim：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># chapter-pattern 维护者参考：香农熵公式与算例</span>
+
+<span class="k">&gt; </span><span class="ge">本文件面向 skill 作者/维护者，运行时**不注入** dispatch prompt（T_C 外置，spec #6）。</span>
+<span class="k">&gt; </span><span class="ge">熵计算结果由框架 Helper Precompute 代算（`src/shenbi/skill_utils/chapter_pattern/compute_pattern.py`</span>
+<span class="k">&gt; </span><span class="ge">逐行输出 frequency/p_log2p）；运行时所需的评级阈值与输入文档化要求保留在 SKILL.md。</span>
+
+<span class="gu">## 熵计算公式</span>
+
+<span class="gu">### 香农熵计算</span>
+
+对最近 N 章的模式分布计算香农熵：
+
+<span class="sb">```</span>
+<span class="sb">H = -Σ(p_i × log₂(p_i))</span>
+
+<span class="sb">其中:</span>
+<span class="sb">- p_i = 模式 i 在最近 N 章中出现的频率（出现次数 / N）</span>
+<span class="sb">- 求和范围: 13 种模式中实际出现的所有模式</span>
+<span class="sb">- log₂ 以 2 为底</span>
+<span class="sb">```</span>
+
+<span class="gu">### 计算示例</span>
+
+<span class="sb">```markdown</span>
+<span class="gu">## 熵计算示例（最近 10 章）</span>
+
+假设模式分布为:
+<span class="k">-</span><span class="w"> </span>升级: 3次 (p=0.3)
+<span class="k">-</span><span class="w"> </span>日常: 2次 (p=0.2)
+<span class="k">-</span><span class="w"> </span>转折: 2次 (p=0.2)
+<span class="k">-</span><span class="w"> </span>引入: 1次 (p=0.1)
+<span class="k">-</span><span class="w"> </span>揭示: 1次 (p=0.1)
+<span class="k">-</span><span class="w"> </span>沉淀: 1次 (p=0.1)
+<span class="k">-</span><span class="w"> </span>其他 7 种: 0次
+
+H = -(0.3×log₂(0.3) + 0.2×log₂(0.2) + 0.2×log₂(0.2) + 0.1×log₂(0.1) + 0.1×log₂(0.1) + 0.1×log₂(0.1))
+  = -(0.3×(-1.737) + 0.2×(-2.322) + 0.2×(-2.322) + 0.1×(-3.322) + 0.1×(-3.322) + 0.1×(-3.322))
+  = -(-0.521 + -0.464 + -0.464 + -0.332 + -0.332 + -0.332)
+  = -(-2.446)
+  = 2.446
+
+评级: 健康（2.0 &lt; H ≤ 2.5）
+<span class="sb">```</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 编辑 SKILL.md</strong> —— 将 <code>:296-332</code>（从 <code>## 熵计算公式</code> 行到 <code>### 计算示例</code> 代码块收尾的 <code>```</code> 行，即 <code>### 熵评级阈值</code> 之前的全部内容）替换为：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">## 熵计算</span>
+
+香农熵公式与算例见维护者参考 <span class="sb">`chapter-pattern-reference.md`</span>（运行时不注入；计算由 Helper Precompute 代算，评级阈值与文档化要求见下）。
+</code></pre></div>
+<p><code>### 熵评级阈值</code> 起的全部后续内容<strong>逐字不动</strong>（<code>## 模式转移矩阵</code> 等更早内容也不动）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py tests/pipeline/test_dispatch_helper_system_stability.py -v</code>
+Expected: all passed</p>
+<ul>
+<li>[ ] <strong>Step 6: 暂存后 just check 全量（contract-prose R1/R2 + registry R1 是实际防护面）</strong></li>
+</ul>
+<p>justfile 的幂等 diff 门（<code>git diff --exit-code -- ... skills/ ...</code>）比较工作树与索引——<strong>必须先暂存</strong>三个文件再跑 check，否则未暂存的 SKILL.md 编辑会让该门误红（plan 审查 I2）：</p>
+<p><div class="highlight"><pre><span></span><code><span class="nv">G</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin/git
+<span class="nv">$G</span><span class="w"> </span>add<span class="w"> </span>skills/shenbi-chapter-pattern/SKILL.md<span class="w"> </span>skills/shenbi-chapter-pattern/chapter-pattern-reference.md<span class="w"> </span>tests/pipeline/test_spec6_prompt_slimming.py
+<span class="nv">PATH</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin:<span class="nv">$PATH</span><span class="w"> </span>just<span class="w"> </span>check
+</code></pre></div>
+Expected: EXIT=0</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">G</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin/git
+<span class="nv">$G</span><span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec6 T_C — externalize chapter-pattern entropy teaching block</span>
+
+<span class="s2">Move Shannon-entropy formula + worked example (627 chars) to maintainer</span>
+<span class="s2">reference chapter-pattern-reference.md (never injected at runtime,</span>
+<span class="s2">anti-ai-reference.md precedent); keep entropy rating thresholds and</span>
+<span class="s2">input-documentation requirements inline (runtime invariants). Net</span>
+<span class="s2">system-prompt drop asserted &gt;=450 chars / &gt;=140 est-tokens offline.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-t_c-2-pacing-design">Task 3: T_C-2 — pacing-design 教学节外置</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-pacing-design/SKILL.md:84-110</code>（删 <code>### 2. 三线比例</code> 与 <code>### 3. 场景类型</code> 两教学节（含 :110 空行），换指针节，指针节与 <code>### 4.</code> 之间保留恰好一个空行；<code>### 4. 单调性检测阈值</code> 改号为 <code>### 3.</code>，内容逐字不动；<code>## 输出格式</code> 起全部不动）
+- Create: <code>skills/shenbi-pacing-design/pacing-design-reference.md</code>
+- Modify: <code>tests/pipeline/test_spec6_prompt_slimming.py</code>（追加 pacing 用例）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的测试文件结构（<code>_system_prompt</code> helper、常量段）
+- Produces: <code>pacing-design-reference.md</code>（维护者参考，无代码消费者）</p>
+<ul>
+<li>[ ] <strong>Step 1: 追加失败测试</strong>（在 <code>tests/pipeline/test_spec6_prompt_slimming.py</code> 常量段与用例后追加）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">PRE_LEN_PACING</span> <span class="o">=</span> <span class="mi">6829</span>
+<span class="n">PRE_EST_PACING</span> <span class="o">=</span> <span class="mi">2511</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_pacing_design_slimmed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">_system_prompt</span><span class="p">(</span><span class="s2">&quot;shenbi-pacing-design&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># net char drop: removed 481 chars, pointer block 111 chars (plan-review simulated)</span>
+    <span class="k">assert</span> <span class="n">PRE_LEN_PACING</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">280</span>
+    <span class="c1"># estimated-token drop (simulated 146, threshold with margin)</span>
+    <span class="k">assert</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">PRE_EST_PACING</span> <span class="o">-</span> <span class="mi">130</span>
+
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">SKILLS_DIR</span> <span class="o">/</span> <span class="s2">&quot;shenbi-pacing-design&quot;</span> <span class="o">/</span> <span class="s2">&quot;pacing-design-reference.md&quot;</span>
+    <span class="k">assert</span> <span class="n">ref</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS_DIR</span> <span class="o">/</span> <span class="s2">&quot;shenbi-pacing-design&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;`pacing-design-reference.md`&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+
+    <span class="c1"># runtime invariants kept inline</span>
+    <span class="k">assert</span> <span class="s2">&quot;单调性检测阈值&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+    <span class="k">assert</span> <span class="s2">&quot;## 输出格式&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+    <span class="k">assert</span> <span class="s2">&quot;EXACT 节标题&quot;</span> <span class="ow">in</span> <span class="n">body</span>
+
+    <span class="c1"># moved teaching markers no longer in the system prompt</span>
+    <span class="k">assert</span> <span class="s2">&quot;太多=流水账&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system</span>
+    <span class="k">assert</span> <span class="s2">&quot;每卷使用全部类型&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py -v</code>
+Expected: <code>test_pacing_design_slimmed</code> FAIL（drop = 0），<code>test_chapter_pattern_slimmed</code> PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: 建参考文件</strong> <code>skills/shenbi-pacing-design/pacing-design-reference.md</code></li>
+</ul>
+<p>内容 = 维护者注记头 + 被移两节 verbatim：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># pacing-design 维护者参考：三线比例与场景类型</span>
+
+<span class="k">&gt; </span><span class="ge">本文件面向 skill 作者/维护者，运行时**不注入** dispatch prompt（T_C 外置，spec #6）。</span>
+<span class="k">&gt; </span><span class="ge">运行时所需的输出骨架（三线目标比值表、场景类型表）已完整内含于 SKILL.md 的 `## 输出格式` EXACT 模板。</span>
+
+<span class="gu">### 2. 三线比例</span>
+
+| 线 | 含义 | 典型比例 | 失衡后果 |
+|----|------|---------|---------|
+| QUEST | 任务/冒险/主线推进 | 50-60% | 太多=流水账；太少=停滞 |
+| FIRE | 关系/情感/羁绊 | 25-35% | 太多=恋爱脑；太少=冷血 |
+| CONSTELLATION | 世界观/设定/智斗 | 见下方「目标比值（按卷型）」表 | 太多=说教；太少=扁平 |
+
+比例可随卷调整：开卷 CONSTELLATION 偏高铺垫，情感卷 FIRE 偏高。
+
+<span class="gu">### 3. 场景类型</span>
+
+定义 6-12 种场景类型：
+
+| 类型 | 标志 |
+|------|------|
+| 战斗 | 高强度冲突 |
+| 对话 | 信息/情感交流 |
+| 日常 | 角色互动/生活 |
+| 探索 | 新地点/新信息 |
+| 修炼 | 能力提升/突破 |
+| 阴谋 | 算计/政治 |
+| 逃亡 | 危机/追击 |
+| 揭示 | 真相/揭露 |
+
+每卷使用全部类型，单卷内不连续 3 章同类型。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 编辑 SKILL.md</strong> —— 将 <code>:84-110</code>（从 <code>### 2. 三线比例</code> 行到 <code>### 3. 场景类型</code> 节末的 <code>每卷使用全部类型，单卷内不连续 3 章同类型。</code> 行）替换为：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">### 2. 三线比例与场景类型</span>
+
+完整定义、典型比例与场景类型标志见维护者参考 <span class="sb">`pacing-design-reference.md`</span>（运行时不注入；三线/场景规则见本文件硬规则，输出骨架以内含 EXACT 模板为准）。
+</code></pre></div>
+<p>并将紧随其后的 <code>### 4. 单调性检测阈值</code> 行改为 <code>### 3. 单调性检测阈值</code>（仅改号，正文逐字不动）。其余内容（<code>### 1. 四拍循环</code>、<code>## 输出格式</code> 起）<strong>全部不动</strong>。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>PATH=/Library/Developer/CommandLineTools/usr/bin:$PATH uv run pytest tests/pipeline/test_spec6_prompt_slimming.py tests/pipeline/test_dispatch_helper_system_stability.py -v</code>
+Expected: all passed</p>
+<ul>
+<li>[ ] <strong>Step 6: 暂存后 just check 全量</strong></li>
+</ul>
+<p>（同 Task 2 Step 6 理由——先暂存再 check，避免幂等 diff 门误红）</p>
+<p><div class="highlight"><pre><span></span><code><span class="nv">G</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin/git
+<span class="nv">$G</span><span class="w"> </span>add<span class="w"> </span>skills/shenbi-pacing-design/SKILL.md<span class="w"> </span>skills/shenbi-pacing-design/pacing-design-reference.md<span class="w"> </span>tests/pipeline/test_spec6_prompt_slimming.py
+<span class="nv">PATH</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin:<span class="nv">$PATH</span><span class="w"> </span>just<span class="w"> </span>check
+</code></pre></div>
+Expected: EXIT=0</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">G</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin/git
+<span class="nv">$G</span><span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;perf: spec6 T_C — externalize pacing-design teaching sections</span>
+
+<span class="s2">Move three-line-ratio and scene-type teaching tables (481 chars) to</span>
+<span class="s2">maintainer reference pacing-design-reference.md (never injected; output</span>
+<span class="s2">template self-contained with EXACT skeleton + target ratio tables);</span>
+<span class="s2">renumber monotonicity threshold section. Net system-prompt drop</span>
+<span class="s2">asserted &gt;=280 chars / &gt;=130 est-tokens offline.&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task">度量与验收证据（执行期动作，非 task）</h2>
+<ul>
+<li>每个 T_C task 完成时运行并粘贴到 progress.md <code>## 验收证据</code>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">PATH</span><span class="o">=</span>/Library/Developer/CommandLineTools/usr/bin:<span class="nv">$PATH</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import tempfile</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.pipeline.dispatch_helper import _build_skill_prompt</span>
+<span class="s2">from shenbi.cost.estimate import estimate_prompt_tokens</span>
+<span class="s2">with tempfile.TemporaryDirectory() as td:</span>
+<span class="s2">    pd = Path(td)</span>
+<span class="s2">    for s in (&#39;shenbi-chapter-pattern&#39;, &#39;shenbi-pacing-design&#39;):</span>
+<span class="s2">        sys_p, _, _ = _build_skill_prompt(s, pd, &#39;x&#39;, 1)</span>
+<span class="s2">        print(s, &#39;len=&#39;, len(sys_p), &#39;est=&#39;, estimate_prompt_tokens(sys_p))&quot;</span>
+</code></pre></div>
+<p>记录 post 值与 pre 常量差值（字符 + token 双口径；spec §3.5 的字节口径差值同时换算记录）。</p>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>：T_A→Task 1；T_C 实施集（chapter-pattern/pacing）→Task 2/3；T_B/T_D 不实施已在 spec/deviations 记录，无 task（正确）。spec §3.8 四行验收：字节净降/估算 token 差→两 task 测试；just check→每 task Step 6；引用存在性→断言 + contract-prose 机械防护；audit-run 面→不做（记录）。</li>
+<li><strong>占位符扫描</strong>：无 TBD/「适当处理」；所有代码块完整可粘贴。</li>
+<li><strong>类型一致</strong>：<code>_build_skill_prompt(skill, project_dir, prompt, chapter)</code> 参数序与源码 :601 一致；常量名前后一致（PRE_LEN_CHAPTER_PATTERN 等）。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

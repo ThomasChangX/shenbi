@@ -1,0 +1,1936 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-12-registry-reconcile-lint/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C22 平行登记表对账门禁（registry-reconcile）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C22 平行登记表对账门禁（registry-reconcile）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-12-registry-reconcile-lint.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-12-registry-reconcile-lint/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C22 平行登记表对账门禁（registry-reconcile）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-12-registry-reconcile-lint.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c22-registry-reconcileimplementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C22 平行登记表对账门禁（registry-reconcile）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="验收覆盖表（spec 验收 → task → 验证命令）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t0a-1-g5_checker_globs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T0a-1 — G5_CHECKER_GLOBS 模块级提升（行为保持）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t0a-2-build_checkers-g4_decisions_wired-f1017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T0a-2 — build_checkers() 工厂 + G4_DECISIONS_WIRED 导出 + F1017 派生改造
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t0b-canonicalizer-t203-dag-f432-g5-fail-marker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T0b — canonicalizer 统一 + T203 DAG 停用 + F432 G5 FAIL marker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-lint-1-lint_registry_reconcilepy-r1-r5-glob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Lint-1 — lint_registry_reconcile.py 骨架 + R1 技能闭包 + R5 glob 面
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-lint-2-r2-r3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Lint-2 — R2 词表闭包 + R3 哈希新鲜度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-data-1-masterjson-14-live-14-deprecated-59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Data-1 — master.json +14 live / −14 DEPRECATED → 59
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-data-2-t2-seeds-audit-seed-rubric-only-agents-f424" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Data-2 — t2 seeds + audit seed + rubric-only 登记 + AGENTS 去数字化 + F424 注释
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-data-3-short_map-11-g5_checker_globs-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Data-3 — SHORT_MAP +11 + G5_CHECKER_GLOBS +9
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-data-4-registry-backfill-5bg4_checker_skills-9-indexmd-5-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: Data-4 — registry backfill 5b（G4_CHECKER_SKILLS +9 / index.md +5 / 触发表 +7）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-data-5-truth-filesyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: Data-5 — truth-files.yaml 词表修正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-data-6-f1151-t206-worldbuilding-f521-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: Data-6 — F1151 模板改名 + T206 worldbuilding 裁决 + F521 OWNERSHIP 死条目
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-data-7-f354-genesis_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: Data-7 — F354 genesis_outputs 补两文件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-r4-f1022-t207" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: R4 — 迁移器删除（F1022 + T207）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-14-_tool_hashes-lint-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 14: 终态 — _tool_hashes 重锁 + lint 全绿 + 验收 1 红灯五样本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-15-t3-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 15: T3 — CI 双挂载
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c22-registry-reconcileimplementation-plan">C22 平行登记表对账门禁（registry-reconcile）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 单一对账 lint（R1-R5）收口五族平行登记表与磁盘现实的双向闭包，修 F432 生产假 FAIL 与 F1004 master.json 缺口/DEPRECATED 路由等 29 条簇成员。</p>
+<p><strong>Architecture:</strong> 先做 T0 结构前置（gate 内局部注册表提升为可 import 的模块级事实 + canonicalizer 统一），再写 <code>tools/lint_registry_reconcile.py</code>（五规则一体、repo-root 参数化、机器可读输出），存量数据分表修正转绿（每表一 commit），终态重锁 <code>_tool_hashes</code> + 红灯五样本验证，最后双挂载 CI/justfile。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ (uv)，pytest，纯标准库 lint（json/yaml/pathlib/fnmatch/hashlib），justfile + GitHub Actions ci.yml。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-16-audit-registry-reconcile-fix.md</code>（Revised 2026-09-12，设计审查六轮收敛版）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>框架代码（<code>src/shenbi/</code>）无 <code>print()</code>（structlog / cli_utils.echo）；gate 检查器纯函数幂等；pathlib 文件 I/O</li>
+<li>状态字面量唯一定义于 <code>src/shenbi/contracts/enums.py</code>（新代码不引裸状态串，<code>tools/lint_status_strings.py</code> 红 = Critical）</li>
+<li>验证一律 <code>just</code>/<code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）；系统 python 结果不算证据</li>
+<li>禁真实 LLM dispatch（核心原则 8）；验收全离线可复验</li>
+<li>commit 走 Conventional Commits 且<strong>显式列文件路径</strong>（禁 <code>git add -A</code>）</li>
+<li><code>_tool_hashes</code> 的 193 条在 T1/T2 改 src 期间会过期——<strong>仅 Task 14 终态重锁一次</strong>，中途 <code>just check</code> 若因哈希红属预期（spec R3 已声明）</li>
+<li><strong>中途红窗口一个</strong>：_tool_hashes（src 改动起至 Task 14 终态重锁——Task 3 Step 4b 同 task 补花括号 patterns 已消除 lint_contract_graph 窗口）。窗口外的 lint/测试红 = 真缺陷（<strong>例外</strong>：<code>test_clean_repo_zero_violations</code> 自 Task 4 起设计性红至 Task 14——数据面转绿前它就是红的）</li>
+<li>master.json 版本单源化取<strong>保守方案：只校验不生成</strong>（pyproject 为源）</li>
+</ul>
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. lint exit 0 + 0 violations（FAIL 级）+ 临时副本五负样本各红</td>
+<td>T4/T5/T14</td>
+<td><code>uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume</code> + tests/unit/test_lint_registry_reconcile.py 负样本测试</td>
+</tr>
+<tr>
+<td>2. master.json == 59 live ∧ ∩ DEPRECATED = ∅；deps 维持；_tool_hashes 193/193</td>
+<td>T6/T14</td>
+<td>R1 lint 面 + <code>tests/lock-tool-hashes.sh</code> 复验</td>
+</tr>
+<tr>
+<td>3. F432 回归：缺 glob checker-having → FAIL marker（非 exception）</td>
+<td>T3/T4</td>
+<td>tests/unit/gates/test_g5_missing_glob.py</td>
+</tr>
+<tr>
+<td>4. AGENTS.md 计数去数字化</td>
+<td>T10</td>
+<td>grep AGENTS.md 无 "72 functional"</td>
+</tr>
+<tr>
+<td>5. 双挂载 justfile check + ci.yml lint step</td>
+<td>T15</td>
+<td><code>just --dry-run check</code> 含 lint 行；grep ci.yml</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-t0a-1-g5_checker_globs">Task 1: T0a-1 — G5_CHECKER_GLOBS 模块级提升（行为保持）</h3>
+<p><strong>复杂度: infra</strong>（<code>src/shenbi/gates/g5.py</code>）· <strong>test_kind: characterization</strong> · 测试层级 T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g5.py:271-295</code>（dict 字面量移出 <code>gate_G5</code>）
+- Test: <code>tests/unit/gates/test_g5_globs_module_level.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>from shenbi.gates.g5 import G5_CHECKER_GLOBS</code> — <code>dict[str, list[str]]</code>，模块级常量，19 条现存 + Task 8 再 +9</p>
+<ul>
+<li>[ ] <strong>Step 1: 写特征测试（characterization）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;G5_CHECKER_GLOBS is module-level and importable (spec #60 T0a-1).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g5</span><span class="w"> </span><span class="kn">import</span> <span class="n">G5_CHECKER_GLOBS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_globs_module_level_importable</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G5_CHECKER_GLOBS</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">G5_CHECKER_GLOBS</span><span class="p">[</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;novel.json&quot;</span><span class="p">,</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;world/*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/*.md&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_globs_entry_count_baseline</span><span class="p">():</span>
+    <span class="c1"># 19 at extraction time; Task 8 adds 9 → 28. Pin the floor, not the ceiling.</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">G5_CHECKER_GLOBS</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">19</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g5_globs_module_level.py -v</code>
+Expected: FAIL <code>ImportError: cannot import name 'G5_CHECKER_GLOBS'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 移动 dict 到模块级</strong>——将 g5.py:271-294 的 <code>G5_CHECKER_GLOBS = {...}</code>（19 条整块）从 <code>def gate_G5</code> 体内剪切，粘贴到模块级（<code>gate_G5</code> 定义之前，带类型注解）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">G5_CHECKER_GLOBS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;novel.json&quot;</span><span class="p">,</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;world/*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/*.md&quot;</span><span class="p">],</span>
+    <span class="c1"># ...其余 18 条原样照搬，一字不改...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>gate_G5</code> 体内原位置删除该定义；:317 的 <code>G5_CHECKER_GLOBS.get(pr, ["*.md"])</code> 引用不变（本 task 不动语义，FAIL 化在 Task 3）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试 + G5 既有回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g5_globs_module_level.py -v &amp;&amp; uv run pytest tests/ -k "g5" -q</code>
+Expected: 全 PASS（G5 既有测试证明行为不变）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g5.py<span class="w"> </span>tests/unit/gates/test_g5_globs_module_level.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: hoist G5_CHECKER_GLOBS to module level (spec60 T0a-1, behavior-preserving)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-t0a-2-build_checkers-g4_decisions_wired-f1017">Task 2: T0a-2 — build_checkers() 工厂 + G4_DECISIONS_WIRED 导出 + F1017 派生改造</h3>
+<p><strong>复杂度: infra</strong>（<code>src/shenbi/gates/g4/generic.py</code>、<code>tools/lint_repo_consistency.py</code>）· <strong>test_kind: characterization</strong>（提取）+ <strong>tdd_red_green</strong>（F1017 派生）· T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/generic.py:289-357</code>（<code>gate_G4</code> 内 checkers 构造提取为模块级工厂）
+- Modify: <code>tools/lint_repo_consistency.py:112-122</code>（硬编码快照改派生）
+- Test: <code>tests/unit/gates/g4/test_build_checkers.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>build_checkers() -&gt; dict[str, Callable]</code>（模块级工厂，late imports 保留）；<code>G4_DECISIONS_WIRED: frozenset[str]</code>（8 条：chapter-drafting/chapter-planning/context-composing/genre-config/chapter-revision/short-drafting/state-settling/market-radar）；<code>G4_CHECKER_KEYS: frozenset[str]</code>（30 键，纯字符串无函数引用）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;build_checkers() factory + declarative wiring facts (spec #60 T0a-2 / F1017).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">G4_CHECKER_KEYS</span><span class="p">,</span> <span class="n">G4_DECISIONS_WIRED</span><span class="p">,</span> <span class="n">build_checkers</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_build_checkers_returns_thirty</span><span class="p">():</span>
+    <span class="n">checkers</span> <span class="o">=</span> <span class="n">build_checkers</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">30</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">checkers</span><span class="p">)</span> <span class="o">==</span> <span class="n">G4_CHECKER_KEYS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_decisions_wired_is_eight</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">G4_DECISIONS_WIRED</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">({</span>
+        <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-context-composing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-genre-config&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-short-drafting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-market-radar&quot;</span><span class="p">,</span>
+    <span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wired_subset_of_checkers</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">G4_DECISIONS_WIRED</span> <span class="o">&lt;=</span> <span class="n">G4_CHECKER_KEYS</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_build_checkers.py -v</code>
+Expected: FAIL <code>ImportError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 提取工厂</strong>——generic.py：把 <code>gate_G4</code> 体内 <code>from shenbi.gates.g4.decisions_validator import ...</code> 起到 <code>register_score_checkers(checkers)</code> 止的整块构造，移入新模块级函数。<strong>late imports 原样保留在工厂体内</strong>（循环导入规避 + spawn 成本，见 cli.py T1604 记录）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">G4_DECISIONS_WIRED</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-planning&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-context-composing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-genre-config&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-short-drafting&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-market-radar&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_checkers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct the per-skill G4 checker registry.</span>
+
+<span class="sd">    Late imports are deliberate (circular-import avoidance; see cli.py T1604).</span>
+<span class="sd">    G4_DECISIONS_WIRED is asserted against the actual wiring so the declarative</span>
+<span class="sd">    frozenset cannot drift from the composite construction (F1017 recurrence guard).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.decisions_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_decisions</span><span class="p">,</span> <span class="n">make_composite_checker</span>
+    <span class="c1"># ...其余 late imports 照搬...</span>
+
+    <span class="n">wired</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">comp</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+        <span class="n">wired</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">make_composite_checker</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">g4_decisions</span><span class="p">)</span> <span class="k">if</span> <span class="n">pred</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">make_composite_checker</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">g4_decisions</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+
+    <span class="n">checkers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># 原字典 27 条照搬；make_composite_checker 两参处改 comp(x, &quot;&lt;同名&gt;&quot;)；</span>
+        <span class="c1"># 三参处（chapter-revision 的 decisions_match 谓词，decisions_validator.py:148-161）改 comp(x, &quot;&lt;同名&gt;&quot;, pred) 透传——</span>
+        <span class="c1"># 漏谓词会静默改变 revision-decisions.json 的路由（plan 审查轮 1 I3）；</span>
+        <span class="c1"># 凡裸 g4_decisions 赋值处（market-radar 等）跟一行 wired.add(&quot;&lt;名&gt;&quot;)</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="n">register_score_checkers</span><span class="p">(</span><span class="n">checkers</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">wired</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">G4_DECISIONS_WIRED</span><span class="p">),</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;G4_DECISIONS_WIRED drifted: </span><span class="si">{</span><span class="n">wired</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="nb">set</span><span class="p">(</span><span class="n">G4_DECISIONS_WIRED</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">checkers</span>
+</code></pre></div>
+<p>模块顶部（late-import-free 区域）加：</p>
+<div class="highlight"><pre><span></span><code><span class="n">G4_CHECKER_KEYS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="c1"># 27 个静态键照搬自 checkers 字面量 + 3 个 score 键（scoring_sections 的</span>
+    <span class="c1"># shenbi-score-arc / shenbi-score-stratum / shenbi-score-volume）</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>并在 <code>build_checkers()</code> 的 assert 后追加 <code>assert set(checkers) == G4_CHECKER_KEYS</code>。<code>gate_G4</code> 体内改为 <code>checkers = build_checkers()</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: F1017 派生改造</strong>——<code>tools/lint_repo_consistency.py:112</code> 删除 <code>_G4_DECISIONS_SKILLS = frozenset({...7 条...})</code> 字面量，改为：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">G4_DECISIONS_WIRED</span> <span class="k">as</span> <span class="n">_G4_DECISIONS_SKILLS</span>  <span class="c1"># noqa: E402</span>
+</code></pre></div>
+<p>（tools/ 脚本 import src 的既有模式见 lint_routing_faces.py:16-21 的 sys.path 注入；lint_repo_consistency 若无则照抄该三行注入。）</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试 + G4 全量回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_build_checkers.py -v &amp;&amp; uv run pytest tests/ -k "g4 or repo_consistency" -q &amp;&amp; uv run python tools/lint_repo_consistency.py; echo "exit=$?"</code>
+Expected: 全 PASS / lint exit=0</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/generic.py<span class="w"> </span>tools/lint_repo_consistency.py<span class="w"> </span>tests/unit/gates/g4/test_build_checkers.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: build_checkers() factory + G4_DECISIONS_WIRED/G4_CHECKER_KEYS exports; F1017 snapshot now derived (spec60 T0a-2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-t0b-canonicalizer-t203-dag-f432-g5-fail-marker">Task 3: T0b — canonicalizer 统一 + T203 DAG 停用 + F432 G5 FAIL marker</h3>
+<p><strong>复杂度: infra</strong>（<code>src/shenbi/contracts/graph.py</code>、<code>src/shenbi/sync_contracts.py</code>、<code>src/shenbi/gates/g5.py</code>）· <strong>test_kind: tdd_red_green</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/graph.py:42-59</code>（<code>dag_key</code> 改 patterns-first 委托）
+- Modify: <code>src/shenbi/sync_contracts.py</code>（T203：停用 dependency-dag.json 写出）
+- Modify: <code>src/shenbi/gates/g5.py:315-322</code>（F432：checker-having 缺 glob → FAIL marker）
+- Test: <code>tests/unit/contracts/test_dag_key_unified.py</code>、<code>tests/unit/gates/test_g5_missing_glob.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的 <code>G4_CHECKER_KEYS</code>
+- Produces: <code>dag_key(path, registry)</code> 语义 == <code>normalize_to_glob(path, registry)</code>（patterns 优先）；G5.5 缺 glob 输出 FAIL marker <strong>字符串</strong> <code>f"G5.5:{pr}:missing G5_CHECKER_GLOBS entry"</code>（<code>mf</code> 是 <code>list[str]</code>，g5.py:343 做 <code>startswith("G5.5:")</code> 扫描——dict marker 会在守卫外 AttributeError，plan 轮 3 I2）</p>
+<p><strong>T0b 裁决（写入实现的决策，spec 允许二选一后落定）</strong>：统一为 <strong>patterns-first</strong>。理由：<code>dag_key</code> 的 globs-first 会把 <code>truth/arcs/arc-N.md</code> 折叠进宽 glob <code>truth/*.md</code>，使 DAG 边键与 <code>expected_outputs</code> 键（normalize_to_glob 产出）系统性发散——这正是本 spec 要消灭的「两个 canonicalizer 各说各话」；patterns-first 保参数化精度。<strong>T203 裁决：停用 dependency-dag.json 生成</strong>（唯一消费者是 CI codegen-idempotency 对它自身的 diff；lint_contract_graph 仍用 dag_key 做内存内对账，不受影响）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contracts/test_dag_key_unified.py</span>
+<span class="sd">&quot;&quot;&quot;dag_key unified to patterns-first (spec #60 T0b).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">dag_key</span><span class="p">,</span> <span class="n">normalize_to_glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_registry</span>  <span class="c1"># 实际定义在 contracts/loader.py:112，经 shenbi.contracts 重导出</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="s2">&quot;truth/arcs/arc-N.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;audits/chapter-N-anti-ai.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;world/power_system.md&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dag_key_equals_normalize</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">load_registry</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">dag_key</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize_to_glob</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_divergence_example_gone</span><span class="p">():</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">load_registry</span><span class="p">()</span>
+    <span class="c1"># 审计分歧实例：统一后不得再折叠进宽 glob</span>
+    <span class="k">assert</span> <span class="n">dag_key</span><span class="p">(</span><span class="s2">&quot;truth/arcs/arc-N.md&quot;</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize_to_glob</span><span class="p">(</span><span class="s2">&quot;truth/arcs/arc-N.md&quot;</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/test_g5_missing_glob.py</span>
+<span class="sd">&quot;&quot;&quot;F432: checker-having prereq missing glob =&gt; FAIL marker, not *.md sweep (spec #60 R5).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g5</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_phase_with_missing_glob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">,</span> <span class="n">deps_dict</span><span class="p">):</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+    <span class="n">deps</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">deps</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">deps_dict</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.gates.g5.TESTS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="k">if</span> <span class="kc">False</span> <span class="k">else</span> <span class="n">tmp_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+    <span class="c1"># 以 gate_G5 实际读取路径为准（grep g5.py TESTS 定义后对齐 monkeypatch 目标）</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_glob_checker_having_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># prerequisites 含一个 checker-having 但 G5_CHECKER_GLOBS 无条目的技能</span>
+    <span class="c1"># 构造最小 phase_data + project_dir（参照 tests/ 下既有 g5 测试的 fixture 组装方式）</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">gate_G5</span><span class="p">(</span><span class="n">phase_name</span><span class="o">=</span><span class="s2">&quot;drafting&quot;</span><span class="p">,</span> <span class="n">round_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="s2">&quot;missing G5_CHECKER_GLOBS entry&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+</code></pre></div>
+<p>（测试组装细节以 <code>tests/unit/gates/</code> 既有 G5 测试的真实 fixture 模式为准——写测试前先 <code>ls tests/unit/gates/ | grep g5</code> 并读一个既有用例。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_dag_key_unified.py tests/unit/gates/test_g5_missing_glob.py -v</code>
+Expected: FAIL（dag_key ≠ normalize 于 arc-N；G5 无 marker）</p>
+<ul>
+<li>[ ] <strong>Step 3: dag_key 改委托</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dag_key</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">registry</span><span class="p">:</span> <span class="n">TruthFilesRegistry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Canonical matching key for a path in the DAG.</span>
+
+<span class="sd">    Unified patterns-first (spec #60 T0b): identical to normalize_to_glob.</span>
+<span class="sd">    The former globs-first ordering collapsed specific paths into broad</span>
+<span class="sd">    declared globs (truth/arcs/arc-N.md -&gt; truth/*.md), diverging from the</span>
+<span class="sd">    expected_outputs keys produced by normalize_to_glob.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">normalize_to_glob</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: T203 停用 DAG 写出</strong>——<code>grep -n "dependency-dag" src/shenbi/sync_contracts.py</code>，删除/注释该写出块（保留 dag_key import 若 lint_contract_graph 消费；若 sync_contracts 不再需要则删 import）；同时 <code>grep -rn "dependency-dag" .github/ justfile tools/ tests/</code> 清空全部挂载点；<code>git rm</code> 仓库内 checked-in 的 dependency-dag.json（若存在）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4b: yaml 补三条花括号 patterns（C1 修复的强制宿主——patterns-first 统一的同 task 消防）</strong>——<code>docs/framework/truth-files.yaml</code> patterns 节追加：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-{N-3}.md</span>
+<span class="w">    </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-*.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-{N-2}.md</span>
+<span class="w">    </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-*.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-{N-1}.md</span>
+<span class="w">    </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-*.md</span>
+</code></pre></div>
+<p>（花括号 read 归一到与 producer <code>chapters/chapter-N.md</code> 相同的 <code>chapters/chapter-*.md</code> 键，消除 lint_contract_graph 的 3 个 ORPHAN_READ；patterns 节字段名以现文件为准对齐。）随后 <code>uv run shenbi-sync-contracts</code>，若 deps.json/生成物出现 diff 随本 task commit。</p>
+<ul>
+<li>[ ] <strong>Step 5: G5 FAIL marker</strong>——g5.py G5.5 循环内，替换 <code>globs = G5_CHECKER_GLOBS.get(pr, ["*.md"])</code>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">G4_CHECKER_KEYS</span>  <span class="c1"># 模块顶（纯 frozenset，无循环风险；若 CI 红则降为函数内 late import）</span>
+
+<span class="c1"># 循环内：</span>
+<span class="k">if</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">G5_CHECKER_GLOBS</span><span class="p">:</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">G5_CHECKER_GLOBS</span><span class="p">[</span><span class="n">pr</span><span class="p">]</span>
+<span class="k">elif</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">G4_CHECKER_KEYS</span><span class="p">:</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G5.5:</span><span class="si">{</span><span class="n">pr</span><span class="si">}</span><span class="s2">:missing G5_CHECKER_GLOBS entry&quot;</span><span class="p">)</span>  <span class="c1"># mf is list[str]; :343 startswith scan</span>
+    <span class="k">continue</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;*.md&quot;</span><span class="p">]</span>  <span class="c1"># checker-less prereq: explicit default -&gt; generic check</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: 全量相关回归 + sync 幂等</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_dag_key_unified.py tests/unit/gates/test_g5_missing_glob.py -v &amp;&amp; uv run pytest tests/ -k "graph or g5 or sync" -q &amp;&amp; uv run python tools/lint_contract_graph.py; echo "graph_exit=$?" &amp;&amp; uv run shenbi-sync-contracts &amp;&amp; git status --porcelain -- tests/tiers/deps.json docs/framework/ skills/</code>
+Expected: 测试全 PASS；<strong>lint_contract_graph 必须 exit 0</strong>（Step 4b 已同 task 补三条花括号 patterns，无中间红窗口）；sync 后 deps.json/docs 生成物若因键归一变化，diff 随本 task commit</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/graph.py<span class="w"> </span>src/shenbi/sync_contracts.py<span class="w"> </span>src/shenbi/gates/g5.py<span class="w"> </span>docs/framework/truth-files.yaml<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/<span class="w"> </span>tests/unit/contracts/test_dag_key_unified.py<span class="w"> </span>tests/unit/gates/test_g5_missing_glob.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: unify canonicalizer patterns-first (T0b) + retire dependency-dag.json (T203) + G5 missing-glob FAIL marker (F432, spec60)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-lint-1-lint_registry_reconcilepy-r1-r5-glob">Task 4: Lint-1 — lint_registry_reconcile.py 骨架 + R1 技能闭包 + R5 glob 面</h3>
+<p><strong>复杂度: infra</strong>（协调者亲做）· <strong>test_kind: tdd_red_green</strong> · T1</p>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_registry_reconcile.py</code>
+- Test: <code>tests/unit/test_lint_registry_reconcile.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>G5_CHECKER_GLOBS</code>、Task 2 <code>build_checkers()/G4_CHECKER_KEYS/G4_DECISIONS_WIRED</code>、<code>src/shenbi/skill_utils/deprecated.py: deprecated_skill_names(skills_dir: Path) -&gt; frozenset[str]</code>
+- Produces: <code>lint_registry_reconcile(repo: Path, allow_missing: frozenset[str] = frozenset()) -&gt; list[str]</code>（FAIL 级 violations）；<code>main() -&gt; int</code>（<code>--repo</code>、<code>--allow-missing</code> 参数）；机器可读输出行格式 <code>[RUL] table: direction: entry</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（R1 各面负样本——临时 repo 副本变异）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_lint_registry_reconcile.py</span>
+<span class="sd">&quot;&quot;&quot;lint_registry_reconcile R1/R5 faces (spec #60 T1).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_registry_reconcile</span><span class="w"> </span><span class="kn">import</span> <span class="n">lint_registry_reconcile</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">repo_copy</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy the minimal registry set into a temp repo root.&quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;repo&quot;</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;plugins/master.json&quot;</span><span class="p">,</span> <span class="s2">&quot;tests/tiers/deps.json&quot;</span><span class="p">,</span> <span class="s2">&quot;docs/skills/index.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;docs/framework/truth-files.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;AGENTS.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;src/shenbi/gates/g5.py&quot;</span><span class="p">,</span> <span class="s2">&quot;src/shenbi/gates/shared.py&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;src/shenbi/gates/g4/generic.py&quot;</span><span class="p">,</span> <span class="s2">&quot;src/shenbi/contracts/registry.py&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;src/shenbi/gates/cli.py&quot;</span><span class="p">,</span>  <span class="c1"># SHORT_MAP import face needs the module itself (plan r3 I1)</span>
+                <span class="s2">&quot;src/shenbi/__init__.py&quot;</span><span class="p">,</span> <span class="s2">&quot;src/shenbi/gates/__init__.py&quot;</span><span class="p">]:</span>  <span class="c1"># regular-package precedence (plan r1 I4)</span>
+        <span class="p">(</span><span class="n">dst</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="n">rel</span><span class="p">,</span> <span class="n">dst</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">,</span> <span class="n">dst</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dst</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clean_repo_zero_violations</span><span class="p">(</span><span class="n">repo_copy</span><span class="p">):</span>
+    <span class="c1"># NOTE: this test stays RED from Task 4 until Tasks 6-11 land (the copy carries</span>
+    <span class="c1"># the born-red inventory). It is finally green at Task 14. Do NOT data-fix inside Task 4.</span>
+    <span class="c1"># score-×3 pipeline-internal exemption (Task 9 ruling) is passed here too:</span>
+    <span class="k">assert</span> <span class="n">lint_registry_reconcile</span><span class="p">(</span>
+        <span class="n">repo_copy</span><span class="p">,</span>
+        <span class="n">allow_missing</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;shenbi-score-arc&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-score-stratum&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-score-volume&quot;</span><span class="p">}),</span>
+    <span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_master_json_deprecated_route_fails</span><span class="p">(</span><span class="n">repo_copy</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">repo_copy</span> <span class="o">/</span> <span class="s2">&quot;plugins&quot;</span> <span class="o">/</span> <span class="s2">&quot;master.json&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="n">m</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;skills/shenbi-review-pov/SKILL.md&quot;</span><span class="p">)</span>  <span class="c1"># DEPRECATED</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+    <span class="n">vios</span> <span class="o">=</span> <span class="n">lint_registry_reconcile</span><span class="p">(</span><span class="n">repo_copy</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;master&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="ow">and</span> <span class="s2">&quot;DEPRECATED&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vios</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_short_map_deletion_fails</span><span class="p">(</span><span class="n">repo_copy</span><span class="p">):</span>
+    <span class="c1"># SHORT_MAP 是 src 内代码——临时副本策略：lint 从 repo 根读 src/shenbi/gates/cli.py</span>
+    <span class="c1"># 的 SHORT_MAP（AST/文本解析）或直接 import 前先 sys.path 指向副本 src。</span>
+    <span class="c1"># 实现取 sys.path 注入法（lint_routing_faces 模式）：</span>
+    <span class="c1">#   sys.path.insert(0, str(repo / &quot;src&quot;))  再 import shenbi.gates.cli</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">repo_copy</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span> <span class="o">/</span> <span class="s2">&quot;gates&quot;</span> <span class="o">/</span> <span class="s2">&quot;cli.py&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_re</span>
+    <span class="n">orig</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;src/shenbi/gates/cli.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">_re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&quot;chapter-drafting&quot;: &quot;shenbi-chapter-drafting&quot;,\n&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">orig</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">vios</span> <span class="o">=</span> <span class="n">lint_registry_reconcile</span><span class="p">(</span><span class="n">repo_copy</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;SHORT_MAP&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vios</span><span class="p">)</span>
+</code></pre></div>
+<p>（其余面的负样本同构——spec 验收 1 五样本：master.json 加 DEPRECATED 路由（已列）/ SHORT_MAP 删一项（已列）/ <strong>G5_GLOBS 删一条 checker-having 条目</strong>（AST 面文本变异）/ 词表参数化概念 patterns+globs 双删 / _tool_hashes 改一字节（已拷贝目标如 g5.py）——五样本测试函数在本 task 与 Task 5 补齐。）</p>
+<p><strong>缺失文件语义（plan 轮 3 I3）</strong>：R1 seed 面与 R3 哈希面对副本中不存在的目标<strong>跳过</strong>（seed.md 未拷贝 → 该面 skip；<code>_tool_hashes</code> 条目目标文件不在副本 → 该条 skip）——副本 greenness 只断言已拷贝面；R3 负样本变异须选<strong>已拷贝</strong>目标的哈希（如 <code>src/shenbi/gates/g5.py</code>）。</p>
+<p><strong>读取机制分派（plan 审查轮 2 I4 定案）</strong>：可 import 面（SHORT_MAP 经 cli.py——stdlib-only 模块级）用 sys.path 副本注入 + <code>sys.modules</code> 清理；<strong>不可 import 面（g5.py 的 G5_CHECKER_GLOBS、generic.py 的 checkers、shared.py 的 G4_CHECKER_SKILLS、registry/AGENTS/yaml）一律 AST/文本解析</strong>（<code>ast.literal_eval</code> 提取 dict/set 字面量；注意 <code>frozenset({...})</code> 是 Call 节点不可 literal_eval——取其 <code>.args[0]</code>（Set 节点）或退正则，plan 轮 3 M2）——这些模块的 import 闭包（contracts/gates.shared/safe_write）在临时副本不可满足。fixture 拷贝清单相应只补 AST 面所需源文件与 <code>AGENTS.md</code>。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 确认失败</strong>（模块不存在）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现 lint 主体</strong>——规则面与不变量逐条（spec T1 R1 每面不变量行 + R5）：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Registry reconciliation lint (spec #60): five rule-faces R1-R5.</span>
+
+<span class="sd">R1 skill closure (per-face invariants in spec), R2 word-list closure,</span>
+<span class="sd">R3 hash freshness, R5 glob validity. R4 is delete-first (no lint rule).</span>
+<span class="sd">Exit 1 on any FAIL-level violation; WARNs go to stderr and don&#39;t count.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">lint_registry_reconcile</span><span class="p">(</span><span class="n">repo</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">errs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">errs</span> <span class="o">+=</span> <span class="n">_r1_skill_closure</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">)</span>
+    <span class="n">errs</span> <span class="o">+=</span> <span class="n">_r2_word_list</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+    <span class="n">errs</span> <span class="o">+=</span> <span class="n">_r3_hash_freshness</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+    <span class="n">errs</span> <span class="o">+=</span> <span class="n">_r5_glob_validity</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">errs</span>
+</code></pre></div>
+<p>R1 各面实现要点（每面一个函数，violation 行格式 <code>[R1] &lt;table&gt;: &lt;direction&gt;: &lt;entry&gt;</code>）：
+- <code>master.json ⊇/== live set ∧ ∩ DEPRECATED = ∅</code>：解析 <code>plugins/master.json</code> skills 路径列表 → 技能名，对照 <code>{p.name for p in skills_dir.iterdir()}</code> − <code>deprecated_skill_names(skills_dir)</code>
+- <code>SHORT_MAP ⊇ checker-having</code>：sys.path 注入 repo/src 后 <code>import shenbi.gates.cli</code>（fresh interpreter 语义靠子进程或 importlib 缓存清理——<strong>用 <code>importlib</code> + 显式 <code>sys.modules</code> 清理</strong>，测试与 lint 内一致）
+- <code>G5_GLOBS ⊇ checker-having ∧ t2-prereq</code>：deps.json <code>t2-phases.*.prerequisites</code> ∩ <code>G4_CHECKER_KEYS</code> ⊆ <code>G5_CHECKER_GLOBS</code> keys
+- <code>G4_CHECKER_SKILLS == checkers 30</code>：<code>src/shenbi/gates/shared.py</code> 的 G4_CHECKER_SKILLS（文本解析或 import）== <code>build_checkers()</code> keys
+- <code>docs/skills/index.md ⊇ live</code>、<code>using-shenbi SKILL.md ⊇ functional live − allow_missing − {2 meta}</code>、<code>t2 seed ⊇ prerequisites</code>（seed.md 文本含技能名字面 token）、<code>AGENTS.md 计数 = R1 输出（transitional：无数字即 PASS）</code></p>
+<ul>
+<li>[ ] <strong>Step 4: 测试过 + 手跑</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_lint_registry_reconcile.py -v &amp;&amp; uv run python tools/lint_registry_reconcile.py; echo "exit=$?"</code></p>
+<p>Expected: 负样本测试 PASS；<strong>clean-repo 测试 RED（预期——副本带全量存量红清单，Tasks 6-11 转绿，Task 14 验收）</strong>；真实 repo 跑出<strong>存量 violations 清单</strong>（master 14+14、SHORT_MAP 11、G5 9、backfill 面 21 缺口、seed 15 等——这是 T2 各 task 的转绿对象，此刻<strong>预期红</strong>，输出留档 progress.md）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_registry_reconcile.py<span class="w"> </span>tests/unit/test_lint_registry_reconcile.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: lint_registry_reconcile R1 skill-closure + R5 glob faces (spec60 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-lint-2-r2-r3">Task 5: Lint-2 — R2 词表闭包 + R3 哈希新鲜度</h3>
+<p><strong>复杂度: infra</strong> · <strong>test_kind: tdd_red_green</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_registry_reconcile.py</code>（补 <code>_r2_word_list</code> / <code>_r3_hash_freshness</code>）
+- Test: <code>tests/unit/test_lint_registry_reconcile.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>src/shenbi/contracts/graph.py: normalize_to_glob/dag_key</code>（统一后等价；<strong>副本运行不 import——临时副本 yaml 直接解析，load_registry 仅真实 repo CLI 路径用</strong>（loader.py:112 为 PROJECT-bound 缓存加载器））、<code>src/shenbi/contracts/registry.py: known_skill_names()</code>（disk-derived，结构 no-op 面）、<code>tests/lock-tool-hashes.sh</code> 的哈希算法（读脚本提取：sha256 envelope <code>sha256:&lt;hex&gt;</code>）
+- Produces: R2 面violation <code>[R2] yaml: ...</code>；R3 面 <code>[R3] _tool_hashes: stale: &lt;path&gt;</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（yaml 双删负样本 + 哈希字节翻负样本 + 磁盘产物模式 ↔ yaml 闭包两向）</li>
+<li>[ ] <strong>Step 2: 确认失败</strong></li>
+<li>[ ] <strong>Step 3: 实现</strong>——R2：解析 yaml（concepts/patterns/globs 三节）→ 检查 (a) 5 个参数化概念 glob 可解析（patterns 或 globs 二居一）；(b) <code>truth-files.index.json</code> 的 producer/consumer 概念名 ⊆ yaml concepts（write-only 报 WARN）；(c) 代码硬编码概念 grep 面（<code>src/shenbi/</code> 内 <code>truth/</code> 路径字面量）⊆ yaml。R3：deps.json <code>_tool_hashes</code> 逐条 sha256 复算。</li>
+<li>[ ] <strong>Step 4: 测试 + 手跑</strong>（预期 R2/R3 面存量红清单留档）</li>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_registry_reconcile.py<span class="w"> </span>tests/unit/test_lint_registry_reconcile.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: R2 word-list closure + R3 hash freshness faces (spec60 T1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-data-1-masterjson-14-live-14-deprecated-59">Task 6: Data-1 — master.json +14 live / −14 DEPRECATED → 59</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong> · T1（负样本测试已在 Task 4）</p>
+<p><strong>Files:</strong>
+- Modify: <code>plugins/master.json</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 删 14 条 DEPRECATED 路径</strong>：<code>skills/shenbi-foreshadowing-plant/SKILL.md</code>、<code>skills/shenbi-foreshadowing-track/SKILL.md</code>、<code>skills/shenbi-review-anti-ai/SKILL.md</code>、<code>skills/shenbi-review-character/SKILL.md</code>、<code>skills/shenbi-review-continuity/SKILL.md</code>、<code>skills/shenbi-review-dialogue/SKILL.md</code>、<code>skills/shenbi-review-foreshadowing/SKILL.md</code>、<code>skills/shenbi-review-memo-compliance/SKILL.md</code>、<code>skills/shenbi-review-motivation/SKILL.md</code>、<code>skills/shenbi-review-pacing/SKILL.md</code>、<code>skills/shenbi-review-pov/SKILL.md</code>、<code>skills/shenbi-review-reader-pull/SKILL.md</code>、<code>skills/shenbi-review-texture/SKILL.md</code>、<code>skills/shenbi-review-world-rules/SKILL.md</code></li>
+<li>[ ] <strong>Step 2: 补 14 条 live</strong>：<code>skills/shenbi-anchor-curate/SKILL.md</code>、<code>skills/shenbi-book-spine-init/SKILL.md</code>、<code>skills/shenbi-escalation-review/SKILL.md</code>、<code>skills/shenbi-foreshadowing-lifecycle/SKILL.md</code>、<code>skills/shenbi-memory-distill/SKILL.md</code>、<code>skills/shenbi-review-arc-payoff/SKILL.md</code>、<code>skills/shenbi-review-group-character/SKILL.md</code>、<code>skills/shenbi-review-group-craft/SKILL.md</code>、<code>skills/shenbi-review-group-factual/SKILL.md</code>、<code>skills/shenbi-review-group-plan/SKILL.md</code>、<code>skills/shenbi-review-resonance/SKILL.md</code>、<code>skills/shenbi-score-arc/SKILL.md</code>、<code>skills/shenbi-score-stratum/SKILL.md</code>、<code>skills/shenbi-score-volume/SKILL.md</code>（保持既有排序惯例——先读当前列表顺序风格）</li>
+<li>[ ] <strong>Step 3: 版本校验面</strong>（F1005 保守方案）：lint 的 R1 面加 master.json <code>version == pyproject [project] version</code> 校验（<code>tomllib</code> 读 pyproject）；master.json version 改 <code>0.1.0</code> 对齐</li>
+<li>[ ] <strong>Step 4: 验证</strong>：<code>uv run python tools/lint_registry_reconcile.py 2&gt;&amp;1 | grep master</code> → 无 master violations；<code>uv run pytest tests/unit/test_plugins_generate.py -q</code>（generate.py 消费面回归，以实际测试名 grep 为准）</li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add plugins/master.json tools/lint_registry_reconcile.py &amp;&amp; git commit -m "fix: master.json 59 live closure (+14 live, -14 DEPRECATED routes, version aligned, F1004/F1005, spec60 T2.3)"</code></li>
+</ul>
+<hr />
+<h3 id="task-7-data-2-t2-seeds-audit-seed-rubric-only-agents-f424">Task 7: Data-2 — t2 seeds + audit seed + rubric-only 登记 + AGENTS 去数字化 + F424 注释</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>tests/tiers/t2-phase/{genesis,drafting,audit,management}/input/seed.md</code>、<code>AGENTS.md</code>、<code>src/shenbi/contracts/ownership.py:7</code>、deps.json <code>_out_of_pipeline._note</code>（F758）</p>
+<ul>
+<li>[ ] <strong>Step 1: seed 补缺</strong>——四个 seed 按 lint 输出的缺集（genesis 5：book-spine-init/genre-config/pacing-design/story-architecture/volume-outlining；drafting 2：review-resonance/score-arc；audit 4：review-group-×4；management 4：memory-distill/review-arc-payoff/score-stratum/score-volume）在步骤说明中补行（格式照 seed 既有条目文风）</li>
+<li>[ ] <strong>Step 2: audit seed 清 12 个 DEPRECATED 点名</strong>（"Run all 18 review skills" 段——改为后继 group-review 术语，参照 C21 的 using-shenbi 改写口径）</li>
+<li>[ ] <strong>Step 3: F758</strong>——deps.json <code>_out_of_pipeline._note</code> 文本改真实描述（schema-safe：OutOfPipeline <code>extra: forbid</code> 无 per-skill 标记位，<strong>只改 <code>_note</code> 字符串</strong>——如 "T1 coverage: rubric-only for anchor-curate/book-spine-init/escalation-review/memory-distill/score-arc/score-stratum/score-volume; scenario dirs pending"；不动结构字段；foreshadowing-recall 已不在任何节，无需移除）</li>
+<li>[ ] <strong>Step 4: AGENTS.md:19 去数字化</strong>——<code>72 functional + 2 meta = 74 total</code> 改为非数字表述（如 "functional + meta skills — see <code>skills/</code> and R1 lint output"）；<code>src/shenbi/contracts/ownership.py:7</code> 的「完整 69 技能」注释去数字化</li>
+<li>[ ] <strong>Step 5: 验证</strong>：<code>uv run python tools/lint_registry_reconcile.py 2&gt;&amp;1 | grep -E "seed|AGENTS"</code> 无 violations；<code>grep -n "72 functional\|完整 69" AGENTS.md src/shenbi/contracts/ownership.py</code> 无命中</li>
+<li>[ ] <strong>Step 6: Commit</strong> <code>git add tests/tiers/t2-phase AGENTS.md src/shenbi/contracts/ownership.py tests/tiers/deps.json &amp;&amp; git commit -m "fix: t2 seed closure (F755/F758) + AGENTS.md de-numericize + F424 comment (spec60 T2.4/5c)"</code></li>
+</ul>
+<hr />
+<h3 id="task-8-data-3-short_map-11-g5_checker_globs-9">Task 8: Data-3 — SHORT_MAP +11 + G5_CHECKER_GLOBS +9</h3>
+<p><strong>复杂度: leaf</strong>（数据追加，gates 模块但纯条目）· <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/cli.py:23-43</code>（SHORT_MAP）、<code>src/shenbi/gates/g5.py</code>（G5_CHECKER_GLOBS）</p>
+<ul>
+<li>[ ] <strong>Step 1: SHORT_MAP 追加 11 条</strong>（保持既有 alphabetical 风格插入）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;book-spine-init&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-book-spine-init&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chapter-revision&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;escalation-review&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-escalation-review&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;market-radar&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-market-radar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;memory-distill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-memory-distill&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;review-arc-payoff&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-arc-payoff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;review-resonance&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;score-arc&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-score-arc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;score-stratum&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-score-stratum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;score-volume&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-score-volume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;short-drafting&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-short-drafting&quot;</span><span class="p">,</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: G5_CHECKER_GLOBS 追加 9 条</strong>（值对齐 SKILL 契约 writes + deps expected_outputs）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;shenbi-book-spine-init&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;truth/book_spine.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-*-revision-decisions.json&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/state_snapshot-pre-rev.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-memory-distill&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;truth/arcs/arc-*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/book_strata.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/book_spine.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-review-arc-payoff&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/volume-*-payoff.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-*-resonance.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-score-arc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/arc-*-score.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-score-stratum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/stratum-*-score.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-score-volume&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/volume-*-score.md&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;shenbi-short-drafting&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-*.md&quot;</span><span class="p">,</span> <span class="s2">&quot;short/short-*-decisions.json&quot;</span><span class="p">],</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 验证</strong>：<code>uv run python tools/lint_registry_reconcile.py 2&gt;&amp;1 | grep -E "SHORT_MAP|globs"</code> 无 violations（checker-less 24 的 WARN 允许）；<code>uv run pytest tests/ -k "g5 or cli" -q</code> 全绿；<strong>glob 包含断言</strong>（R5 lint 面新增，plan 审查轮 1 C2 + 轮 2 定案）：静态规则 = 「同 t2-phase 任意两 checker-having 技能的 glob pattern，若 A 的匹配域<strong>严格包含</strong> B 的匹配域（A≠B 字符串、fnmatch 域 ⊃）→ FAIL」——<strong>相等 pattern 不触发</strong>（drafting 四 checker 共享 <code>chapters/*.md</code> 是合法现状）、<strong>contained 侧为无通配 literal 的对不触发</strong>（plan 轮 3 C1：genesis 的 <code>world/*.md ⊃ world/power_system.md</code> 等存量嵌套全部是 literal-contained，属合法「宽 checker 收窄产物集」现状；F432 载体 <code>audits/volume-*.md ⊃ audits/volume-*-score.md</code> 是 wildcard-vs-wildcard，保留触发）、不相交不触发。域包含检测：对相位 expected_outputs 模式展开的文件名集，<code>S(A) ⊇ S(B) ∧ S(A) ≠ S(B)</code>（仅比较双方均含通配符的 pattern 对）；第二防线 = <code>tests/fixtures/calibration/{arc-payoff,resonance}</code> 真实 fixture 驱动断言（arc-payoff checker 对 score-volume 产物零命中、反之亦然）</li>
+<li>[ ] <strong>Step 4: Commit</strong> <code>git add src/shenbi/gates/cli.py src/shenbi/gates/g5.py &amp;&amp; git commit -m "fix: SHORT_MAP +11 checker shorthands (F414/F445) + G5_CHECKER_GLOBS +9 checker-having (F432, spec60 T2.5)"</code></li>
+</ul>
+<hr />
+<h3 id="task-9-data-4-registry-backfill-5bg4_checker_skills-9-indexmd-5-7">Task 9: Data-4 — registry backfill 5b（G4_CHECKER_SKILLS +9 / index.md +5 / 触发表 +7）</h3>
+<p><strong>复杂度: leaf</strong>（using-shenbi 改动需过两个 C21 lint）· <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/shared.py:409-431</code>、<code>docs/skills/index.md</code>、<code>skills/using-shenbi/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: G4_CHECKER_SKILLS 补 9</strong>：book-spine-init、chapter-revision、escalation-review、market-radar、memory-distill、score-arc、score-stratum、score-volume、short-drafting（保持集合字面量既有排序风格）</li>
+<li>[ ] <strong>Step 2: docs/skills/index.md 补 5 行</strong>：foreshadowing-lifecycle、review-group-{character,craft,factual,plan}（行格式照既有条目——读文件头注释与列结构后照写）</li>
+<li>[ ] <strong>Step 3: using-shenbi 触发表补 7 行</strong>：anchor-curate、book-spine-init、escalation-review、memory-distill、score-arc、score-stratum、score-volume——<strong>裁决（定案）</strong>：score-×3 为 pipeline-internal（豁免，不补行），其余 4 个补行——触发表行文照 C21 后继改写口径，description-only when-to-use 风格；豁免经挂载命令的 <code>--allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume</code> 传递（Task 15 两处挂载行同 flag，验收 1 命令同 flag——单一豁免清单信源即挂载命令行）</li>
+<li>[ ] <strong>Step 4: 验证</strong>：<code>uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume 2&gt;&amp;1 | grep -E "G4_CHECKER|index.md|using-shenbi"</code> 无 violations（豁免口径同挂载——否则 score-×3 的触发表面违例会假红，plan 轮 3 I4）；<code>uv run python tools/lint_routing_faces.py &amp;&amp; uv run python tools/audit-skill-descriptions.py</code>（C21 两 lint 全绿——新触发表行不得引 DEPRECATED/ghost）</li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add src/shenbi/gates/shared.py docs/skills/index.md skills/using-shenbi/SKILL.md &amp;&amp; git commit -m "fix: registry backfill — G4_CHECKER_SKILLS +9, index.md +5, trigger table +4 (score-* exempted, spec60 T2.5b)"</code></li>
+</ul>
+<hr />
+<h3 id="task-10-data-5-truth-filesyaml">Task 10: Data-5 — truth-files.yaml 词表修正</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>docs/framework/truth-files.yaml</code>
+- Modify（生成物，经 <code>just generate</code> 不手改）：<code>docs/framework/truth-files.index.json</code> 等同步产物</p>
+<ul>
+<li>[ ] <strong>Step 1: patterns 节补 2 条参数化映射</strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">patterns</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># ...既有条目后追加...</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/review-checklist-N.json</span>
+<span class="w">    </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/review-checklist-*.json</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/chapter-pattern-input-N.json</span>
+<span class="w">    </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/chapter-pattern-input-*.json</span>
+</code></pre></div>
+<p>（patterns 节实际 schema 以 yaml 既有条目字段名为准——先读现文件再对齐。）</p>
+<ul>
+<li>[ ] <strong>Step 2: pipeline-written 节补 3 条 + 概念补 2 条 + 删 3 孤儿</strong>——补 <code>progress.json</code>、<code>config-change-log.jsonl</code>、<code>gate-markers/*</code>（producer: pipeline）、<code>truth/bridge_tracker.md</code>、<code>truth/state_snapshot-pre-rev.md</code>；删 <code>short/outline.md</code>、<code>short/package.md</code>、<code>import/analysis/01_overview.md</code> 三行</li>
+<li>[ ] <strong>Step 3: 同步生成物</strong>：<code>uv run shenbi-sync-contracts</code> 后 <code>git status --porcelain -- tests/tiers/deps.json docs/framework/ skills/</code>（yaml 变更传播到生成物属正常——检查变更内容只含预期条目后随 commit；<code>git diff --exit-code</code> 在此处必 1，勿用作门）</li>
+<li>[ ] <strong>Step 4: 验证</strong>：<code>uv run python tools/lint_registry_reconcile.py 2&gt;&amp;1 | grep R2</code> 无 violations（孤儿概念 F888/F823 随删除消失；F1106/F1152 随补登消失）</li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add docs/framework/truth-files.yaml docs/framework/ tests/tiers/deps.json &amp;&amp; git commit -m "fix: word-list closure — 2 parametric patterns, pipeline-written trio, bridge_tracker/state_snapshot-pre-rev; drop 3 orphans (F242/F895/F1106/F1152/F888/F823, spec60 T2.6)"</code></li>
+</ul>
+<hr />
+<h3 id="task-11-data-6-f1151-t206-worldbuilding-f521-ownership">Task 11: Data-6 — F1151 模板改名 + T206 worldbuilding 裁决 + F521 OWNERSHIP 死条目</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Rename: <code>truth/</code> → <code>_templates/truth/</code>（根级模板目录；<code>truth/character_matrix.md</code> 零消费者径直删除不迁移）
+- Modify: <code>tests/unit/pipeline/test_bridge_tracker.py:10,19</code>（template_path 改指 <code>_templates/truth/</code>）
+- Modify: <code>src/shenbi/contracts/skills/worldbuilding.py:1</code>（T206 裁决：<strong>删 "Auto-generated" 声称改手工维护注明</strong>——补真实生成器超 spec 范围，保守裁决）
+- Modify: <code>src/shenbi/contracts/ownership.py:78-80</code>（删 foundation-review ↔ genre-config.json 死条目）</p>
+<ul>
+<li>[ ] <strong>Step 1: 改名 + 消费者</strong>：<code>git rm truth/character_matrix.md &amp;&amp; git mv truth _templates/truth</code>（先删零消费者文件再改名）；test_bridge_tracker.py 两处 <code>template_path</code> 字面量 <code>truth/...</code> 改 <code>_templates/truth/...</code></li>
+<li>[ ] <strong>Step 2: T206</strong>——worldbuilding.py:1 docstring <code>"""Auto-generated minimal contract model..."""</code> 改 <code>"""Hand-maintained minimal contract model (generated provenance claim removed — no generator exists; spec60 T206)."""</code></li>
+<li>[ ] <strong>Step 3: F521</strong>——ownership.py 删 OWNERSHIP 表中 foundation-review 的 genre-config.json 行（先 <code>grep -rn "genre-config" tests/fixtures/ | grep -i foundation</code> 确认无 fixture 行使该写键）</li>
+<li>[ ] <strong>Step 4: 验证</strong>：<code>uv run pytest tests/unit/pipeline/test_bridge_tracker.py tests/unit/gates/g4/test_state_settling.py -q</code> 全绿；<code>ls truth 2&gt;/dev/null</code> 不存在；<code>uv run pytest tests/ -k "ownership or worldbuilding" -q</code> 绿</li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add _templates/truth tests/unit/pipeline/test_bridge_tracker.py src/shenbi/contracts/skills/worldbuilding.py src/shenbi/contracts/ownership.py &amp;&amp; git commit -m "fix: root truth/ template rename (F1151), worldbuilding provenance fix (T206), OWNERSHIP dead entry removal (F521, spec60 T2.7/8/10)"</code></li>
+</ul>
+<hr />
+<h3 id="task-12-data-7-f354-genesis_outputs">Task 12: Data-7 — F354 genesis_outputs 补两文件</h3>
+<p><strong>复杂度: infra</strong>（<code>src/shenbi/pipeline/cli.py</code>）· <strong>test_kind: tdd_red_green</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py:777-793</code>（<code>_verify_truth_integrity</code> genesis_outputs 列表）
+- Test: <code>tests/unit/pipeline/test_genesis_truth_integrity.py</code>（或并入既有 genesis 测试文件——grep 后定）</p>
+<p><strong>Interfaces:</strong>
+- Produces: genesis_outputs 列表含 <code>world/factions.md</code>（genesis step-5，genesis.py:65）与 <code>foundation/review_report.md</code>（step-17，genesis.py:81）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——构造含全部 genesis 产物（含两新文件）的 tmp 项目 → <code>_verify_truth_integrity</code> PASS；缺两文件 → 报缺（注意轮 3 M9 提示：验证 foundation 在长篇排序中晚于 genesis 的相位序，若 review_report 属后期产物则只补 genesis 时点已产出者——<strong>写测试前先读 genesis.py 的 STEPS 序确认两文件确在 genesis 相位产出</strong>）</li>
+<li>[ ] <strong>Step 2: 确认失败 → Step 3: 列表补两项 → Step 4: 测试过 + <code>uv run pytest tests/ -k genesis -q</code> 全绿</strong></li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add src/shenbi/pipeline/cli.py tests/unit/pipeline/test_genesis_truth_integrity.py &amp;&amp; git commit -m "fix: genesis_outputs truth-integrity completeness (F354, spec60 batch)"</code></li>
+</ul>
+<hr />
+<h3 id="task-13-r4-f1022-t207">Task 13: R4 — 迁移器删除（F1022 + T207）</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Delete: <code>tools/migrate_contract_to_frontmatter.py</code>、<code>tests/unit/test_migrate_contract.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 删除前终核</strong>：<code>grep -rn "migrate_contract_to_frontmatter\|CLASSIFICATION" --include="*.py" --include="*.yml" --include="justfile" . 2&gt;/dev/null | grep -v ".venv\|docs/superpowers"</code> → 仅剩两文件自身</li>
+<li>[ ] <strong>Step 2: <code>git rm tools/migrate_contract_to_frontmatter.py tests/unit/test_migrate_contract.py</code></strong></li>
+<li>[ ] <strong>Step 3: 验证</strong>：<code>uv run pytest tests/ -q --timeout=120 -m "not last" -k "not test_clean_repo_zero_violations"</code>（<code>last</code> 是 marker 非 <code>-k</code> 关键字——<code>-k "not last"</code> 会误杀名字含 last 的真实测试，plan 轮 4 I1） 收集无 ImportError（deselect 设计性红的 clean-repo 测试，plan 轮 3 M1；不用 <code>-x</code> 以免它中途 abort）；<code>uv run python tools/lint_repo_consistency.py</code> exit 0</li>
+<li>[ ] <strong>Step 4: Commit</strong> <code>git commit -m "chore: remove one-shot contract migrator + third snapshot + its test (F1022/T207 delete-first, spec60 R4)"</code></li>
+</ul>
+<hr />
+<h3 id="task-14-_tool_hashes-lint-1">Task 14: 终态 — _tool_hashes 重锁 + lint 全绿 + 验收 1 红灯五样本</h3>
+<p><strong>复杂度: infra</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>tests/tiers/deps.json</code>（<code>_tool_hashes</code> 重锁，经 <code>tests/lock-tool-hashes.sh</code>——先 <code>cat</code> 该脚本确认调用方式）
+- Test: <code>tests/unit/test_lint_registry_reconcile.py</code>（五负样本最终态）</p>
+<ul>
+<li>[ ] <strong>Step 1: 重锁</strong>：<code>bash tests/lock-tool-hashes.sh</code>（脚本直调 <code>python3</code>——它是 <strong>writer</strong>，writer 用系统 python 可接受，verifier 一律 <code>uv run</code>；脚本同时重锁 <code>_calibration_hashes</code>，diff 会含两块）→ <code>git diff tests/tiers/deps.json | head -60</code> 核对只有哈希行变化</li>
+<li>[ ] <strong>Step 2: 全绿验证</strong>：<code>uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume; echo "exit=$?"</code> → <strong>exit 0 且 <code>0 violations</code></strong>（spec 验收 1 前半，豁免口径同挂载命令）——输出全文粘贴 progress.md</li>
+<li>[ ] <strong>Step 3: 红灯五样本</strong>（spec 验收 1 后半；临时副本变异，Task 4/5 测试已覆盖五个负样本——此处实跑确认）：<code>uv run pytest tests/unit/test_lint_registry_reconcile.py -v</code> 全 PASS（每个负样本断言 FAIL）</li>
+<li>[ ] <strong>Step 4: 中期回归</strong>：<code>uv run pytest -n auto -m "not last" -q --timeout=120</code>（全量；哈希重锁后应全绿）</li>
+<li>[ ] <strong>Step 5: Commit</strong> <code>git add tests/tiers/deps.json &amp;&amp; git commit -m "chore: terminal _tool_hashes relock + lint green (spec60 acceptance 1/2)"</code></li>
+</ul>
+<hr />
+<h3 id="task-15-t3-ci">Task 15: T3 — CI 双挂载</h3>
+<p><strong>复杂度: infra</strong> · <strong>test_kind: regression_guard</strong> · T1</p>
+<p><strong>Files:</strong>
+- Modify: <code>justfile</code>（check recipe 追加一行 <code>uv run python tools/lint_registry_reconcile.py</code>）
+- Modify: <code>.github/workflows/ci.yml</code>（lint step :55-59 区追加同一行——与 lint_contracts 并列）</p>
+<ul>
+<li>[ ] <strong>Step 1: justfile check recipe 末尾（或 lint 块内）追加</strong>：<code>uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume</code></li>
+<li>[ ] <strong>Step 2: ci.yml 的 lint step</strong>（:55-59 <code>uv run python tools/lint_contracts.py ...</code> 块）追加同一行（<strong>含同一 <code>--allow-missing</code> flag</strong>）；块尾加注释 <code># NOTE: dual-list with justfile is C25 debt (spec #63) — systematic single-sourcing deferred</code></li>
+<li>[ ] <strong>Step 3: 验证</strong>：<code>just --dry-run check | grep registry_reconcile</code>（命中）；<code>grep -n registry_reconcile .github/workflows/ci.yml</code>（命中）；<code>uv run python tools/lint_registry_reconcile.py --allow-missing shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume</code> exit 0（与验收 1 同口径）</li>
+<li>[ ] <strong>Step 4: Commit</strong> <code>git add justfile .github/workflows/ci.yml &amp;&amp; git commit -m "ci: dual-mount lint_registry_reconcile (justfile check + ci.yml lint step, C25 debt noted, spec60 T3)"</code></li>
+</ul>
+<hr />
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>：spec 任务 0a→T1/T2，0b→T3，1→T4/T5，3→T6，4→T7，5→T8，5b→T9，5c→T7，6→T10，7/8/10→T11，9→T2，11(T203)→T3 Step 4，12→T15，批量清理 F354→T12、F424→T7、T1306→T6 版本面；R4→T13；验收 1→T14、2→T6/T14、3→T3、4→T7、5→T15。29 成员全覆盖（F231/F905/F756-数据/F759-注册半/F1152-读者半/F424-主体 已闭合于前轮，spec 已标注）。</li>
+<li><strong>占位符扫描</strong>：Task 2 Step 3 的 checkers 字典「照搬」与 Task 4 的 sys.path 注入细节是「指向源文件的机械移动/既有模式复制」指令（内容在源文件，非凭空 TBD）；其余步骤均有完整代码/精确条目。</li>
+<li><strong>类型一致性</strong>：<code>lint_registry_reconcile(repo: Path, allow_missing: frozenset[str]) -&gt; list[str]</code> 全 plan 一致；<code>G4_DECISIONS_WIRED/G4_CHECKER_KEYS/build_checkers</code> 在 Task 2 定义、Task 3/4 消费；<code>G5_CHECKER_GLOBS</code> Task 1 产出、Task 3/8 消费。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

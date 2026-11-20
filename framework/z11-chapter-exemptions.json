@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "reason": "z11 F1302: chapters produced before META contract enforcement; META is LLM-generated and must not be hand-fabricated (G0.9)",
+  "exemptions": [
+    {"project": "xinghuo-ranqiong", "chapter": 2},
+    {"project": "xinghuo-ranqiong", "chapter": 9},
+    {"project": "xinghuo-ranqiong", "chapter": 12},
+    {"project": "xinghuo-ranqiong", "chapter": 40},
+    {"project": "xinghuo-ranqiong", "chapter": 44},
+    {"project": "xinghuo-ranqiong", "chapter": 55}
+  ]
+}

@@ -1,0 +1,2377 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec106-resonance-floor-liveness/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #106 正向下限接线（resonance-floor-liveness）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #106 正向下限接线（resonance-floor-liveness）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec106-resonance-floor-liveness.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec106-resonance-floor-liveness/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #106 正向下限接线（resonance-floor-liveness）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec106-resonance-floor-liveness.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-106-resonance-floor-livenessimplementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #106 正向下限接线（resonance-floor-liveness）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 逐字复制）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试层级与 fixture 声明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AC 覆盖表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AC 覆盖表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-config-g0cc-floor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 阈值单源 + 枚举登记 + config 三触点 + G0.cc 校验 + floor 计算模块
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-chapter_loop-decide_revision-role-gate-shadow-armed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: chapter_loop 生产接线（decide_revision 孤岛接活 + role-gate + shadow 双落点 + armed + 二次采样护栏）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-hygiene-sinkwould-route-completeness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 卷界 hygiene sink（would-route 汇总 + completeness 聚合行 + 注册/接线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-resonance-backfill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: resonance-backfill 维护命令（双面守卫）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-pipeline-override-resonance-cell-patch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: pipeline override-resonance 子命令（cell-patch / 全行写 / 排除面激活）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-ac2ac3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: AC2/AC3 离线回放工具 + 文档面收尾
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review（修复轮 1 后自检记录）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-106-resonance-floor-livenessimplementation-plan">Spec #106 正向下限接线（resonance-floor-liveness）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把永不点火的静态 resonance floor 换成 trailing-20 P25 动态 floor（shadow 缺省、armed 才路由），接活 decide_revision 单测孤岛与 role 门阻断 verdict，并补齐 trend 数据卫生三件（卷界完整性聚合行/backfill 补评命令带无正文守卫/human_overridden override CLI）。</p>
+<p><strong>Architecture:</strong> 新模块 <code>pipeline/resonance_policy.py</code> 承载 floor 计算与事件发射（复用 compute_drift 的排除语义、TraceWriter 的 trace 形态）；chapter_loop <code>_route_revision_after_resonance</code> 增量接线（shadow 双落点持久化，armed 改写 route）；卷界 sink 落框架自有 <code>truth/resonance_shadow.md</code>（truth-files.yaml 登记 + drift-guidance reads 接线）；维护命令走 just + 既有 <code>pipeline</code> console-script 入口。全部 infra task——协调者亲自 TDD 实现。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / dataclasses / statistics.quantiles / structlog（capsys 断言惯用法）/ pytest（-n auto -m "not last" 快速面）</p>
+<p><strong>执行分支</strong>：<code>fix/spec-106-resonance-floor-liveness</code>（GO 时已建——本 plan 全部 commit 落此分支；禁直推 main）。</p>
+<h2 id="global-constraintsspec">Global Constraints（spec 逐字复制）</h2>
+<ul>
+<li>P25 = 线性插值分位（<code>statistics.quantiles(method='inclusive')</code> 口径——分位约定钉死进实现与测试，禁最近秩漂移）</li>
+<li>clamp [50, 80]</li>
+<li>已评分行 &lt;8 → 回落 <code>state.config.resonance_global_floor</code>（单源 65）——禁回落 <code>DEFAULT_RESONANCE_FLOOR=50</code>（E11 双常量复活+低于现状）</li>
+<li>override 饿死护栏：&lt;8 由 override 排除导致 → 同回落 config 值 + WARN <code>resonance_window_starved</code>（带窗口/override 计数）——禁静默回落</li>
+<li><code>resonance_policy: {mode: "shadow"|"armed", percentile: 25, window: 20, cap: 80}</code> 缺省 shadow；<strong>无 static 模式</strong></li>
+<li>数值阈值入 <code>config/thresholds.py</code> QualityThresholds 单源；mode 字面量入 <code>contracts/enums.py</code>（+ ALL_ENUMS + status-vocab.md 域行登记）；G0 config coherence 校验新键（mode ∈ 枚举、percentile∈(0,100)、cap∈[50,100]、window≥1）</li>
+<li>两者（resonance/role-gate 路由）均 armed-only——shadow 期只发 would_route 事件不改 route</li>
+<li>would_route 双落点持久化：<code>cs.audit_results["resonance_would_route"]</code> + trace 通道——禁 ephemeral-only</li>
+<li>完整性告警挂 drift-guidance 卷界聚合行（每卷一次带计数+章清单+束 follower 语境注记——禁逐章 WARN）</li>
+<li>backfill 无正文守卫：预检不过拒绝补评该章并报告，不写 trend 行；override 写 <code>human_overridden=true</code> 小写（消费面大小写不敏感，写小写双侧安全），富行 cell-patch 只翻 flag cell</li>
+<li>毕业判据：触发率单独不构成毕业依据（#115 外部锚定）</li>
+<li>AC2 离线回放差分（禁付费续跑）；AC4 实弹随用户令（G3.4 挂账）</li>
+<li>窗口口径：前序已评分行（章号 &lt; 当前章，不含当前章）</li>
+<li>域约束：真实 LLM dispatch 付费且写状态——SDD 全流程禁为验证触发（backfill/二次采样测试离线：monkeypatch <code>shenbi.pipeline.dispatch_helper.dispatch_skill</code>，两新模块以<strong>函数级局部 import</strong> 消费之——绑定在调用时解析，patch 源模块即生效）</li>
+<li>框架代码无 print（ruff T20 零豁免，src/shenbi/）、structlog、pathlib、gate 幂等；tools/ 脚本 print 有先例（report_longitudinal.py）</li>
+<li>commit pathspec 保护：显式列文件路径，禁 git add -A / git add .</li>
+</ul>
+<h2 id="fixture">测试层级与 fixture 声明</h2>
+<ul>
+<li>全部 T1（unit）层：<code>uv run pytest tests/unit/...</code>；trend 表格属结构性输入——G0.9 允许 inline/tmp_path 构造（禁冒充真实技能产物）</li>
+<li>回放 fixture 数值钉死 vol1 真值序列（ch1-13 已评分 <code>[78,74,76,78,79,79,80,79,81,79]</code>，inclusive Q1=78.0——合成序列 <code>[78,79,79,78,…]</code> 的 inclusive Q1=78.25 会反向奖励最近秩实现）</li>
+<li>G3.4 生成测试（AC4）：付费实弹，随用户令——plan 不含付费步骤；未获令时 AC4 以 T6 离线差分替代交付（挂账用户裁定）</li>
+<li>AC3 回放：<code>tools/resonance_floor_replay.py</code>（新，只读）对 <code>novel-xinghuo-vol1</code> 实跑（验收期证据）</li>
+</ul>
+<h2 id="ac">AC 覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. T1-T3 判据全绿</td>
+<td>T1-T6</td>
+<td>各 task 测试 + 阶段 7 门禁</td>
+</tr>
+<tr>
+<td>2. shadow 期行为零变化（离线差分）</td>
+<td>T6</td>
+<td><code>tools/resonance_floor_replay.py --diff-route</code>（<strong>同快照代码级差分</strong>：对每可评估章以旧表达式 <code>route_chapter_revision(collect_audit_issues(...))</code> vs 新接线（shadow 模式）各算一遍 route，断言逐章相等——饿死审计产物对两侧是同一输入、只影响 would_route 事件字段，diff 恒 0 才是被测断言；<strong>不对 pipeline-state.json 历史 route 对账</strong>——复评覆写+饿死混杂会产生与 #106 无关的假 diff）</td>
+</tr>
+<tr>
+<td>3. 数据面回放四断言</td>
+<td>T6</td>
+<td>同工具 <code>--replay</code>：冷启动八章零触发/ch14+ch16 点火/众数 79 不命中/2/24=8.3%</td>
+</tr>
+<tr>
+<td>4. T1 生成测试 ≥94</td>
+<td>挂账（随令）</td>
+<td>实弹随用户令；T6 离线差分为未获令时的替代交付</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-config-g0cc-floor">Task 1: 阈值单源 + 枚举登记 + config 三触点 + G0.cc 校验 + floor 计算模块</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/config/thresholds.py:28-46</code>（QualityThresholds 加 4 字段）
+- Modify: <code>src/shenbi/contracts/enums.py:24</code>（RevisionMode 后加 ResonancePolicyMode）+ <code>:81</code>（ALL_ENUMS 加条目）
+- Modify: <code>docs/framework/status-vocab.md:35</code>（域清单加一行——<code>mode</code> 在 lint_status_strings STRICT_TREE_KEYS，state.json 落 <code>"mode": "shadow"</code> 前必须登记）
+- Modify: <code>src/shenbi/pipeline/state.py:57-75</code>（PipelineConfig 加键）+ <code>:405-425</code>（to_dict）
+- Modify: <code>src/shenbi/gates/g0_config_coherence.py:50-95</code>（新键校验）
+- Modify: <code>src/shenbi/gates/g0.py:880-895</code>（传新键）
+- Create: <code>src/shenbi/pipeline/resonance_policy.py</code>
+- Test: <code>tests/unit/pipeline/test_resonance_policy.py</code>（新）
+- Test: <code>tests/unit/gates/test_g0_config_coherence.py</code>（扩）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>DEFAULT_THRESHOLDS</code>（thresholds.py）、<code>check_config_coherence(project_dir, *, resonance_global_floor=None)</code> 现签名
+- Produces（后续 task 依赖，签名逐字）:
+  <div class="highlight"><pre><span></span><code><span class="c1"># contracts/enums.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResonancePolicyMode</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">SHADOW</span> <span class="o">=</span> <span class="s2">&quot;shadow&quot;</span>
+    <span class="n">ARMED</span> <span class="o">=</span> <span class="s2">&quot;armed&quot;</span>
+<span class="c1"># enums.py ALL_ENUMS 追加: &quot;ResonancePolicyMode&quot;: ResonancePolicyMode,</span>
+<span class="c1"># status-vocab.md 域清单追加一行:</span>
+<span class="c1"># | ResonancePolicyMode | shenbi.contracts.enums.ResonancePolicyMode | shadow\|armed | pipeline/state.py config（resonance_policy.mode） | chapter_loop 路由面、g0_config_coherence |</span>
+
+<span class="c1"># config/thresholds.py QualityThresholds 新字段（resonance_revision_trigger 块后）</span>
+<span class="n">resonance_floor_percentile</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">resonance_floor_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">resonance_floor_cap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">resonance_floor_cold_start_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1"># pipeline/resonance_policy.py</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FloorComputation</span><span class="p">:</span>
+    <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>            <span class="c1"># &quot;p25&quot; | &quot;config_fallback&quot; | &quot;window_starved&quot;</span>
+    <span class="n">window_rows</span><span class="p">:</span> <span class="nb">int</span>       <span class="c1"># 入窗前序非 override 已评分行数</span>
+    <span class="n">overridden_in_window</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scored_trend_rows</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resonance_policy_of</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">PipelineConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="c1"># {&quot;mode&quot;: ResonancePolicyMode, &quot;percentile&quot;: int, &quot;window&quot;: int, &quot;cap&quot;: int}</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">effective_resonance_floor</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PipelineConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloorComputation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">emit_resonance_would_route_trace</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测（floor 计算全口径）</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_policy.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T1: dynamic resonance floor computation.</span>
+
+<span class="sd">Structural trend-table inputs constructed inline (G0.9: structural inputs</span>
+<span class="sd">allowed; these are table layouts, not skill-output impersonation). Replay</span>
+<span class="sd">values are PINNED to the real vol1 scored sequence (ch1-13) so the</span>
+<span class="sd">interpolation convention is asserted against ground truth — a synthetic</span>
+<span class="sd">sequence would reward the forbidden nearest-rank convention.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_THRESHOLDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResonancePolicyMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">effective_resonance_floor</span><span class="p">,</span>
+    <span class="n">resonance_policy_of</span><span class="p">,</span>
+    <span class="n">scored_trend_rows</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+    <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+<span class="p">)</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+    <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+<span class="p">)</span>
+<span class="c1">#: vol1 truth: ch1-13 scored rows (ch6/8/10 missing; ch11/12/13 = 79/81/79)</span>
+<span class="n">VOL1_FIRST13</span> <span class="o">=</span> <span class="p">[</span><span class="mi">78</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">76</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="mi">81</span><span class="p">,</span> <span class="mi">79</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">HEADER</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_row</span><span class="p">(</span><span class="n">ch</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overall</span><span class="p">,</span> <span class="n">ho</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2"> | 推进 | 21 | 20 | 21 | 15 | </span><span class="si">{</span><span class="n">overall</span><span class="si">}</span><span class="s2"> | mid | </span><span class="si">{</span><span class="n">ho</span><span class="si">}</span><span class="s2"> |&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_config</span><span class="p">(</span><span class="o">**</span><span class="n">over</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineConfig</span>
+
+    <span class="k">return</span> <span class="n">PipelineConfig</span><span class="p">(</span><span class="o">**</span><span class="n">over</span><span class="p">)</span> <span class="k">if</span> <span class="n">over</span> <span class="k">else</span> <span class="n">PipelineConfig</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scored_rows_parse_pending_and_override</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">78</span><span class="p">),</span> <span class="n">_row</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;pending&quot;</span><span class="p">),</span> <span class="n">_row</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="n">ho</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">)])</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">scored_trend_rows</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="o">==</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">78.0</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">74.0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)]</span>  <span class="c1"># pending 剔除；override 保留带旗</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_floor_p25_linear_interpolation_vol1_truth</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># vol1 ch1-13 前序 10 行 → inclusive Q1 = 78.0（ch14 实弹 floor 逐字复现）</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="n">VOL1_FIRST13</span><span class="p">)]</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">floor</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mf">78.0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;p25&quot;</span> <span class="ow">and</span> <span class="n">fc</span><span class="o">.</span><span class="n">window_rows</span> <span class="o">==</span> <span class="mi">10</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_floor_prior_rows_only_excludes_current</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">)]</span>  <span class="c1"># 11 行含 ch11</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">window_rows</span> <span class="o">==</span> <span class="mi">10</span>  <span class="c1"># 前序 ch1-10 入窗；当前章 ch11 不入窗</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_floor_cold_start_falls_back_to_config_65</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">78</span><span class="p">)])</span>  <span class="c1"># 前序仅 1 行 &lt;8</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">floor</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span><span class="p">)</span> <span class="o">==</span> <span class="mf">65.0</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;config_fallback&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_floor_override_starved_warns_not_silent</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span>
+
+    <span class="n">configure_logging</span><span class="p">()</span>
+    <span class="c1"># 前序 10 行但 9 行 override → 非 override 已评分 1 行 &lt;8：回落 65 + WARN</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">78</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">79</span><span class="p">,</span> <span class="n">ho</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)]</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">floor</span> <span class="o">==</span> <span class="mf">65.0</span> <span class="ow">and</span> <span class="n">fc</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;window_starved&quot;</span>
+    <span class="k">assert</span> <span class="n">fc</span><span class="o">.</span><span class="n">overridden_in_window</span> <span class="o">==</span> <span class="mi">9</span>
+    <span class="k">assert</span> <span class="s2">&quot;resonance_window_starved&quot;</span> <span class="ow">in</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_floor_clamp_50_80</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)]</span>  <span class="c1"># P25=40 → clamp 下界 50</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span><span class="o">.</span><span class="n">floor</span> <span class="o">==</span> <span class="mf">50.0</span>
+    <span class="n">rows2</span> <span class="o">=</span> <span class="p">[</span><span class="n">_row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">95</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)]</span>  <span class="c1"># P25=95 → cap 80</span>
+    <span class="n">_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">rows2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">_config</span><span class="p">())</span><span class="o">.</span><span class="n">floor</span> <span class="o">==</span> <span class="mf">80.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_policy_defaults_shadow_and_override</span><span class="p">():</span>
+    <span class="n">pol</span> <span class="o">=</span> <span class="n">resonance_policy_of</span><span class="p">(</span><span class="n">_config</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">pol</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">ResonancePolicyMode</span><span class="o">.</span><span class="n">SHADOW</span>
+    <span class="k">assert</span> <span class="n">pol</span><span class="p">[</span><span class="s2">&quot;percentile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">25</span> <span class="ow">and</span> <span class="n">pol</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">20</span> <span class="ow">and</span> <span class="n">pol</span><span class="p">[</span><span class="s2">&quot;cap&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">80</span>
+    <span class="n">pol2</span> <span class="o">=</span> <span class="n">resonance_policy_of</span><span class="p">(</span><span class="n">_config</span><span class="p">(</span><span class="n">resonance_policy</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;armed&quot;</span><span class="p">}))</span>
+    <span class="k">assert</span> <span class="n">pol2</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">ResonancePolicyMode</span><span class="o">.</span><span class="n">ARMED</span>
+    <span class="c1"># 非法 mode 值降级 shadow（fail-safe：绝不 armed by accident）</span>
+    <span class="n">pol3</span> <span class="o">=</span> <span class="n">resonance_policy_of</span><span class="p">(</span><span class="n">_config</span><span class="p">(</span><span class="n">resonance_policy</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;yolo&quot;</span><span class="p">}))</span>
+    <span class="k">assert</span> <span class="n">pol3</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">ResonancePolicyMode</span><span class="o">.</span><span class="n">SHADOW</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑红测</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_resonance_policy.py -x -q --no-cov -p no:randomly</code>
+Expected: FAIL with <code>ImportError: cannot import name 'ResonancePolicyMode'</code>（enums 先于 resonance_policy 命中）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><code>src/shenbi/contracts/enums.py</code>（RevisionMode 后）：</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ResonancePolicyMode</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #106: dynamic resonance floor lifecycle modes. SHADOW computes and</span>
+<span class="sd">    records would-route events without touching routing (default); ARMED lets</span>
+<span class="sd">    the floor route (spot-fix). No static mode — shadow is the compatibility</span>
+<span class="sd">    default and the strict-superset signal (r3 design ruling).&quot;&quot;&quot;</span>
+
+    <span class="n">SHADOW</span> <span class="o">=</span> <span class="s2">&quot;shadow&quot;</span>
+    <span class="n">ARMED</span> <span class="o">=</span> <span class="s2">&quot;armed&quot;</span>
+</code></pre></div>
+ALL_ENUMS（:81 dict）追加 <code>"ResonancePolicyMode": ResonancePolicyMode,</code>。</p>
+<p><code>docs/framework/status-vocab.md</code> 域清单表追加：
+<div class="highlight"><pre><span></span><code>| ResonancePolicyMode | shenbi.contracts.enums.ResonancePolicyMode | shadow\|armed | pipeline/state.py config（resonance_policy.mode） | chapter_loop 路由面、g0_config_coherence |
+</code></pre></div></p>
+<p><code>thresholds.py</code> QualityThresholds（resonance_revision_trigger 块后）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Dynamic resonance floor (spec #106): trailing-window P25 percentile floor.</span>
+    <span class="n">resonance_floor_percentile</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">resonance_floor_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">resonance_floor_cap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="c1">#: Prior scored rows below this → cold start, fall back to the static config floor.</span>
+    <span class="n">resonance_floor_cold_start_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+</code></pre></div>
+<p><code>state.py</code> PipelineConfig（dual_scorer 后）+ to_dict 键表同步：</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="c1">#: spec #106: dynamic resonance floor policy. ``None`` = defaults</span>
+    <span class="c1">#: (mode=shadow + QualityThresholds values) — routing behavior identical</span>
+    <span class="c1">#: to pre-#106 for existing projects (contract-upgrade via explicit key).</span>
+    <span class="n">resonance_policy</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+to_dict config 字典加：<code>"resonance_policy": self.config.resonance_policy,</code>
+（from_dict 的 <code>**{k: v for k, v in cfg_data.items() if k in PipelineConfig.__dataclass_fields__}</code> 天然兼容缺键。）</p>
+<p><code>src/shenbi/pipeline/resonance_policy.py</code>：</p>
+<p><div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Dynamic resonance floor policy (spec #106).</span>
+
+<span class="sd">Single module for the trailing-window P25 floor computation, the policy</span>
+<span class="sd">normalization, and the would-route trace event. The quantile convention is</span>
+<span class="sd">PINNED to linear interpolation (``statistics.quantiles(method=&quot;inclusive&quot;)``)</span>
+<span class="sd">— nearest-rank yields 0 ignitions on the vol1 replay while interpolation</span>
+<span class="sd">yields 2/24=8.3%, so any convention drift silently defangs the floor.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statistics</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantiles</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_THRESHOLDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResonancePolicyMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineConfig</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Clamp lower bound (spec #106 T1; sanity floor, distinct from the config floor).</span>
+<span class="n">_FLOOR_CLAMP_MIN</span> <span class="o">=</span> <span class="mf">50.0</span>
+<span class="n">TREND_REL</span> <span class="o">=</span> <span class="s2">&quot;truth/resonance_trend.md&quot;</span>
+<span class="c1">#: Override-header family — same semantics as compute_drift._OVERRIDE_HEADERS</span>
+<span class="c1">#: (spec #106 reuses its exclusion filter, values compared case-insensitively).</span>
+<span class="n">_OVERRIDE_HEADERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;human_overridden&quot;</span><span class="p">,</span> <span class="s2">&quot;human_override&quot;</span><span class="p">,</span> <span class="s2">&quot;overridden&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FloorComputation</span><span class="p">:</span>
+    <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># &quot;p25&quot; | &quot;config_fallback&quot; | &quot;window_starved&quot;</span>
+    <span class="n">window_rows</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">overridden_in_window</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+（实现正文：<code>scored_trend_rows</code> 按表头定位 overall 列与 override 列，返回 <code>(chapter, overall, overridden)</code> 三元组——pending/非数值行剔除、override 行保留带旗（chapter 列解析为 int，非数值行整行跳过）；<code>effective_resonance_floor</code> 过滤 <code>chapter &lt; 当前章</code> 的<strong>非 override</strong> 已评分行取 trailing <code>window</code> 条——行数 &lt; <code>resonance_floor_cold_start_min</code> 时，若前序总行（含 override）≥ min 则 <code>source="window_starved"</code> + <code>log.warning("resonance_window_starved", window_rows=…, overridden_in_window=…)</code>，否则 <code>source="config_fallback"</code>，floor 均 = <code>float(config.resonance_global_floor)</code>；行数 ≥ min → <code>p25 = quantiles(window_vals, n=4, method="inclusive")[0]</code>，<code>floor = min(cap, max(_FLOOR_CLAMP_MIN, p25))</code>，<code>source="p25"</code>；<code>resonance_policy_of</code> 读 <code>config.resonance_policy or {}</code> 与 thresholds 缺省合并，mode 经 try <code>ResonancePolicyMode(v)</code> 构造、非法值 → SHADOW + WARN <code>resonance_policy_mode_invalid</code>；<code>emit_resonance_would_route_trace</code> 逐字仿 <code>gates/g4/shadow.py:105 emit_shadow_warn_trace</code>（TraceWriter append，actor="chapter-loop"，actor_role="SYSTEM"，action="WARN"，target=f"ch{chapter}"，gate="resonance"，payload 带 chapter/floor/score/reason/would_route，except Exception → log.warning <code>resonance_trace_emit_failed</code> 不阻塞）。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑绿测</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_resonance_policy.py -q --no-cov -p no:randomly</code>
+Expected: 7 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: G0.cc 新键校验红测（扩 tests/unit/gates/test_g0_config_coherence.py）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestResonancePolicyCoherence</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_mode_literal_validated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">resonance_policy</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;static&quot;</span><span class="p">,</span> <span class="s2">&quot;percentile&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;cap&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G0.cc.resonance_policy_mode&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>  <span class="c1"># static 已砍——非法字面量</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_numeric_ranges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">resonance_policy</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;armed&quot;</span><span class="p">,</span> <span class="s2">&quot;percentile&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cap&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G0.cc.resonance_policy_percentile&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G0.cc.resonance_policy_window&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G0.cc.resonance_policy_cap&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_valid_policy_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">resonance_policy</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;shadow&quot;</span><span class="p">,</span> <span class="s2">&quot;percentile&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;cap&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;resonance_policy&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_none_skips</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_policy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">check_config_coherence</span><span class="p">(</span>
+            <span class="n">tmp_path</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_config_coherence.py -x -q --no-cov -p no:randomly</code>
+Expected: FAIL（<code>check_config_coherence() got an unexpected keyword argument 'resonance_policy'</code>）</p>
+<ul>
+<li>[ ] <strong>Step 6: 实现 G0 面</strong></li>
+</ul>
+<p><code>g0_config_coherence.py</code>：<code>check_config_coherence(project_dir, *, resonance_global_floor=None, resonance_policy=None)</code> 新 kwarg；None 跳过；mode 不在 <code>{m.value for m in ResonancePolicyMode}</code> → <code>G0.cc.resonance_policy_mode:&lt;v&gt;</code>；percentile 非 int 或 ≤0 或 ≥100 → <code>G0.cc.resonance_policy_percentile:&lt;v&gt;</code>；window 非 int 或 &lt;1 → <code>..._window</code>；cap 非 int 或 &lt;50 或 &gt;100 → <code>..._cap</code>。<code>g0.py:880-895</code> 同步读 <code>state_data["config"].get("resonance_policy")</code> 传入。</p>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_config_coherence.py tests/unit/pipeline/test_resonance_policy.py -q --no-cov -p no:randomly</code>
+Expected: all passed（status-vocab 对账 lint 由 <code>just check</code> 阶段 7 全量兜底）</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit（pathspec）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/config/thresholds.py<span class="w"> </span>src/shenbi/contracts/enums.py<span class="w"> </span>docs/framework/status-vocab.md<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>src/shenbi/pipeline/resonance_policy.py<span class="w"> </span>src/shenbi/gates/g0_config_coherence.py<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/pipeline/test_resonance_policy.py<span class="w"> </span>tests/unit/gates/test_g0_config_coherence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T1 — 动态 floor 计算+阈值单源+enums/status-vocab 登记+config 三触点+G0.cc 校验&quot;</span>
+</code></pre></div>
+<h3 id="task-2-chapter_loop-decide_revision-role-gate-shadow-armed">Task 2: chapter_loop 生产接线（decide_revision 孤岛接活 + role-gate + shadow 双落点 + armed + 二次采样护栏）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:3016-3033</code>（<code>_resonance_report_pending</code> 旁加 <code>_resonance_report_blocked</code>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:3128-3222</code>（<code>_route_revision_after_resonance</code> 接线+删旧静态段 :3172-3182）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:73</code>（模块 import 块：<code>check_resonance</code> 删——删段后成孤儿，ruff F401）
+- Modify: <code>src/shenbi/pipeline/revision_router.py:1-14</code>（模块 docstring 决策树改写）+ <code>:180-201</code>（decide_revision docstring 同步）
+- Modify: <code>src/shenbi/pipeline/resonance_policy.py</code>（加 <code>resonance_cap_confirm_escalate</code>——双报告保全）
+- Modify: <code>tests/unit/pipeline/test_parallel_wave_resonance.py:110-115</code>（既有 <code>resonance_below_floor</code> stderr 断言改为 would_route 事件断言）
+- Test: <code>tests/unit/pipeline/test_resonance_routing.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 全部 Produces + <code>decide_revision(issues, blocking, resonance_score, resonance_floor=DEFAULT_RESONANCE_FLOOR) -&gt; RevisionDecision</code>（revision_router.py:180，<strong>接线处函数级局部 import</strong>）、<code>RevisionDecision</code>（:42）、<code>extract_fence(text) -&gt; str | None</code>（gates/g4/verdict_fence.py:57）、<code>_REVISION_ROUTE_KEY = "revision_route"</code>（chapter_loop.py:2953）、<code>RevisionRoute.SPOT_FIX.value == "spot-fix"</code>（连字符）
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_resonance_report_blocked</span><span class="p">(</span><span class="n">report_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+    <span class="c1"># 围栏 verdict 含「阻断」且非 pending 且非否定形（无阻断）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resonance_cap_confirm_escalate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="c1"># armed cap 护栏：先把首份 below 报告复制为 audits/chapter-N-resonance-first.md</span>
+    <span class="c1"># （重派会覆写原报告——升级审阅须见双报告，spec「升级带双报告」），再函数级局部</span>
+    <span class="c1"># import dispatch_skill 重派 review-resonance，解析新分与 floor 比较。</span>
+    <span class="c1"># True=两次均 below（升级）；False=复评 ≥floor（pass）；None=派发失败（保守升级）</span>
+<span class="c1"># cs.audit_results 新键：[&quot;resonance_would_route&quot;]（事件 dict）、</span>
+<span class="c1">#   [&quot;resonance_route_reason&quot;]（armed 写）、[&quot;resonance_cap_confirmed&quot;]（一次性采样守卫）</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_routing.py</code>：</p>
+<p><div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T2 接线: shadow 不写 route / armed 写 route+reason /</span>
+<span class="sd">role-gate armed-only / cap 二次采样两分支 / pending 语义不变。&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">RevisionMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_route_revision_after_resonance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChapterState</span><span class="p">,</span> <span class="n">PipelineConfig</span><span class="p">,</span> <span class="n">PipelineState</span>
+
+<span class="n">TREND_HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+    <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+<span class="p">)</span>
+<span class="n">TREND_SEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+    <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+<span class="p">)</span>
+<span class="n">BLOCKED_REPORT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;# 共鸣评审</span>
+
+<span class="s2">```verdict</span>
+<span class="s2">判定: 阻断</span>
+<span class="s2">共振: 88/100</span>
+</code></pre></div>
+"""</p>
+<p>def _make_state(policy: dict | None = None) -&gt; PipelineState:
+    state = PipelineState(config=PipelineConfig(resonance_policy=policy))
+    state.chapter_loop.chapter_states["14"] = ChapterState(resonance_score=42)
+    return state</p>
+<p>def _seed_project(tmp_path: Path, <em>, report: str | None, with_trend: bool = True) -&gt; None:
+    audits = tmp_path / "audits"
+    audits.mkdir(parents=True, exist_ok=True)
+    if report is not None:
+        (audits / "chapter-14-resonance.md").write_text(report, encoding="utf-8")
+    if with_trend:
+        truth = tmp_path / "truth"
+        truth.mkdir(parents=True, exist_ok=True)
+        rows = [
+            f"| {c} | 推进 | 21 | 20 | 21 | 15 | {s} | mid |  |"
+            for c, s in zip([1, 2, 3, 4, 5, 7, 9, 11, 12, 13],
+                            [78, 74, 76, 78, 79, 79, 80, 79, 81, 79])
+        ]
+        (truth / "resonance_trend.md").write_text(
+            "\n".join([TREND_HEADER, TREND_SEP, </em>rows]) + "\n", encoding="utf-8")</p>
+<p>def _no_issues(monkeypatch):
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.collect_audit_issues", lambda <em>a, </em>*k: ([], False)
+    )</p>
+<p>def test_shadow_mode_leaves_route_untouched(tmp_path, monkeypatch, capsys):
+    from shenbi.logging import configure_logging</p>
+<pre><code>configure_logging()
+_seed_project(tmp_path, report=None, with_trend=True)  # score=42 &lt; floor 78.0
+state = _make_state(policy=None)  # 缺省 shadow
+_no_issues(monkeypatch)
+_route_revision_after_resonance(state, tmp_path, 14)
+cs = state.chapter_loop.chapter_states["14"]
+assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value
+event = cs.audit_results["resonance_would_route"]
+assert event["would_route"] is True and event["reason"] == "resonance"
+assert event["floor"] == 78.0
+assert "resonance_route_reason" not in cs.audit_results
+assert cs.revision_count == 0
+assert "resonance_would_route" in capsys.readouterr().err
+trace = tmp_path / "trace.jsonl"  # TraceWriter 落项目根（trace/writer.py:23 _TRACE_NAME）
+assert trace.exists() and "resonance" in trace.read_text(encoding="utf-8")
+</code></pre>
+<p>def test_armed_mode_routes_spot_fix_with_reason(tmp_path, monkeypatch):
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    _no_issues(monkeypatch)
+    _route_revision_after_resonance(state, tmp_path, 14)
+    cs = state.chapter_loop.chapter_states["14"]
+    assert cs.audit_results["revision_route"] == "spot-fix"  # 枚举实值（连字符）
+    assert cs.audit_results["resonance_route_reason"] == "resonance"
+    assert cs.revision_count == 1</p>
+<p>def test_role_gate_blocked_shadow_records_event_only(tmp_path, monkeypatch):
+    _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
+    state = _make_state(policy=None)  # shadow：score 88 过 floor，但 verdict 阻断
+    _no_issues(monkeypatch)
+    _route_revision_after_resonance(state, tmp_path, 14)
+    cs = state.chapter_loop.chapter_states["14"]
+    assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value
+    event = cs.audit_results["resonance_would_route"]
+    assert event["reason"] == "role_gate"</p>
+<p>def test_role_gate_blocked_armed_routes(tmp_path, monkeypatch):
+    _seed_project(tmp_path, report=BLOCKED_REPORT, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    _no_issues(monkeypatch)
+    _route_revision_after_resonance(state, tmp_path, 14)
+    cs = state.chapter_loop.chapter_states["14"]
+    assert cs.audit_results["revision_route"] == "spot-fix"
+    assert cs.audit_results["resonance_route_reason"] == "role_gate"</p>
+<p>def test_negated_block_not_routed(tmp_path, monkeypatch):
+    report = BLOCKED_REPORT.replace("判定: 阻断", "判定: 无阻断")
+    _seed_project(tmp_path, report=report, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    state.chapter_loop.chapter_states["14"].resonance_score = 85  # 过 floor
+    _no_issues(monkeypatch)
+    _route_revision_after_resonance(state, tmp_path, 14)
+    cs = state.chapter_loop.chapter_states["14"]
+    event = cs.audit_results["resonance_would_route"]
+    assert event["would_route"] is False</p>
+<p>def test_cap_confirm_pass_restores_no_revision(tmp_path, monkeypatch):
+    # armed + 已 2 次修订 + 第 3 次 resonance 路由 → cap 耗尽 → 二次采样复评 85 ≥ floor → pass
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    cs = state.chapter_loop.chapter_states["14"]
+    cs.revision_count = 2
+    _no_issues(monkeypatch)
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper.dispatch_skill",
+        lambda <em>a, </em>*k: SimpleNamespace(success=True, returncode=0, stderr="", stdout=""),
+    )
+    (tmp_path / "audits" / "chapter-14-resonance.md").write_text(
+        "<code>verdict\n判定: 通过\n共振: 85/100\n</code>\n", encoding="utf-8")
+    _route_revision_after_resonance(state, tmp_path, 14)
+    assert cs.audit_results["revision_route"] == RevisionMode.NO_REVISION.value  # pass 回退
+    assert cs.revision_count == 2  # 增量已回退
+    assert cs.audit_results["resonance_cap_confirmed"] is True</p>
+<p>def test_cap_confirm_both_below_escalates_with_double_report(tmp_path, monkeypatch):
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    cs = state.chapter_loop.chapter_states["14"]
+    cs.revision_count = 2
+    _no_issues(monkeypatch)
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper.dispatch_skill",
+        lambda <em>a, </em><em>k: SimpleNamespace(success=True, returncode=0, stderr="", stdout=""),
+    )
+    (tmp_path / "audits" / "chapter-14-resonance.md").write_text(
+        "<code>verdict\n判定: 通过\n共振: 40/100\n</code>\n", encoding="utf-8")
+    escalated = []
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.dispatch_escalation",
+        lambda </em>a, **k: escalated.append(1) or True,
+    )
+    _route_revision_after_resonance(state, tmp_path, 14)
+    assert escalated, "两次均 below 必须升级"
+    assert (tmp_path / "audits" / "chapter-14-resonance-first.md").exists()  # 双报告保全</p>
+<p>def test_cap_confirm_dispatch_failure_conservative_escalation(tmp_path, monkeypatch):
+    # confirmed is None（派发失败）→ 保守升级（噪声成本 &lt; 漏放行）
+    _seed_project(tmp_path, report=None, with_trend=True)
+    state = _make_state(policy={"mode": "armed"})
+    state.chapter_loop.chapter_states["14"].revision_count = 2
+    _no_issues(monkeypatch)
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper.dispatch_skill",
+        lambda <em>a, </em><em>k: SimpleNamespace(success=False, returncode=1, stderr="boom", stdout=""),
+    )
+    escalated = []
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.dispatch_escalation",
+        lambda </em>a, **k: escalated.append(1) or True,
+    )
+    _route_revision_after_resonance(state, tmp_path, 14)
+    assert escalated  # None → 保守升级</p>
+<p>def test_docstring_matches_production():
+    from shenbi.pipeline import revision_router</p>
+<pre><code>doc = revision_router.__doc__ or ""
+assert "borderline -&gt; escalation checkpoint" not in doc
+assert "不路由" in doc
+</code></pre>
+<p><code>- [ ] **Step 2: 跑红测**
+
+Run: `uv run pytest tests/unit/pipeline/test_resonance_routing.py -x -q --no-cov -p no:randomly`
+Expected: FAIL（ImportError `_resonance_report_blocked` 或事件键断言失败）
+
+- [ ] **Step 3: 实现接线**
+
+`chapter_loop.py` `_resonance_report_pending` 后加：</code>python
+_RESONANCE_BLOCKED_RE = re.compile(r"(?&lt;!无)阻断")
+
+
+def _resonance_report_blocked(report_path: Path) -&gt; bool:
+    """Verdict-scoped role-gate blocked detection (spec #106 T1): the skill's
+    校准门 emits 阻断 when overall or a sub-floor is unmet. Fence-scoped like
+    pending; prose 阻断 and the negated form 无阻断 never route."""
+    if not report_path.exists():
+        return False
+    from shenbi.gates.g4.verdict_fence import extract_fence
+
+    text = report_path.read_text(encoding="utf-8")
+    fence = extract_fence(text)
+    if fence is None:
+        return False
+    return bool(_RESONANCE_BLOCKED_RE.search(fence)) and not _RESONANCE_PENDING_RE.search(fence)
+```</p>
+<p><code>_route_revision_after_resonance</code> 改造（锚：<code>cs = _get_chapter_state(state, chapter)</code> :3139 之后、<code>cs.audit_results[_REVISION_ROUTE_KEY] = route.value</code> :3140 之前插入——<code>cs</code> 需先在位）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># spec #106: dynamic floor + decide_revision production wiring (was a</span>
+    <span class="c1"># unit-test-only island). Shadow (default) records a durable would-route</span>
+    <span class="c1"># event and never touches routing; armed lets it route.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResonancePolicyMode</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">effective_resonance_floor</span><span class="p">,</span>
+        <span class="n">emit_resonance_would_route_trace</span><span class="p">,</span>
+        <span class="n">resonance_policy_of</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">RevisionDecision</span><span class="p">,</span> <span class="n">decide_revision</span>
+
+    <span class="n">pol</span> <span class="o">=</span> <span class="n">resonance_policy_of</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">effective_resonance_floor</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">report_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="s2">&quot;audits/chapter-N-resonance.md&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">role_blocked</span> <span class="o">=</span> <span class="n">_resonance_report_blocked</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span>
+    <span class="n">decision</span> <span class="o">=</span> <span class="n">decide_revision</span><span class="p">(</span><span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span><span class="p">,</span> <span class="n">resonance_floor</span><span class="o">=</span><span class="n">fc</span><span class="o">.</span><span class="n">floor</span><span class="p">)</span>
+    <span class="n">would_resonance</span> <span class="o">=</span> <span class="n">route</span> <span class="o">==</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">NO_REVISION</span> <span class="ow">and</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">RevisionDecision</span><span class="o">.</span><span class="n">REVISION</span>
+    <span class="n">would_role_gate</span> <span class="o">=</span> <span class="n">route</span> <span class="o">==</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">NO_REVISION</span> <span class="ow">and</span> <span class="n">role_blocked</span>
+    <span class="n">would_route</span> <span class="o">=</span> <span class="n">would_resonance</span> <span class="ow">or</span> <span class="n">would_role_gate</span>
+    <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;role_gate&quot;</span> <span class="k">if</span> <span class="n">would_role_gate</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;resonance&quot;</span> <span class="k">if</span> <span class="n">would_resonance</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="o">.</span><span class="n">floor</span><span class="p">,</span>
+        <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span><span class="p">,</span>
+        <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">reason</span><span class="p">,</span>
+        <span class="s2">&quot;would_route&quot;</span><span class="p">:</span> <span class="n">would_route</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+        <span class="s2">&quot;window_rows&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="o">.</span><span class="n">window_rows</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;resonance_would_route&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span>
+    <span class="k">if</span> <span class="n">would_route</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;resonance_would_route&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="o">**</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">emit_resonance_would_route_trace</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">would_route</span> <span class="ow">and</span> <span class="n">pol</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ResonancePolicyMode</span><span class="o">.</span><span class="n">ARMED</span><span class="p">:</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">SPOT_FIX</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;resonance_route_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;resonance_route_armed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="n">reason</span><span class="p">,</span> <span class="n">floor</span><span class="o">=</span><span class="n">fc</span><span class="o">.</span><span class="n">floor</span><span class="p">)</span>
+</code></pre></div>
+<p>旧静态段 <strong>:3172-3182</strong>（deferred 注释 3 行 + <code>resonance_ok = check_resonance(...)</code> + <code>if not resonance_ok and not issues:</code> log.warning 块）删除——None fail-open 披露由 decide_revision 内部 <code>check_resonance</code> 保留（revision_router.py:174-177），below 披露由 would_route 事件承接。模块 import 块 :73 的 <code>check_resonance</code> 同步删除（孤儿）。</p>
+<p>cap 分支改造（:3152-3165 现块整体替换——<strong>pass 路径禁写 <code>_CAP_ESCALATED_KEY</code></strong>，防一次性噪声 pass 永久压制该章后续真升级）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">revision_cap_exceeded</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">):</span>
+    <span class="n">escalate_now</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">confirmed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;resonance&quot;</span>  <span class="c1"># 本次 invocation 的 reason，禁读陈旧持久键（audit-T2 I-2）</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resonance_cap_confirmed&quot;</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">resonance_cap_confirm_escalate</span>
+
+        <span class="n">confirmed</span> <span class="o">=</span> <span class="n">resonance_cap_confirm_escalate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">fc</span><span class="o">.</span><span class="n">floor</span><span class="p">)</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;resonance_cap_confirmed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># 一次性采样守卫（防重复付费）</span>
+        <span class="k">if</span> <span class="n">confirmed</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># 复评 ≥floor：首次 below 判为噪声——pass（不修订不升级）。</span>
+            <span class="c1"># 回退本次 armed 改写（route/计数），绝不写 _CAP_ESCALATED_KEY。</span>
+            <span class="n">escalate_now</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">route</span> <span class="o">=</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">NO_REVISION</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="n">_REVISION_ROUTE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;resonance_route_reason&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># M2：回退清键</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;resonance_cap_confirm_passed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">escalate_now</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_CAP_ESCALATED_KEY</span><span class="p">):</span>
+        <span class="n">resonance_context</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;revision cap exceeded for chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(resonance double-below confirmed; reports: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-resonance-first.md + chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-resonance.md)&quot;</span>
+            <span class="k">if</span> <span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;resonance&quot;</span> <span class="ow">and</span> <span class="n">confirmed</span> <span class="ow">is</span> <span class="kc">True</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;revision cap exceeded for chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">resonance_context</span><span class="p">)</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="n">_CAP_ESCALATED_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+<p><code>revision_router.py:7-14</code> 模块 docstring 决策树改写：</p>
+<p><div class="highlight"><pre><span></span><code>    audit complete
+      +-- no BLOCKING + resonance &gt;= floor  -&gt; pass
+      +-- no BLOCKING + resonance &lt; floor   -&gt; revision_routing (armed; shadow 记
+                                               resonance_would_route 事件不路由, spec #106)
+      +-- no BLOCKING + resonance borderline -&gt; 不路由（见 resonance_would_route 事件；
+                                               spec #106 r3——drift 信号面不新建）
+      +-- BLOCKING -&gt; revision -&gt; re-audit (max 3) -&gt; 3 failures -&gt; escalation
+</code></pre></div>
+（decide_revision docstring :186-196 补一行 armed/shadow 语义。）</p>
+<p><code>resonance_policy.py</code> 加：</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resonance_cap_confirm_escalate</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;armed cap 护栏（spec #106 T1）。重派前先把首份 below 报告复制为</span>
+<span class="sd">    ``audits/chapter-N-resonance-first.md``（重派会覆写原报告——升级审阅须见</span>
+<span class="sd">    双报告），再重派 review-resonance 解析新分。True=两次均 below（升级）；</span>
+<span class="sd">    False=复评 ≥floor（pass）；None=派发失败（保守升级——噪声成本 &lt; 漏放行）。</span>
+<span class="sd">    真实派发为付费调用——仅 armed 生产路径触达；测试 monkeypatch</span>
+<span class="sd">    ``shenbi.pipeline.dispatch_helper.dispatch_skill``（本函数函数级局部 import）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+
+    <span class="c1"># 函数级局部 import（F947：monkeypatch 源模块属性即生效）</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_resonance_score</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_skill</span>
+
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-resonance.md&quot;</span>
+    <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-resonance-first.md&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span>
+        <span class="n">project_dir</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;Re-evaluate chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> resonance (cap guard).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">fresh</span> <span class="o">=</span> <span class="n">parse_resonance_score</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">fresh</span> <span class="o">&lt;</span> <span class="n">floor</span>
+</code></pre></div>
+（派发是否需 path_context 以 dispatch_skill 实际签名为准——实现时 grep 其调用先例后落码；不需要即省略该参。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑绿测 + 邻接回归（含既有波测试改造）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_resonance_routing.py tests/unit/pipeline/test_revision_router.py tests/unit/pipeline/test_parallel_wave_resonance.py -q --no-cov -p no:randomly</code>
+Expected: all passed（<code>test_parallel_wave_resonance.py:110-115</code> 的 <code>resonance_below_floor</code> 断言已改为 <code>resonance_would_route</code> 事件断言——语义延续「低分必披露」）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/revision_router.py<span class="w"> </span>src/shenbi/pipeline/resonance_policy.py<span class="w"> </span>tests/unit/pipeline/test_resonance_routing.py<span class="w"> </span>tests/unit/pipeline/test_parallel_wave_resonance.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T2 — decide_revision 孤岛接活+role-gate 路由（armed-only）+shadow 双落点持久化+cap 二次采样护栏（双报告保全+pass 回退不压安全网）&quot;</span>
+</code></pre></div>
+<h3 id="task-3-hygiene-sinkwould-route-completeness">Task 3: 卷界 hygiene sink（would-route 汇总 + completeness 聚合行 + 注册/接线）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/resonance_policy.py</code>（加 <code>check_trend_completeness</code> + <code>write_volume_resonance_summary</code>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2245-2270</code>（<code>_check_world_file_freshness</code> 旁：新函数 <code>_write_resonance_shadow_summary(state, project_dir, chapter)</code>，内部 <code>is_volume_boundary</code> 判定后调 Task 3 函数；grep <code>is_volume_boundary</code> 全部生产调用点，在章收尾路径追加调用）
+- Modify: <code>docs/framework/truth-files.yaml:45</code>（resonance_trend 行旁加 <code>- {name: truth/resonance_shadow.md, kind: truth, producer: pipeline}</code>——「Adding a genuinely new file = ONE edit here」）
+- Modify: <code>skills/shenbi-drift-guidance/SKILL.md:8-16</code>（contract reads 加 <code>- truth/resonance_shadow.md</code>；散文 Reads 行 :35 同步）
+- Test: <code>tests/unit/pipeline/test_resonance_volume_summary.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>scored_trend_rows</code>；Task 2 事件键 <code>resonance_would_route</code>；<code>write_truth_file(project_dir, rel, content, mode="replace")</code>（truth_io.py:183——replace 对不存在文件直接创建；frontmatter 已存在则原样保留）
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_trend_completeness</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="c1"># {&quot;pending&quot;: [ch...], &quot;missing&quot;: [ch...], &quot;max_chapter&quot;: int} — 只算不写不逐章 WARN</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_volume_resonance_summary</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+    <span class="c1"># 卷界：汇总本卷 would_route 计数/分布 + completeness 聚合行 → truth/resonance_shadow.md</span>
+    <span class="c1">#（框架单写者，mode=&quot;replace&quot;=current-state 快照——每卷界全文件重写为当前卷</span>
+    <span class="c1">#  状态，多卷不留史（历史查 trace.jsonl 事件流）；同卷重写=同输出幂等。</span>
+    <span class="c1">#  本卷范围=与 is_volume_boundary 同源的卷界结构解析的当前卷章区间，</span>
+    <span class="c1">#  chapter_states 按章过滤；解析失败降级「全部带事件章」+ 注记行）</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_volume_summary.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T3a: volume-boundary resonance shadow sink + trend completeness.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_trend_completeness</span><span class="p">,</span>
+    <span class="n">write_volume_resonance_summary</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChapterState</span><span class="p">,</span> <span class="n">PipelineState</span>
+
+<span class="n">HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+    <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+<span class="p">)</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+    <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_seed_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">HEADER</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_completeness_reports_pending_and_missing</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># ch1/5 已评分、ch8 pending → missing ⊇ {2,3,4,6,7}，pending == [8]</span>
+    <span class="n">_seed_trend</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;| 1 | 推进 | 21 | 20 | 21 | 15 | 78 | mid |  |&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;| 5 | 推进 | 21 | 20 | 21 | 15 | 79 | mid |  |&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;| 8 | 未声明 | - | - | - | - | pending | low |  |&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">check_trend_completeness</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;pending&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;missing&quot;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_summary_written_with_context_note</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed_trend</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> | 推进 | 21 | 20 | 21 | 15 | </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> | mid |  |&quot;</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">78</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">74</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">76</span><span class="p">)]</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ch</span><span class="p">,</span> <span class="n">would</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">)]:</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">ChapterState</span><span class="p">()</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;resonance_would_route&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="mf">78.0</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">74</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;resonance&quot;</span> <span class="k">if</span> <span class="n">would</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;would_route&quot;</span><span class="p">:</span> <span class="n">would</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;p25&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;window_rows&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cs</span>
+    <span class="n">write_volume_resonance_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">sink</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_shadow.md&quot;</span>
+    <span class="k">assert</span> <span class="n">sink</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">sink</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;would_route&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;2/3&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># 计数行</span>
+    <span class="k">assert</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;missing&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># completeness 聚合行</span>
+    <span class="k">assert</span> <span class="s2">&quot;双章束&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># 束 follower 语境注记</span>
+    <span class="c1"># 幂等：同卷重写不重复</span>
+    <span class="n">write_volume_resonance_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">sink</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_summary_never_touches_route</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed_trend</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="p">()</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">ChapterState</span><span class="p">()</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;revision_route&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;no-revision&quot;</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cs</span>
+    <span class="n">write_volume_resonance_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;revision_route&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;no-revision&quot;</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红测</strong> — Run: <code>uv run pytest tests/unit/pipeline/test_resonance_volume_summary.py -x -q --no-cov -p no:randomly</code> — Expected: FAIL（<code>ImportError</code>）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong></p>
+</li>
+</ul>
+<p><code>check_trend_completeness</code>：姊妹解析——保留 pending 行章号集与已出现章号集，<code>missing = 1..max(已出现章号) 中未出现者</code>；<code>write_volume_resonance_summary(project_dir, state, chapter)</code>：扫 <code>state.chapter_loop.chapter_states</code> 中带 <code>resonance_would_route</code> 键者，计数 <code>would_route=True</code>/总数；经 <code>write_truth_file(project_dir, "resonance_shadow.md", content, mode="replace")</code> 写 markdown：frontmatter（<code>type: truth / category: state / status: active</code>——<strong>不带 produced_at</strong>：current-state 快照逐写刷新，带逐次时间戳会破坏同卷幂等的字节比较——轮 3 复审 N5 残留修复）+ would-route 汇总表 + completeness 聚合行 + 束 follower 语境注记行（「偶数章 pending 多为 #72 双章束 follower 形态——#109 机制件未落地前的制度性状态」）。chapter_loop 挂点（<code>_check_world_file_freshness</code> 旁新增）：</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_write_resonance_shadow_summary</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #106 T3a: volume-boundary resonance shadow sink (would-route</span>
+<span class="sd">    summary + trend completeness aggregate row). Fire-and-forget.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.triggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_volume_boundary</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_volume_boundary</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_volume_resonance_summary</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">write_volume_resonance_summary</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;resonance_shadow_summary_failed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<code>truth-files.yaml</code> 与 drift-guidance SKILL.md reads 按上述落改。</p>
+<ul>
+<li>[ ] <strong>Step 4: 契约同步 + 跑绿</strong></li>
+</ul>
+<p>Run: <code>just generate &amp;&amp; just lint-contracts</code>
+Expected: 生成物幂等 diff 空、lint 绿（truth-files.yaml 新行 + SKILL.md reads 过 prose lint）
+Run: <code>uv run pytest tests/unit/pipeline/test_resonance_volume_summary.py -q --no-cov -p no:randomly</code>
+Expected: 3 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/resonance_policy.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>docs/framework/truth-files.yaml<span class="w"> </span>skills/shenbi-drift-guidance/SKILL.md<span class="w"> </span>tests/unit/pipeline/test_resonance_volume_summary.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T3a — 卷界 would-route 汇总+trend 完整性聚合行（truth/resonance_shadow.md 单写者+truth-files.yaml 登记+drift-guidance reads 接线）&quot;</span>
+</code></pre></div>
+<h3 id="task-4-resonance-backfill">Task 4: resonance-backfill 维护命令（双面守卫）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/resonance_backfill.py</code>
+- Modify: <code>justfile:147</code> 后（release-split 配方后加 resonance-backfill）
+- Test: <code>tests/unit/pipeline/test_resonance_backfill.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None) -&gt; list[str]</code>（src/shenbi/<strong>pipeline</strong>/audit_layer.py:299）、<code>dispatch_skill</code>（<strong>函数级局部 import</strong>，F947）、<code>match_score_scoped(text) -&gt; int | None</code> / <code>extract_fence</code>（gates/g4/verdict_fence.py）、<code>write_truth_file(..., mode="insert_markdown_row", key_field="chapter")</code>、<code>build_resonance_trend_row(chapter: int, overall: int) -&gt; str</code>（chapter_loop.py:2837）
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">backfill_resonance</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="c1"># {&quot;filled&quot;: [ch...], &quot;refused_missing_text&quot;: [ch...], &quot;refused_bad_product&quot;: [ch...]}</span>
+<span class="n">_STARVED_FORM_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;待补|不适用|附条件&quot;</span><span class="p">)</span>  <span class="c1"># #109 T4 饿死词族子集（产物侧判据）</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_backfill.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T3b: resonance backfill with no-text + starved-product guards.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_backfill</span><span class="w"> </span><span class="kn">import</span> <span class="n">backfill_resonance</span>
+
+<span class="n">HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+    <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+<span class="p">)</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+    <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">chapter_file</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">report_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">HEADER</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="s2">&quot;| 26 | 未声明 | - | - | - | - | pending | low |  |&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">chapter_file</span><span class="p">:</span>
+        <span class="n">ch_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="n">ch_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">ch_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-26.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 第二十六章</span><span class="se">\n\n</span><span class="s2">正文。&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="c1"># 契约预检 seed（N3）：missing_audit_reads 按 review-resonance 契约 6 条</span>
+        <span class="c1"># reads 严格判（plans/style/anchors/audit_drift 不在 OPTIONAL_READS）</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-26-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 1. 当前任务</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# style</span><span class="se">\n</span><span class="s2">## 11. 综合画像</span><span class="se">\n</span><span class="s2">## 6. 修辞模式</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;benchmarks&quot;</span> <span class="o">/</span> <span class="s2">&quot;anchors&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;audit_drift.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# drift</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">audits</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audits</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">audits</span> <span class="o">/</span> <span class="s2">&quot;chapter-26-resonance.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">report_text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ok_dispatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">seen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fake</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">seen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.dispatch_helper.dispatch_skill&quot;</span><span class="p">,</span> <span class="n">fake</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backfill_refuses_missing_chapter_text</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">report_text</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_ok_dispatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">backfill_resonance</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="mi">26</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;refused_missing_text&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">seen</span>
+    <span class="k">assert</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backfill_refuses_starved_product</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">report_text</span><span class="o">=</span><span class="s2">&quot;```verdict</span><span class="se">\n</span><span class="s2">判定: 待补（正文未提供）</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_ok_dispatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">backfill_resonance</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="mi">26</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;refused_bad_product&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backfill_success_upserts_row</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">report_text</span><span class="o">=</span><span class="s2">&quot;```verdict</span><span class="se">\n</span><span class="s2">判定: 通过</span><span class="se">\n</span><span class="s2">共振: 81/100</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_ok_dispatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">backfill_resonance</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="mi">26</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;filled&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;| 26 |&quot;</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">and</span> <span class="s2">&quot;81&quot;</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">and</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_backfill_default_targets_pending</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">report_text</span><span class="o">=</span><span class="s2">&quot;```verdict</span><span class="se">\n</span><span class="s2">判定: 通过</span><span class="se">\n</span><span class="s2">共振: 81/100</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_ok_dispatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">backfill_resonance</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># None → 自动取 pending 行章</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;filled&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">26</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红测</strong> — Run: <code>uv run pytest tests/unit/pipeline/test_resonance_backfill.py -x -q --no-cov -p no:randomly</code> — Expected: FAIL（<code>ModuleNotFoundError</code>）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong></p>
+</li>
+</ul>
+<p><code>resonance_backfill.py</code>：argparse <code>main(argv: list[str] | None = None) -&gt; int</code>（<code>&lt;dir&gt; [--chapters a-b|c,d]</code>，解析形如 backfill-context 先例）；目标章 = 显式列表或 trend pending 行章；每章三步守卫：①<code>chapters/chapter-N.md</code> 在盘 且 <code>missing_audit_reads(project_dir, "shenbi-review-resonance", ch) == []</code> → 否则 <code>refused_missing_text</code>；②函数级局部 import <code>dispatch_skill</code> 派发（付费——维护命令语义，随用户令运行）；③产物校验：<code>match_score_scoped(report_text)</code> 非 None ∧ verdict 非 pending ∧ 正文无 <code>_STARVED_FORM_RE</code> 命中 → <code>write_truth_file(project_dir, "resonance_trend.md", build_resonance_trend_row(ch, score), mode="insert_markdown_row", key_field="chapter")</code> upsert；任一不过 → <code>refused_bad_product</code>。<strong>派发失败（success=False）→ 该章记 <code>refused_bad_product</code> 并继续</strong>（维护命令不熔断）。输出走 <code>shenbi.cli_utils.echo</code>（禁 print）。justfile：</p>
+<div class="highlight"><pre><span></span><code># Resonance backfill: re-dispatch review-resonance for pending trend rows (spec #106 T3, 维护命令)
+resonance-backfill *args:
+    uv run python -m shenbi.pipeline.resonance_backfill &quot;$@&quot;
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: 跑绿测</strong> — Run: <code>uv run pytest tests/unit/pipeline/test_resonance_backfill.py -q --no-cov -p no:randomly</code> — Expected: 4 passed</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/resonance_backfill.py<span class="w"> </span>justfile<span class="w"> </span>tests/unit/pipeline/test_resonance_backfill.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T3b — just resonance-backfill 补评命令（无正文守卫+饿死词族产物校验）&quot;</span>
+</code></pre></div>
+<h3 id="task-5-pipeline-override-resonance-cell-patch">Task 5: pipeline override-resonance 子命令（cell-patch / 全行写 / 排除面激活）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py:1785-1850</code>（子命令表：<code>p_override = sub.add_parser("override-resonance", ...)</code>——<strong>既有 <code>pipeline</code> console-script 入口</strong>，pyproject.toml:65；不新建 <code>shenbi-pipeline</code> 入口）
+- Modify: <code>src/shenbi/pipeline/resonance_policy.py</code>（加 <code>apply_resonance_override</code>）
+- Test: <code>tests/unit/pipeline/test_resonance_override_cli.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>write_truth_file(project_dir, rel, content, mode="upsert_markdown_row", key_field=…)</code>（truth_io.py:183——<strong>cell-patch 钉死为读-改-写 + upsert_markdown_row 整行替换</strong>：先读原文定位行、校验 overall、仅改末列后整行写回，不引入 replace 全文重写的第二路径）；<code>compute_drift.parse_trend(path, dims) -&gt; dict[str, list[tuple[float, bool]]]</code>（排除面验证）
+- Produces:
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">apply_resonance_override</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overall</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                             <span class="n">dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+    <span class="c1"># 返回落盘行。富行存在（overall 已数值）→ --overall 必须与现值相等（防误改分），</span>
+    <span class="c1"># 仅翻 human_overridden cell（&quot;true&quot; 小写）；pending/缺行 → 9 列全行写</span>
+    <span class="c1"># （role &quot;未声明&quot;、未给维 &quot;-&quot;、confidence &quot;human&quot;——confidence 列无下游消费面</span>
+    <span class="c1"># （compute_drift/report_longitudinal 只按表头绑 chapter/overall/human_overridden），新词面安全）</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_override_cli.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T3c: pipeline override-resonance (cell-patch semantics).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.resonance_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_resonance_override</span>
+
+<span class="n">HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+    <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+<span class="p">)</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+    <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">trend</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span>
+    <span class="n">trend</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">HEADER</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">trend</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_override_rich_row_flips_flag_only</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;| 3 | 推进 | 21 | 19 | 20 | 16 | 76 | high |  |&quot;</span><span class="p">])</span>
+    <span class="n">apply_resonance_override</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">76</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;| 3 | 推进 | 21 | 19 | 20 | 16 | 76 | high | true |&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_override_rich_row_score_mismatch_refuses</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;| 3 | 推进 | 21 | 19 | 20 | 16 | 76 | high |  |&quot;</span><span class="p">])</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;76&quot;</span><span class="p">):</span>
+        <span class="n">apply_resonance_override</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;true&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_override_pending_row_writes_full_row</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;| 26 | 未声明 | - | - | - | - | pending | low |  |&quot;</span><span class="p">])</span>
+    <span class="n">apply_resonance_override</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;情感落地&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;| 26 | 未声明 | 18 | - | - | - | 70 | human | true |&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_override_row_visible_to_compute_drift_exclusion</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;| 3 | 推进 | 21 | 19 | 20 | 16 | 76 | high |  |&quot;</span><span class="p">])</span>
+    <span class="n">apply_resonance_override</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">76</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.compute_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_trend</span>
+
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">parse_trend</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;overall&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="mf">76.0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">&quot;overall&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红测</strong> — Run: <code>uv run pytest tests/unit/pipeline/test_resonance_override_cli.py -x -q --no-cov -p no:randomly</code> — Expected: FAIL（ImportError）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong></p>
+</li>
+</ul>
+<p><code>apply_resonance_override</code>：读 trend 文本，<code>_split_row</code> 语义定位章行；富行 → overall 校验相等（不等 <code>raise ValueError(f"chapter {chapter} existing overall is {cur}, refusing rewrite to {overall}")</code>）→ 重组该行仅置末列 <code>" true "</code>（保持 9 列间距形态）→ <code>write_truth_file(..., 新行文本, mode="upsert_markdown_row", key_field="chapter")</code> 整行替换；pending/缺行 → <code>f"| {chapter} | 未声明 | {dims.get('情感落地', '-')} | … | {overall} | human | true |"</code> 9 列行同 upsert（key_field=chapter 自动落位）。cli.py 子命令（argparse 形如既有 7 子命令）：</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="n">p_override</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;override-resonance&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Mark a chapter&#39;s resonance trend row human_overridden (spec #106 T3)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p_override</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;project_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">p_override</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">p_override</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--overall&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p_override</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dims&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;逗号分隔 维=分&quot;</span><span class="p">)</span>
+    <span class="n">p_override</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--note&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+（handler 解析 --dims <code>情感落地=18,场景临场感=19</code> 形态，调 <code>apply_resonance_override</code>，<code>cli_utils.echo</code> 落盘行。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: 跑绿测</strong> — Run: <code>uv run pytest tests/unit/pipeline/test_resonance_override_cli.py -q --no-cov -p no:randomly</code> — Expected: 4 passed</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>src/shenbi/pipeline/resonance_policy.py<span class="w"> </span>tests/unit/pipeline/test_resonance_override_cli.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T3c — pipeline override-resonance（富行 cell-patch+pending 全行写+compute_drift 排除面激活）&quot;</span>
+</code></pre></div>
+<h3 id="task-6-ac2ac3">Task 6: AC2/AC3 离线回放工具 + 文档面收尾</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/resonance_floor_replay.py</code>（只读回放）
+- Modify: <code>AGENTS.md</code>（Key Commands 加 <code>just resonance-backfill &lt;dir&gt; [--chapters a-b|c,d]</code> 与 <code>pipeline override-resonance &lt;dir&gt; &lt;chapter&gt; --overall N</code> 两行——M4 钉）
+- Test: <code>tests/unit/pipeline/test_resonance_replay_tool.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>effective_resonance_floor</code>、<code>scored_trend_rows</code>、<code>decide_revision</code>、<code>collect_audit_issues</code>/<code>route_chapter_revision</code>（route 重算）
+- Produces: 验收期证据命令 <code>uv run python tools/resonance_floor_replay.py novel-xinghuo-vol1 --replay</code> 与 <code>--diff-route</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写红测</strong></li>
+</ul>
+<p><code>tests/unit/pipeline/test_resonance_replay_tool.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #106 T6: offline replay tool (AC2/AC3 evidence).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.resonance_floor_replay</span><span class="w"> </span><span class="kn">import</span> <span class="n">replay_floors</span>
+
+<span class="n">VOL1_SCORED</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="mi">78</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="mi">74</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="mi">76</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="mi">78</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="mi">81</span><span class="p">,</span>
+    <span class="mi">13</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+    <span class="mi">15</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+    <span class="mi">17</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="mi">81</span><span class="p">,</span>
+    <span class="mi">19</span><span class="p">:</span> <span class="mi">86</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> | 推进 | 21 | 20 | 21 | 15 | </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> | mid |  |&quot;</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">VOL1_SCORED</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报&quot;</span>
+        <span class="s2">&quot; | overall | confidence | human_overridden |&quot;</span>
+    <span class="p">)</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;|---------|--------------|---------|-----------|---------|---------&quot;</span>
+        <span class="s2">&quot;|---------|-----------|------------------|&quot;</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">header</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_replay_ignites_ch14_ch16_and_respects_cold_start</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">_seed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">replay_floors</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">ignited</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;would_route&quot;</span><span class="p">]]</span>
+    <span class="k">assert</span> <span class="n">ignited</span> <span class="o">==</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;would_route&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">11</span><span class="p">)</span>  <span class="c1"># 冷启动边界</span>
+    <span class="n">by_ch</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]:</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">by_ch</span><span class="p">[</span><span class="mi">14</span><span class="p">][</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">78.0</span>
+    <span class="k">assert</span> <span class="n">by_ch</span><span class="p">[</span><span class="mi">16</span><span class="p">][</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">77.75</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">by_ch</span><span class="p">[</span><span class="mi">17</span><span class="p">][</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">77.0</span> <span class="ow">and</span> <span class="n">by_ch</span><span class="p">[</span><span class="mi">17</span><span class="p">][</span><span class="s2">&quot;would_route&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="p">)</span>  <span class="c1"># 众数 79 章不命中（AC3c）</span>
+    <span class="k">assert</span> <span class="n">by_ch</span><span class="p">[</span><span class="mi">19</span><span class="p">][</span><span class="s2">&quot;would_route&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>  <span class="c1"># 高分带不命中</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红测</strong> — Expected: FAIL（ModuleNotFoundError）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现工具</strong>（<code>replay_floors(project_dir) -&gt; list[dict]</code>：对每已评分章算 <code>effective_resonance_floor</code> + <code>would_route = score &lt; floor</code>；<code>main()</code> argparse <code>--replay</code>（逐章打印 <code>ch | score | floor | source | would_route</code> + 点火率 <code>n/m</code>）与 <code>--diff-route</code>（<strong>同快照代码级差分</strong>：对每可评估章先以旧表达式 <code>route_chapter_revision(*collect_audit_issues(project_dir, ch))</code> 算 baseline route，再模拟新接线 shadow 模式（mode=shadow 时 route 不变）断言逐章相等，输出 <code>route-diff: 0</code>，非零则打印逐章明细。<strong>不对 pipeline-state.json 历史 route 对账</strong>——复评覆写+饿死混杂会产生与 #106 无关的假 diff，此理由作为工具 docstring 首段落盘）。tools/ 下 print 允许（report_longitudinal.py 先例）。）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑绿测 + 对 vol1 实跑（只读验收证据）</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_resonance_replay_tool.py -q --no-cov -p no:randomly</code> — Expected: passed
+Run: <code>uv run python tools/resonance_floor_replay.py novel-xinghuo-vol1 --replay</code> — Expected: 点火 ch14/ch16、前 8 已评分章（ch1/2/3/4/5/7/9/11）零触发、2/24=8.3%
+Run: <code>uv run python tools/resonance_floor_replay.py novel-xinghuo-vol1 --diff-route</code> — Expected: <code>route-diff: 0</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/resonance_floor_replay.py<span class="w"> </span>AGENTS.md<span class="w"> </span>tests/unit/pipeline/test_resonance_replay_tool.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #106 T6 — AC2/AC3 离线回放工具（同快照差分钉死）+AGENTS.md 命令登记&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review-1">Self-Review（修复轮 1 后自检记录）</h2>
+<ol>
+<li><strong>Spec coverage</strong>：T1 判据 → Task 1+2；T2 判据（持久键+trace/不改写 route/drift-guidance reads/lint-contracts+generate）→ Task 2+3；T3 判据三件 → Task 3/4/5；验收 2/3 → Task 6（AC 表含 AC4 未获令时替代交付链接）；验收 1 → 阶段 7；验收 4 → 挂账（随令）。无缺口。</li>
+<li><strong>Placeholder scan</strong>：无 TBD/「适当处理」/「二选一未定」（T5 cell-patch 已钉死 read-modify-write+upsert_markdown_row）；T1-T6 红测全部为真实可跑代码；T2 Step 3 唯一一处「以实际签名为准」（dispatch path_context）属落码期核验义务注记，非占位。</li>
+<li><strong>Type consistency</strong>：<code>effective_resonance_floor(project_dir, chapter, config) -&gt; FloorComputation</code>（T1 产/T2 消）；<code>resonance_policy_of(config) -&gt; dict</code>（T1/T2）；<code>write_volume_resonance_summary(project_dir, state, chapter)</code>（T3 Produces=挂点 wrapper 调用统一——I12 修复）；<code>apply_resonance_override</code>/<code>backfill_resonance</code>（T4/T5）；<code>ResonancePolicyMode</code> shadow|armed 全文一致；<code>"spot-fix"</code> 连字巻实值。</li>
+<li><strong>leaf/infra</strong>：六 task 全 infra（pipeline/contracts/gates/config 多文件+被 3+ 消费方 import）——协调者亲实现+TDD，每 task 后 fresh-context 审查子 agent 产 audit-T<N>.md。</li>
+<li><strong>阶段 5 首审 4C+9I+7M 全数吸收</strong>：C1（vol1 真值序列钉死，合成序列 Q1=78.25 反向奖励最近秩的陷阱已除）/C2（pipeline 既有入口+spec 同步改）/C3（pass 回退 route+计数回退+禁写 _CAP_ESCALATED_KEY+一次性采样守卫键）/C4（truth-files.yaml 登记）/I5（删除锚 :3172-3182 精确）/I6（插入锚 :3139 后+局部 import 含 decide_revision+check_resonance 孤儿清理+test_parallel_wave 改造入 Files）/I7（or True 删除+capsys 惯用法+签名占位修复+ImportError 期望修正 M16）/I8（cell-patch 钉死）/I9（status-vocab 域行+ALL_ENUMS）/I10（resonance-first 双报告+escalation context 指认）/I11（函数级局部 import 消费 dispatch_skill）/I12（函数名统一）/I13（--diff-route 同快照语义+不对历史对账理由落 docstring）/M14（锚 2837）/M15（连字巻）/M17（无阻断否定尾巴 (?&lt;!无)）/M18（AC3c 高分带断言+AC4 链接）/M19（执行分支声明）/M20（confidence human 无消费面注记）。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

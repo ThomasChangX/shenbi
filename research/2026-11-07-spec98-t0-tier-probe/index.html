@@ -1,0 +1,1457 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/research/2026-11-07-spec98-t0-tier-probe/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #98 T0 档位探测报告（2026-11-07） - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #98 T0 档位探测报告（2026-11-07） - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/research/2026-11-07-spec98-t0-tier-probe.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/research/2026-11-07-spec98-t0-tier-probe/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #98 T0 档位探测报告（2026-11-07） - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/research/2026-11-07-spec98-t0-tier-probe.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-98-t0-2026-11-07" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #98 T0 档位探测报告（2026-11-07）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-get-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §1 目录探测（GET /models）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="§1 目录探测（GET /models）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adeepseek-v4-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重要发现 A：deepseek-v4-flash 系退役别名
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重要发现 B：谱系高档仅一档，备档位实质空缺
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-thinking-pro-512200-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §2 thinking 行为探测（主档 pro，探针纪律 ≤512/≤200 tokens）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-max_tokensstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §3 max_tokens/超时面（stream 形）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rates-cache-miss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §4 rates 来源（官方，cache-miss 口径=现表约定）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-task-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §5 锁定档位表（Task 2 直接抄录）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-spec-1-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §6 预注册决议（spec §1 ③）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-spec-r22-plan-task-2-step-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §7 夹具撞名判定（spec r2.2 / plan Task 2 Step 5）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-audit-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §8 成本（探针累计；audit-T1 勘正后口径）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §9 附录：脚本形态与原始工件（复现用）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-t0-flash-v41-flash-10172026-11-08r25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        §10 T0-补：flash 档（V4.1-Flash-1017）三形探针（2026-11-08，r2.5 用户改令后）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-98-t0-2026-11-07">Spec #98 T0 档位探测报告（2026-11-07）</h1>
+<p><strong>探测人</strong>：SDD 协调者（plan Task 1，<code>/sdd-next 98</code> 会话）｜<strong>预算</strong>：spec §2 ≤$0.5，实际 <strong>&lt;$0.01</strong>（§成本）
+<strong>对象</strong>：<code>SHENBI_LLM_BASE_URL</code> 缺省 <code>https://api.deepseek.com/v1</code>（与 dispatch_helper.py:104-105 同源）</p>
+<hr />
+<h2 id="1-get-models">§1 目录探测（GET /models）</h2>
+<p>目录<strong>仅两档</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>context_window</th>
+<th>max_output_tokens</th>
+<th>effort</th>
+<th>默认 effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deepseek-flash</code></td>
+<td>DeepSeek-<strong>V4.1</strong>-Flash</td>
+<td>1,048,576</td>
+<td>393,216</td>
+<td>low/high/max</td>
+<td>high</td>
+</tr>
+<tr>
+<td><code>deepseek-v4-pro</code></td>
+<td>DeepSeek-V4-Pro</td>
+<td>1,048,576</td>
+<td>393,216</td>
+<td>low/high/max</td>
+<td>high</td>
+</tr>
+</tbody>
+</table>
+<h3 id="adeepseek-v4-flash">重要发现 A：<code>deepseek-v4-flash</code> 系退役别名</h3>
+<p>官方文档（api-docs.deepseek.com/quick_start/pricing，WebFetch 2026-11-07）：<code>deepseek-v4-flash</code> 与 <code>deepseek-v4-flash-vision-exp</code> 为 legacy 名——<strong>仍被接受但模型已退役</strong>，请求由 DeepSeek-V4.1-Flash-1017 服务、<strong>按 Flash 价计费</strong>。推论：①生产控制组（束5/束6）的 <code>deepseek-v4-flash</code> 派发实际跑在 V4.1-Flash 硬件上、计费不变——束6 基线语义与 PRICING 现键计价均不受影响；②现役 flash id=<code>deepseek-flash</code>。</p>
+<h3 id="b">重要发现 B：谱系高档仅一档，备档位实质空缺</h3>
+<p>提供方谱系=flash（控制组级）+pro（高档）两档。spec §4 明文「不降级回 flash 重跑——控制组证据已足」→ flash 系 id 不得作实验回退档。<strong>裁定：主档=<code>deepseek-v4-pro</code>（谱系最高档，spec r2.1 ✓）；备档位=空缺</strong>——pro 不可用时走 spec §4 出口「回用户重定档」，无备档可降。r2.2「主+备两档同批入表」按现实修订为：<strong>pro（实验主档）+deepseek-flash（现役 flash id，接线占位——仅保成本护栏键完备与未来切 id 时不失明，明示不作实验回退档）</strong>双键入表。deviation 记 <code>.superpowers/sdd/spec-deviations.md</code>。</p>
+<h2 id="2-thinking-pro-512200-tokens">§2 thinking 行为探测（主档 pro，探针纪律 ≤512/≤200 tokens）</h2>
+<table>
+<thead>
+<tr>
+<th>形</th>
+<th>参数</th>
+<th>结果</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) 默认</td>
+<td>无 thinking 参数</td>
+<td><strong>200</strong>；content=7 字+reasoning_content 85 字；usage: prompt 93/completion 57（reasoning_tokens=50）；1.9s</td>
+<td>/tmp/spec98-probe/a.json</td>
+</tr>
+<tr>
+<td>(b) disabled</td>
+<td><code>{"thinking":{"type":"disabled"}}</code>（extra_body 形）</td>
+<td><strong>200</strong>；content 非空、completion=2（<strong>零 reasoning——官方开关生效</strong>）</td>
+<td>b.json</td>
+</tr>
+<tr>
+<td>(c) low</td>
+<td><code>{"reasoning_effort":"low"}</code></td>
+<td><strong>200</strong>；content 7 字、reasoning_tokens=40</td>
+<td>c.json</td>
+</tr>
+</tbody>
+</table>
+<p><strong>session30 病理判定：未触发</strong>——(a) 形 content 与 reasoning 并存（content 通道在小预算下正常产出，completion 57 远未钉 512 帽——非 pinned-at-cap），无需 4096 重探。MiniMax 教训面（参数被拒 2013 型）<strong>未复现</strong>：三形全 200。注：小预算探针行为 ≠ 生产 45K prompt 行为，T2 观察点兜底（plan Step 2 要求的注记）。</p>
+<h2 id="3-max_tokensstream">§3 max_tokens/超时面（stream 形）</h2>
+<p><code>max_tokens: 65536, stream: true</code> → <strong>HTTP 200+流打开</strong>；<strong>流跑至自然结束</strong>（audit-T1 勘正：首命令 <code>-o stream_head.txt</code> 全量落盘未截断——418 chunks、usage 92+416、<code>finish_reason=stop</code>[非 length]）——<strong>65536 接受且无钳制</strong>（416≪65536 即自然停笔）；首块延迟 ≈0.9s。目录另证 <code>max_output_tokens=393,216</code>（≥<code>_MODEL_OUTPUT_CEILING=65536</code>，不构成约束）。<strong>900s base 超时风险评估：低</strong>（探针级延迟 ~2s；生产 45K prompt+effort high 仍留 T2 观察点兜底——spec §4 风险行）。</p>
+<h2 id="4-rates-cache-miss">§4 rates 来源（官方，cache-miss 口径=现表约定）</h2>
+<p>DeepSeek 官方平台页（www.deepseek.com/en/platform，2026-11-07 WebFetch 逐行引用）：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>input (cache miss)/M</th>
+<th>output/M</th>
+<th>cache hit/M（备注，不入表）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td><strong>$0.435</strong></td>
+<td><strong>$0.87</strong></td>
+<td>$0.003625</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash（=V4.1 Flash 价）</td>
+<td>$0.14</td>
+<td>$0.28</td>
+<td>$0.0028</td>
+</tr>
+</tbody>
+</table>
+<p>注：现 PRICING 表仅 input/output 两键（cache-miss 口径，与既有 flash 键一致）；cache-hit 价不入表（estimate_cost 按 prompt_tokens 全量计费=保守方向，护栏安全）。</p>
+<h2 id="5-task-2">§5 锁定档位表（Task 2 直接抄录）</h2>
+<table>
+<thead>
+<tr>
+<th>槽位</th>
+<th>模型 id</th>
+<th>input USD/M</th>
+<th>output USD/M</th>
+<th>context limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>主档（实验组）</strong></td>
+<td><code>deepseek-v4-pro</code></td>
+<td>0.435</td>
+<td>0.87</td>
+<td>1_048_576</td>
+</tr>
+<tr>
+<td>次档（接线占位，非回退档）</td>
+<td><code>deepseek-flash</code></td>
+<td>0.14</td>
+<td>0.28</td>
+<td>1_048_576</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-spec-1-3">§6 预注册决议（spec §1 ③）</h2>
+<p><strong>实验口径=启用（容量满配=provider 默认，effort high）</strong>。依据：三形全 200（可用性✓）+(a) 形默认 thinking 下 content 正常产出（病理未触发）→ 按 spec r2.1「两口径皆可用时默认启用」。<strong>Task 2 执行动作：删 <code>[overrides."shenbi-chapter-planning"]</code> 节</strong>（fallthrough <code>[default]</code>=provider 默认；<code>[default]</code> 无 thinking 键已核）+ 注释块（含 kill 臂恢复条款与 T3 回滚条款）。disabled 形 (b) 探针结果留档：T3 FAIL 分支若需诊断派（disabled 口径核对）可直接引用本报告 (b) 形可用性证据。</p>
+<h2 id="7-spec-r22-plan-task-2-step-5">§7 夹具撞名判定（spec r2.2 / plan Task 2 Step 5）</h2>
+<p><strong>撞名实锤</strong>：<code>deepseek-v4-pro</code> 现为真实目录模型 ≠ unknown。<code>tests/unit/test_pricing_fail_loud.py:21</code> 夹具改 <code>no-such-model-x</code>（Task 2 Step 5 触发）。</p>
+<h2 id="8-audit-t1">§8 成本（探针累计；audit-T1 勘正后口径）</h2>
+<table>
+<thead>
+<tr>
+<th>探针</th>
+<th>tokens（prompt+completion）</th>
+<th>估算成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) 默认（93 prompt）</td>
+<td>93+57</td>
+<td>$0.000090</td>
+</tr>
+<tr>
+<td>(b) disabled（14 prompt）</td>
+<td>14+2</td>
+<td>$0.0000078</td>
+</tr>
+<tr>
+<td>(c) low（14 prompt）</td>
+<td>14+47</td>
+<td>$0.000047</td>
+</tr>
+<tr>
+<td>stream（92 prompt，跑至自然 stop——见 §3 勘正）</td>
+<td>92+416</td>
+<td>$0.00040</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td>—</td>
+<td><strong>≈$0.0006（≪$0.5 ✓；单探针最坏 $0.0004&lt;$0.1 阈 ✓）</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="9">§9 附录：脚本形态与原始工件（复现用）</h2>
+<p>四探针字面 curl（<code>$BASE</code>=<code>SHENBI_LLM_BASE_URL</code> 缺省 <code>https://api.deepseek.com/v1</code>；鉴权头同式）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># (a) 默认形</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BASE</span><span class="s2">/chat/completions&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$SHENBI_LLM_API_KEY</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;deepseek-v4-pro&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;用一句话回答：1+1等于几？&quot;}],&quot;max_tokens&quot;:512}&#39;</span>
+<span class="c1"># (b) disabled 形——body 同上，prompt「2+2等于几？」，追加 &quot;thinking&quot;:{&quot;type&quot;:&quot;disabled&quot;}</span>
+<span class="c1"># (c) low 形——body 同上，prompt「3+3等于几？」，追加 &quot;reasoning_effort&quot;:&quot;low&quot;</span>
+<span class="c1"># stream 形</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-N<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BASE</span><span class="s2">/chat/completions&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$SHENBI_LLM_API_KEY</span><span class="s2">&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;deepseek-v4-pro&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;从1数到100，每个数一行&quot;}],&quot;max_tokens&quot;:65536,&quot;stream&quot;:true}&#39;</span>
+<span class="c1"># 目录</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BASE</span><span class="s2">/models&quot;</span><span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$SHENBI_LLM_API_KEY</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>原始工件：/tmp/spec98-probe/{a,b,c}.json + stream_head.txt（全量流）+ stream_first.txt（临时，不入库）。延迟数字：(a) 1.9s / stream 首块 0.9s（会话内 time 实测）。</p>
+<p><strong>GET /models 原始响应（2026-11-07，原文全录）</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="s2">&quot;list&quot;</span><span class="p">,</span><span class="nt">&quot;data&quot;</span><span class="p">:[</span>
+<span class="w"> </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;deepseek-flash&quot;</span><span class="p">,</span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="nt">&quot;owned_by&quot;</span><span class="p">:</span><span class="s2">&quot;deepseek&quot;</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;DeepSeek-V4.1-Flash&quot;</span><span class="p">,</span><span class="nt">&quot;context_window&quot;</span><span class="p">:</span><span class="mi">1048576</span><span class="p">,</span><span class="nt">&quot;max_output_tokens&quot;</span><span class="p">:</span><span class="mi">393216</span><span class="p">,</span><span class="nt">&quot;input_modalities&quot;</span><span class="p">:[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span><span class="s2">&quot;image&quot;</span><span class="p">],</span><span class="nt">&quot;output_modalities&quot;</span><span class="p">:[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span><span class="nt">&quot;effort&quot;</span><span class="p">:{</span><span class="nt">&quot;supported_levels&quot;</span><span class="p">:[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span><span class="s2">&quot;high&quot;</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">],</span><span class="nt">&quot;default_level&quot;</span><span class="p">:</span><span class="s2">&quot;high&quot;</span><span class="p">},</span><span class="nt">&quot;api_capabilities&quot;</span><span class="p">:{</span><span class="nt">&quot;anthropic_messages&quot;</span><span class="p">:{</span><span class="nt">&quot;system_prompt_update&quot;</span><span class="p">:</span><span class="s2">&quot;in-history&quot;</span><span class="p">,</span><span class="nt">&quot;tool_update&quot;</span><span class="p">:</span><span class="s2">&quot;addition-only&quot;</span><span class="p">}}},</span>
+<span class="w"> </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;deepseek-v4-pro&quot;</span><span class="p">,</span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="nt">&quot;owned_by&quot;</span><span class="p">:</span><span class="s2">&quot;deepseek&quot;</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;DeepSeek-V4-Pro&quot;</span><span class="p">,</span><span class="nt">&quot;context_window&quot;</span><span class="p">:</span><span class="mi">1048576</span><span class="p">,</span><span class="nt">&quot;max_output_tokens&quot;</span><span class="p">:</span><span class="mi">393216</span><span class="p">,</span><span class="nt">&quot;input_modalities&quot;</span><span class="p">:[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span><span class="nt">&quot;output_modalities&quot;</span><span class="p">:[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span><span class="nt">&quot;effort&quot;</span><span class="p">:{</span><span class="nt">&quot;supported_levels&quot;</span><span class="p">:[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span><span class="s2">&quot;high&quot;</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">],</span><span class="nt">&quot;default_level&quot;</span><span class="p">:</span><span class="s2">&quot;high&quot;</span><span class="p">},</span><span class="nt">&quot;api_capabilities&quot;</span><span class="p">:{</span><span class="nt">&quot;anthropic_messages&quot;</span><span class="p">:{</span><span class="nt">&quot;system_prompt_update&quot;</span><span class="p">:</span><span class="s2">&quot;leading-only&quot;</span><span class="p">,</span><span class="nt">&quot;tool_update&quot;</span><span class="p">:</span><span class="s2">&quot;leading-only&quot;</span><span class="p">}}}]}</span>
+</code></pre></div>
+<p>rates 引用：www.deepseek.com/en/platform（§4，WebFetch 2026-11-07 逐行引用）、api-docs.deepseek.com/quick_start/pricing（发现 A）。</p>
+<hr />
+<h2 id="10-t0-flash-v41-flash-10172026-11-08r25">§10 T0-补：flash 档（V4.1-Flash-1017）三形探针（2026-11-08，r2.5 用户改令后）</h2>
+<p><strong>背景</strong>：用户改令实验档 pro→<code>deepseek-flash</code>。配置面检索（官方 thinking_mode 指南+新闻页+变更日志，2026-11-08）：</p>
+<ul>
+<li><strong>时间线</strong>：V4.1-Flash-1017 于 <strong>2026-10-17</strong> 上线（api-docs.deepseek.com/news/news261017「Wish-Driven Programming」——V4.1-Flash 基座的小版本升级，reasoning/coding/agentic 显著提升+输出更短）；变更日志「DeepSeek V4.1 Flash has been upgraded to V4.1-Flash-1017」；退役别名 <code>deepseek-v4-flash</code> 路由至 1017 按 Flash 价计费。<strong>推论：束5/束6 控制组（2026-11-05/06，经别名）实跑 V4.1-Flash-1017——实验组 <code>deepseek-flash</code> 与控制组同代同模</strong>，tier 变量归零。</li>
+<li><strong>thinking 配置事实</strong>（官方指南）：默认 ON effort high；开关=<code>extra_body {"thinking":{"type":"enabled/disabled"}}</code>（与 <code>_thinking_kwargs</code> 接线一致）；effort=<code>reasoning_effort low/high/max</code>（medium/xhigh 映射 high）；<strong>thinking 模式下 temperature 不生效</strong>（executor_config 各 temperature 在启用口径下为 no-op，无害）；<code>reasoning_content</code> 回传仅在带 <code>tools</code> 时强制（shenbi 派发不带 tools）；并发限制 flash 2500 / pro 500。</li>
+<li><strong>价差</strong>：flash 0.14/0.28 vs pro 0.435/0.87 per M——flash ≈ pro 的 32%。</li>
+</ul>
+<p><strong>三形探针</strong>（同 §2 纪律；探针成本 ≈$0.0002）：</p>
+<table>
+<thead>
+<tr>
+<th>形</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) 默认（effort high）</td>
+<td>200；content 7 字+reasoning 31 tokens 并存；finish=stop（病理未触发，非 pinned）</td>
+</tr>
+<tr>
+<td>(b) disabled</td>
+<td>200；completion=6 零 reasoning（官方开关生效）</td>
+</tr>
+<tr>
+<td>(c) low</td>
+<td>200；reasoning 30</td>
+</tr>
+</tbody>
+</table>
+<p><strong>预注册裁定（r2.5）</strong>：三形全通+content 健康 → 按 r2.1 默认准则维持<strong>启用（容量满配=provider 默认 effort high）</strong>；planning 补 <code>max_tokens=32768</code> 头寸（只预算不设 thinking 键——2026-10-24 drafting 探针[1017 后]实证本族 effort-high 推理可独食 30-50K，[default] 16384 对 planning 有截断风险；T2 首派观察 finish_reason=length 即单列记账）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

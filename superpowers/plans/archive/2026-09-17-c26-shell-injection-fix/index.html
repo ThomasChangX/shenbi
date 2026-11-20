@@ -1,0 +1,1847 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-17-c26-shell-injection-fix/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C26 shell/just 包装层注入修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="C26 shell/just 包装层注入修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-17-c26-shell-injection-fix.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-17-c26-shell-injection-fix/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="C26 shell/just 包装层注入修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-17-c26-shell-injection-fix.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c26-shelljust-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C26 shell/just 包装层注入修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文件结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文件结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-justfile-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: justfile 注入矩阵 harness（红）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-justfile-positional-args-readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: justfile positional-args 重写（绿）+ README 修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-run_pipelinesh-smoke" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: run_pipeline.sh smoke 化测试（红）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-run_pipelinesh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: run_pipeline.sh 重写（绿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-shellcheck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: shellcheck 防线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="c26-shelljust-implementation-plan">C26 shell/just 包装层注入修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 封死 justfile recipe 参数注入面（F1031/F1032）、把 run_pipeline.sh 降级为零状态写入的 smoke 工具（F002/F003/F1013/F1014/F1035/T1203/T1205）、修 README 快速开始（F902/F1030）、加 shellcheck 防线。</p>
+<p><strong>Architecture:</strong> justfile 统一改 positional-arguments 模式（<code>set shell := ["bash","-cu"]</code> + recipe 体用 <code>"$1"</code>/<code>"${@:N}"</code>，签名不变）；run_pipeline.sh 全部 <code>python3 -c</code> 拼接改 heredoc/argv，自动 approve 与 state 写入全删（裁决 B），状态提取改 JSON 解析；防线 = PATH-stub 注入矩阵测试（先例 <code>tests/test_round_exec_injection.py</code>）+ shellcheck（pre-commit mirror + <code>just check</code>）。零 <code>src/shenbi/</code> 生产代码改动。</p>
+<p><strong>Tech Stack:</strong> just 1.52、bash（bash-3.2 安全惯用法）、pytest（subprocess 驱动）、shellcheck-py、pre-commit。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>recipe 签名（参数名/默认值）不变，用户面零感知；唯一例外：<code>pipeline-init</code> 增补性 <code>*args</code> 透传（T2.8）</li>
+<li>禁 <code>python3 -c</code> 字符串拼接；python 脚本经 heredoc（<code>python3 - args &lt;&lt;'PY'</code>）或 tools/ 辅助文件 argv 传参</li>
+<li>禁裸 <code>"${A[@]}"</code>（bash&lt;4.4 + <code>set -u</code> 报 unbound variable）——用分支拼接或 <code>${A[@]+"${A[@]}"}</code></li>
+<li>验收离线（F947）：禁真实 <code>shenbi-dispatch</code>/<code>pipeline</code> LLM dispatch；stub 目标是 <code>uv</code> 本身（PATH 前置 fake <code>uv</code>——<code>uv run</code> 把 venv bin 前置 PATH，stub <code>pipeline</code>/<code>shenbi-dispatch</code> 会被真入口遮蔽）</li>
+<li><code>just --dry-run</code> 输出剥 shell 引号，不作注入修复的充分证据（只作 README 验收形态证据）</li>
+<li>环境同构：一切验证走 <code>just</code>/<code>uv run</code>；测试标记 <code>@pytest.mark.unit</code></li>
+<li>conventional commits；commit 显式列文件路径，禁 <code>git add -A</code></li>
+</ul>
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 注入矩阵六类样本 × 全含参 recipe，argv 字面量到达</td>
+<td>T1+T2</td>
+<td><code>uv run pytest tests/test_justfile_injection.py -v</code></td>
+</tr>
+<tr>
+<td>2 run_pipeline.sh 恶意路径响亮报错、无任意 Python</td>
+<td>T3+T4</td>
+<td><code>uv run pytest tests/test_run_pipeline_smoke.py -v</code></td>
+</tr>
+<tr>
+<td>3 ESCALATION 停人工 checkpoint、零 state 写入</td>
+<td>T3+T4</td>
+<td>同上（ESCALATION 用例 + state mtime/内容不变断言）</td>
+</tr>
+<tr>
+<td>4 README 快速开始离线验证</td>
+<td>T2</td>
+<td><code>uv run pytest tests/test_justfile_injection.py -v</code>（--auto 透传用例）+ <code>just --dry-run pipeline-init</code> 人工核</td>
+</tr>
+<tr>
+<td>5 shellcheck 全 *.sh 零 error + 头注释规约 + just check 绿</td>
+<td>T2+T5</td>
+<td><code>uv run shellcheck &lt;5 个 .sh&gt;</code> + <code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">文件结构</h2>
+<ul>
+<li>Modify: <code>justfile</code>（T2）、<code>run_pipeline.sh</code>（T4）、<code>README.md</code>（T2）、<code>.pre-commit-config.yaml</code>（T5）、<code>pyproject.toml</code>/<code>uv.lock</code>（T5 dev 依赖）</li>
+<li>Create: <code>tests/test_justfile_injection.py</code>（T1）、<code>tests/test_run_pipeline_smoke.py</code>（T3）、<code>tools/extract_json_field.py</code>（T4）</li>
+</ul>
+<hr />
+<h3 id="task-1-justfile-harness">Task 1: justfile 注入矩阵 harness（红）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/test_justfile_injection.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>make_uv_stub(tmp_path, canned=None) -&gt; Path</code>（返回 stub bin 目录；环境变量 <code>STUB_UV_OUT</code> 记录 argv、<code>STUB_UV_CANNED</code> 回放 canned 输出）；<code>parameterized_recipes() -&gt; dict[str, list[str]]</code>（从 justfile 文本机械解析含参 recipe → 每条一组样本调用 argv）</p>
+<p><strong>test_kind:</strong> tdd_red_green（当前 justfile 必须红）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;C26 / F1031+F1032 (spec #64): every parameterized justfile recipe must pass</span>
+<span class="sd">arguments as literal argv entries — no shell re-parsing of interpolated values.</span>
+
+<span class="sd">Mechanism: a fake ``uv`` is prepended to PATH (stubbing ``pipeline`` or</span>
+<span class="sd">``shenbi-dispatch`` themselves is useless — ``uv run`` prepends the project</span>
+<span class="sd">venv bin to PATH, shadowing them). The stub records every invocation&#39;s argv</span>
+<span class="sd">to $STUB_UV_OUT. A recipe body that textually interpolates ``{{param}}``</span>
+<span class="sd">unquoted lets ``;``-style payloads execute in the recipe shell (marker file</span>
+<span class="sd">appears) and word-splits the payload; the positional-arguments pattern</span>
+<span class="sd">(``&quot;$1&quot;`` / ``&quot;${@:4}&quot;``) delivers them inert.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Six sample classes from the spec (T1.3). Marker variants prove zero</span>
+<span class="c1"># execution; the payload string itself must arrive as ONE argv entry.</span>
+<span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;pwned-by-just-recipe&quot;</span>
+<span class="n">SAMPLES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">f</span><span class="s2">&quot;p; touch </span><span class="si">{</span><span class="n">MARKER</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;p$(touch pwned-cmdsub)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;p`touch pwned-backtick`&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;it&#39;s quoted&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;say &quot;hello world&quot;&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;中文提示词 空格&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">STUB</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#!/usr/bin/env bash</span>
+<span class="s2">printf &#39;</span><span class="si">%s</span><span class="se">\\</span><span class="s2">n&#39; &quot;$@&quot; &gt;&gt; &quot;${STUB_UV_OUT:?}&quot;</span>
+<span class="s2">[ -z &quot;$</span><span class="si">{STUB_UV_CANNED:-}</span><span class="s2">&quot; ] || cat &quot;$</span><span class="si">{STUB_UV_CANNED}</span><span class="s2">&quot;</span>
+<span class="s2">exit 0</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_uv_stub</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">bin_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;stub-bin&quot;</span>
+    <span class="n">bin_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">bin_dir</span> <span class="o">/</span> <span class="s2">&quot;uv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">STUB</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">bin_dir</span> <span class="o">/</span> <span class="s2">&quot;uv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o755</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bin_dir</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_just</span><span class="p">(</span><span class="n">env_extra</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env_extra</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;just&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">REPO_ROOT</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">stub_lines</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+
+<span class="c1"># Mechanical derivation (spec T1.3): parse the justfile for recipe headers</span>
+<span class="c1"># that declare parameters — a hand-maintained list would let new recipes</span>
+<span class="c1"># escape the matrix.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parameterized_recipes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;justfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">recipes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># Recipe headers are column-0 in this justfile; indented lines are</span>
+        <span class="c1"># recipe bodies (whose `=`/`:` flags would misfire the header regex).</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stripped</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span> <span class="ow">or</span> <span class="n">stripped</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;set &quot;</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">stripped</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span> <span class="ow">or</span> <span class="s2">&quot; &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">candidate</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">params</span> <span class="ow">or</span> <span class="s2">&quot;{{&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="c1"># Header (ends with &#39;:&#39;) whose parameter list is non-empty</span>
+        <span class="k">if</span> <span class="n">stripped</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">recipes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">recipes</span>
+
+
+<span class="n">EXPECTED_CALLS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># recipe -&gt; per-sample argument vectors (payload placed at the natural-</span>
+    <span class="c1"># language position). All of these route through `uv`, so the stub</span>
+    <span class="c1"># intercepts every one — no side effects, no LLM.</span>
+    <span class="s2">&quot;install&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;dev&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;dev; touch pwned&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;-q&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;test-all&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;-q&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;test-file&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;tests/test x.py&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;audit-lint&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;--help&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;gate&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;G0&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;G0; touch pwned&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;dispatch&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp/r&quot;</span><span class="p">,</span> <span class="s2">&quot;p; touch pwned-by-just-recipe&quot;</span><span class="p">]</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;pipeline-init&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;seed.md&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;seed.md&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp/dir with space&quot;</span><span class="p">,</span> <span class="s2">&quot;--auto&quot;</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;pipeline-status&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;/tmp/dir; touch pwned&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;pipeline-review&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;/tmp/d&quot;</span><span class="p">,</span> <span class="s2">&quot;approve&quot;</span><span class="p">,</span> <span class="s2">&quot;needs work; fix it&quot;</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;pipeline-resume&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;/tmp/dir $(touch pwned-cmdsub)&quot;</span><span class="p">]],</span>
+<span class="p">}</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_matrix_all_parameterized_recipes_pass_literals</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every recipe in EXPECTED_CALLS delivers payloads as literal argv.&quot;&quot;&quot;</span>
+    <span class="n">bin_dir</span> <span class="o">=</span> <span class="n">make_uv_stub</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;PATH&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bin_dir</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;STUB_UV_OUT&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">recipe</span><span class="p">,</span> <span class="n">calls</span> <span class="ow">in</span> <span class="n">EXPECTED_CALLS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
+            <span class="n">proc</span> <span class="o">=</span> <span class="n">run_just</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">recipe</span><span class="p">,</span> <span class="o">*</span><span class="n">call</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">recipe</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">call</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">stub_lines</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="c1"># Zero execution: no marker anywhere in the repo root (pwned = the bare</span>
+    <span class="c1"># `touch pwned` variants used by the install/gate rows).</span>
+    <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="n">MARKER</span><span class="p">,</span>
+        <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;pwned-cmdsub&quot;</span><span class="p">,</span>
+        <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;pwned-backtick&quot;</span><span class="p">,</span>
+        <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;pwned&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">marker</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;injection executed: </span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">marker</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># F1031: the `;` payload reaches the stub as ONE argv entry.</span>
+    <span class="k">assert</span> <span class="s2">&quot;p; touch pwned-by-just-recipe&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">,</span> <span class="s2">&quot;dispatch payload not literal argv&quot;</span>
+    <span class="c1"># F1032: feedback with spaces/`;` stays one argv entry after --feedback.</span>
+    <span class="k">assert</span> <span class="s2">&quot;needs work; fix it&quot;</span> <span class="ow">in</span> <span class="n">lines</span>
+    <span class="c1"># F1030/--auto passthrough: `--auto` reaches the pipeline CLI argv.</span>
+    <span class="k">assert</span> <span class="s2">&quot;--auto&quot;</span> <span class="ow">in</span> <span class="n">lines</span>
+    <span class="c1"># No recipe line word-split the space-containing project dir.</span>
+    <span class="k">assert</span> <span class="s2">&quot;/tmp/dir with space&quot;</span> <span class="ow">in</span> <span class="n">lines</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_matrix_covers_every_parameterized_recipe</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Guard against new parameterized recipes escaping the matrix.&quot;&quot;&quot;</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">EXPECTED_CALLS</span><span class="p">)</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">parameterized_recipes</span><span class="p">())</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">actual</span> <span class="o">-</span> <span class="n">expected</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;recipes missing from EXPECTED_CALLS: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_justfile_injection.py -v</code>
+Expected: 双 FAIL——主测试红（当前 <code>{{prompt}}</code> 无引号插值：marker 文件出现 / argv 拆散 / <code>--auto</code> 透传缺失）；coverage 守护测试对当前 justfile 应 PASS（含参 recipe 集 = EXPECTED_CALLS 键集——若红了先修 parser 再继续）</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/test_justfile_injection.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: c26 justfile injection matrix harness (red) — six sample classes x parameterized recipes (spec #64 F1031/F1032)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-justfile-positional-args-readme">Task 2: justfile positional-args 重写（绿）+ README 修复</h3>
+<p><strong>Files:</strong>
+- Modify: <code>justfile</code>（全部含参 recipe 体 + 顶部 <code>set shell</code> + 头注释规约）
+- Modify: <code>README.md:45</code>（<code>--auto</code> 例子已可用，保持原文——透传落地后该行即为真）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 <code>EXPECTED_CALLS</code> 断言集
+- Produces: recipe 签名不变；<code>pipeline-init seed project_dir="" *args</code> 新增透传</p>
+<ul>
+<li>[ ] <strong>Step 1: justfile 顶部加 shell 设置与规约头注释</strong></li>
+</ul>
+<p>在 <code>set positional-arguments := true</code> 后加：</p>
+<div class="highlight"><pre><span></span><code># Recipe-authoring covenant (spec #64 C26 / F1031): recipes taking
+# natural-language or flag-value parameters MUST NOT interpolate {{param}}
+# into the shell line (just substitutes textually BEFORE the shell parses,
+# so `;`/`$()` in the value execute). Use positional references (&quot;$1&quot;,
+# &quot;${@:N}&quot;) — see tests/test_justfile_injection.py. `${@:N}` is bash-only,
+# hence the explicit bash shell below (dash would abort: Bad substitution).
+set shell := [&quot;bash&quot;, &quot;-cu&quot;]
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 逐 recipe 重写体（签名不变）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>install group=&quot;dev&quot;:
+    uv sync --group &quot;$1&quot;
+
+test *args:
+    uv run pytest -n auto -m &quot;unit&quot; --no-cov &quot;$@&quot;
+
+test-file file:
+    uv run pytest &quot;$1&quot; -v --no-cov
+
+audit-lint *args:
+    uv run python tools/lint_audit_run.py &quot;$@&quot;
+
+gate name *args:
+    uv run shenbi-validate &quot;$1&quot; &quot;${@:2}&quot;
+
+dispatch skill test_type round_dir *prompt:
+    uv run shenbi-dispatch &quot;$1&quot; &quot;$2&quot; &quot;$3&quot; &quot;${@:4}&quot;
+
+pipeline-init seed project_dir=&quot;&quot; *args:
+    if [ -n &quot;$2&quot; ]; then uv run pipeline init &quot;$1&quot; --project-dir &quot;$2&quot; &quot;${@:3}&quot;; else uv run pipeline init &quot;$1&quot; &quot;${@:3}&quot;; fi
+
+pipeline-status project_dir:
+    uv run pipeline status &quot;$1&quot;
+
+pipeline-review project_dir decision feedback=&quot;&quot;:
+    if [ -n &quot;$3&quot; ]; then uv run pipeline review &quot;$1&quot; &quot;$2&quot; --feedback &quot;$3&quot;; else uv run pipeline review &quot;$1&quot; &quot;$2&quot;; fi
+
+pipeline-resume project_dir:
+    uv run pipeline resume &quot;$1&quot;
+</code></pre></div>
+<p>要点：分支拼接用<strong>单行 if/else</strong>（just 1.52 对 recipe 体内多行块的缩进报 <code>recipe line has extra leading whitespace</code>，多行块非法）；无数组，规避 bash-3.2 <code>set -u</code> 空数组坑；just 对带默认值参数恒按位传参所以 <code>[ -n "$N" ]</code> 判空有效。</p>
+<ul>
+<li>[ ] <strong>Step 3: 跑 Task 1 测试确认绿 + 手工双形态验证</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_justfile_injection.py -v</code>
+Expected: 2 passed</p>
+<p>Run: <code>just --dry-run dispatch shenbi-worldbuilding generative /tmp/round "p; echo PWNED"</code> 与 <code>just --dry-run pipeline-review ./my-novel approve "needs work; fix it"</code>（README 验收 4 形态证据，dry-run 剥引号属预期——真证据在 stub 测试）
+Expected: 展示的命令行含 <code>"$1"</code>/<code>"$3"</code> 位置引用而非 payload 文本拼接</p>
+<p>Run: <code>uv run pytest tests/test_justfile_injection.py -q &amp;&amp; just --dry-run pipeline-init outline-example.md ./my-novel --auto</code>
+Expected: <code>uv run pipeline init outline-example.md --project-dir ./my-novel "--auto"</code>（README:45 例子可跑）</p>
+<ul>
+<li>[ ] <strong>Step 4: 全量快测确认无回归</strong></li>
+</ul>
+<p>Run: <code>just test</code>
+Expected: 全绿（recipe 体改动不影响 pytest 收集）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>justfile<span class="w"> </span>README.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: c26 justfile positional-args hardening — kill {{param}} interpolation in all parameterized recipes, pipeline-init *args passthrough (spec #64 F1031/F1032/F1030)&quot;</span>
+</code></pre></div>
+<p>（README 若无需改则不加 pathspec；harness 已在 T1 提交，不重复列）README 验收 4 说明：<code>pipeline-status</code>/<code>pipeline-resume</code> 两行由 EXPECTED_CALLS 对应 stub 行覆盖（argv 形态级），init/review/dispatch 另有 dry-run 人工核。</p>
+<hr />
+<h3 id="task-3-run_pipelinesh-smoke">Task 3: run_pipeline.sh smoke 化测试（红）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/test_run_pipeline_smoke.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 <code>make_uv_stub</code>（import：<code>from tests.test_justfile_injection import make_uv_stub</code>——若 tests 无包结构则复制函数，见 Step 1 注）
+- Produces: 无</p>
+<p><strong>test_kind:</strong> tdd_red_green</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;C26 / F002+F003+F1013+F1014+F1035+T1203+T1205 (spec #64): run_pipeline.sh</span>
+<span class="sd">must be a smoke tool — loud failure on hostile paths, zero state writes,</span>
+<span class="sd">never auto-approving checkpoints. Offline: a fake ``uv`` on PATH replays</span>
+<span class="sd">canned `pipeline resume` output (stubbing ``pipeline`` itself is useless —</span>
+<span class="sd">``uv run`` prepends the venv bin to PATH).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">SCRIPT</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;run_pipeline.sh&quot;</span>
+
+<span class="c1"># T1205 replay: balanced-paren Python breakout payload in PROJECT_DIR.</span>
+<span class="n">HOSTILE_DIRS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;x&#39;) and __import__(&#39;os&#39;).system(&#39;touch pwned-by-rp&#39;) and (&#39;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dir with space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dir( paren )&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># F1014/F002: an error message containing the over-broad grep words must NOT</span>
+<span class="c1"># be auto-approved (canned output replays a fake &quot;error&quot; status whose text</span>
+<span class="c1"># mentions escalation/gate/dispatch).</span>
+<span class="n">CANNED_ERROR</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;dispatch failed inside gate escalation path&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">CANNED_ESCALATION_BLOCKED</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;blocked&quot;</span><span class="p">,</span> <span class="s2">&quot;checkpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;ESCALATION&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter_loop&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_script</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">canned</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">bin_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;stub-bin&quot;</span>
+    <span class="n">bin_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">canned_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;canned.txt&quot;</span>
+    <span class="n">canned_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">canned</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># Stub records EVERY invocation first (incl. `pipeline review`), replays</span>
+    <span class="c1"># canned output only for `resume` — record-after-replay would make the</span>
+    <span class="c1"># &quot;no review issued&quot; assertion vacuous.</span>
+    <span class="p">(</span><span class="n">bin_dir</span> <span class="o">/</span> <span class="s2">&quot;uv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;#!/usr/bin/env bash</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s1">&#39;printf </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\\</span><span class="s1">n</span><span class="se">\&#39;</span><span class="s1"> &quot;$@&quot; &gt;&gt; &quot;${STUB_UV_OUT:?}&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;[ &quot;$3&quot; = &quot;resume&quot; ] &amp;&amp; cat &quot;$STUB_UV_CANNED&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s2">&quot;exit 0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">bin_dir</span> <span class="o">/</span> <span class="s2">&quot;uv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o755</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">PATH</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bin_dir</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">STUB_UV_CANNED</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">canned_file</span><span class="p">),</span>
+        <span class="n">STUB_UV_OUT</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">SCRIPT</span><span class="p">),</span> <span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+        <span class="n">cwd</span><span class="o">=</span><span class="n">REPO_ROOT</span><span class="p">,</span>
+        <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;dirname&quot;</span><span class="p">,</span> <span class="n">HOSTILE_DIRS</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hostile_project_dir_loud_failure_no_python_breakout</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Vacuity guard (precedent tests/test_round_exec_injection.py): the</span>
+    <span class="c1"># and-form breakout payload needs a literal `&lt;tmp&gt;/x` for open() to</span>
+    <span class="c1"># succeed before the and-chain reaches os.system — without it the</span>
+    <span class="c1"># pre-fix script silently takes the inert path and the test is vacuous.</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">_run_script</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">),</span> <span class="n">CANNED_ERROR</span><span class="p">)</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;pwned-by-rp&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">marker</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="s2">&quot;T1205 python breakout executed&quot;</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">marker</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># F1035: not a silent death — some diagnostic reached stderr/stdout.</span>
+    <span class="k">assert</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="s2">&quot;FATAL&quot;</span> <span class="ow">in</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span> <span class="o">+</span> <span class="n">proc</span><span class="o">.</span><span class="n">stderr</span> <span class="ow">or</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">stdout</span> <span class="o">+</span> <span class="n">proc</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escalation_blocked_stops_without_approve_or_state_write</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">proj</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj&quot;</span>
+    <span class="n">proj</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">proj</span> <span class="o">/</span> <span class="s2">&quot;pipeline-state.json&quot;</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;chapter_loop&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;step_index&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}}),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">_run_script</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">proj</span><span class="p">),</span> <span class="n">CANNED_ESCALATION_BLOCKED</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">assert</span> <span class="s2">&quot;manual review required&quot;</span> <span class="ow">in</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="c1"># F002: no `pipeline review` invocation ever issued...</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;review&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">,</span> <span class="s2">&quot;auto-approve survived&quot;</span>
+    <span class="c1"># ...and no state JSON mutation (step_index bump / retry clear gone).</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">before</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_error_with_gate_words_is_fatal_not_approved</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">_run_script</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj2&quot;</span><span class="p">),</span> <span class="n">CANNED_ERROR</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;uv.args&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;review&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">,</span> <span class="s2">&quot;F1014 over-broad grep still auto-approving&quot;</span>
+</code></pre></div>
+<p>注：若 <code>from tests.test_justfile_injection import ...</code> 不可用（tests 非包），本文件自带 stub 构造（上面已内联，无需 import）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_run_pipeline_smoke.py -v</code>
+Expected: FAIL——引号 payload 行红于 marker 执行（vacuity guard <code>&lt;tmp&gt;/x</code> 就位后，pre-fix <code>python3 -c</code> 的 and-form breakout 真的 <code>touch pwned-by-rp</code>——payload 是合法 Python，失败模式是"注入可执行"而非语法破坏，T1205）；escalation 行红于 exit 2 ≠ 3 <strong>且</strong> uv.args 含 review（stub 先记录后回放，F002 双证据）；error 行红于 exit 2 ≠ 1 + review 记录（F1014）。空间/括号行当前即通过（python3 -c 对它们语法合法且无害）——属预期，绿在其余行</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/test_run_pipeline_smoke.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: c26 run_pipeline.sh smoke-tool matrix (red) — hostile dirs, escalation stop, no auto-approve (spec #64 F002/F1014/F1035/T1205)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-run_pipelinesh">Task 4: run_pipeline.sh 重写（绿）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>run_pipeline.sh</code>（整文件替换）
+- Create: <code>tools/extract_json_field.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 3 断言（exit code 3 = blocked 人工停点、1 = fatal、无 review 调用、state 不变）
+- Produces: <code>tools/extract_json_field.py</code>（stdin 混合文本 → argv[1] 字段名 → stdout 最后一处匹配值或 <code>unknown</code>；<code>main(argv) -&gt; int</code>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 tools/extract_json_field.py</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Extract a JSON field from mixed log+JSON output (spec #64 C26, T1203).</span>
+
+<span class="sd">Reads the whole stdin text, scans it with json.JSONDecoder.raw_decode for</span>
+<span class="sd">every JSON object, and prints the value of the requested field from the</span>
+<span class="sd">last object that carries it (or ``unknown``). Only string-valued fields are queried today; non-scalar</span>
+<span class="sd">values print their Python repr. Replaces the old</span>
+<span class="sd">``grep -o &#39;&quot;status&quot;: &quot;...&quot;&#39;`` extraction, which agent stderr log previews</span>
+<span class="sd">could pollute (T1203) and which silently misjudged on format drift.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">()</span>
+    <span class="n">best</span><span class="p">:</span> <span class="nb">object</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">end</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">best</span> <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 整文件替换 run_pipeline.sh</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># SMOKE TOOL — drives `pipeline resume` in a loop until the first</span>
+<span class="c1"># checkpoint/error, then STOPS and reports for human action.</span>
+<span class="c1">#</span>
+<span class="c1"># NOT for production runs (spec #64 C26 / F002): this script never</span>
+<span class="c1"># approves checkpoints and never writes pipeline-state.json. On a blocked</span>
+<span class="c1"># checkpoint, run `just pipeline-review &lt;dir&gt; &lt;decision&gt; [feedback]`</span>
+<span class="c1"># manually, then re-run this script.</span>
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nv">PROJECT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">novel</span><span class="p">-</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="p">-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">MAX_LOOPS</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">5000</span><span class="si">}</span><span class="s2">&quot;</span>
+
+die<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;FATAL: </span><span class="nv">$*</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="nv">SCRIPT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$0</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>die<span class="w"> </span><span class="s2">&quot;cannot resolve script dir&quot;</span>
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SCRIPT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>die<span class="w"> </span><span class="s2">&quot;cannot cd into </span><span class="nv">$SCRIPT_DIR</span><span class="s2">&quot;</span>
+
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>die<span class="w"> </span><span class="s2">&quot;cannot create project dir (hostile name?)&quot;</span>
+<span class="nb">exec</span><span class="w"> </span>&gt;<span class="w"> </span>&gt;<span class="o">(</span>tee<span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_DIR</span><span class="s2">/pipeline.log&quot;</span><span class="o">)</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+
+log<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;[</span><span class="k">$(</span>date<span class="w"> </span><span class="s1">&#39;+%H:%M:%S&#39;</span><span class="k">)</span><span class="s2">] </span><span class="nv">$*</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+machine_status<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SHENBI_STATUS:</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+get_field<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>python3<span class="w"> </span>tools/extract_json_field.py<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span>
+<span class="o">}</span>
+
+read_step<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>python3<span class="w"> </span>-<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_DIR</span><span class="s2">/pipeline-state.json&quot;</span><span class="w"> </span><span class="s">&lt;&lt;&#39;PY&#39; || echo &quot;unknown&quot;</span>
+<span class="s">import json, sys</span>
+<span class="s">try:</span>
+<span class="s">    d = json.load(open(sys.argv[1]))</span>
+<span class="s">    cl = d.get(&quot;chapter_loop&quot;, {})</span>
+<span class="s">    print(f&quot;{cl.get(&#39;current_chapter&#39;, 0)}-{cl.get(&#39;step_index&#39;, 0)}&quot;)</span>
+<span class="s">except Exception:</span>
+<span class="s">    print(&quot;unknown&quot;)</span>
+<span class="s">PY</span>
+<span class="o">}</span>
+
+<span class="nv">LOOP</span><span class="o">=</span><span class="m">0</span>
+<span class="k">while</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOOP</span><span class="s2">&quot;</span><span class="w"> </span>-lt<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MAX_LOOPS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">LOOP</span><span class="o">=</span><span class="k">$((</span><span class="nv">LOOP</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+
+<span class="w">    </span><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">$(</span>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>resume<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="k">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="nv">STATUS</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%s\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OUTPUT</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>get_field<span class="w"> </span>status<span class="k">)</span>
+<span class="w">    </span><span class="nv">CP</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%s\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OUTPUT</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>get_field<span class="w"> </span>checkpoint<span class="k">)</span>
+<span class="w">    </span><span class="nv">PHASE</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%s\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OUTPUT</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>get_field<span class="w"> </span>phase<span class="k">)</span>
+<span class="w">    </span><span class="nv">CURRENT_STEP</span><span class="o">=</span><span class="k">$(</span>read_step<span class="k">)</span>
+
+<span class="w">    </span>log<span class="w"> </span><span class="s2">&quot;[</span><span class="nv">$LOOP</span><span class="s2">] status=</span><span class="nv">$STATUS</span><span class="s2"> phase=</span><span class="nv">$PHASE</span><span class="s2"> cp=</span><span class="si">${</span><span class="nv">CP</span><span class="k">:-</span><span class="nv">none</span><span class="si">}</span><span class="s2"> step=</span><span class="nv">$CURRENT_STEP</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$STATUS</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">        </span>ok<span class="o">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PHASE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span>log<span class="w"> </span><span class="s2">&quot;*** PIPELINE COMPLETED SUCCESSFULLY! ***&quot;</span>
+<span class="w">                </span>machine_status<span class="w"> </span><span class="s1">&#39;{&quot;status&quot;:&quot;completed&quot;}&#39;</span>
+<span class="w">                </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+<span class="w">            </span><span class="k">fi</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span>blocked<span class="o">)</span>
+<span class="w">            </span>machine_status<span class="w"> </span><span class="s2">&quot;{\&quot;status\&quot;:\&quot;blocked\&quot;,\&quot;checkpoint\&quot;:\&quot;</span><span class="si">${</span><span class="nv">CP</span><span class="k">:-</span><span class="nv">unknown</span><span class="si">}</span><span class="s2">\&quot;}&quot;</span>
+<span class="w">            </span>log<span class="w"> </span><span class="s2">&quot;BLOCKED at checkpoint &#39;</span><span class="si">${</span><span class="nv">CP</span><span class="k">:-</span><span class="nv">unknown</span><span class="si">}</span><span class="s2">&#39; — manual review required.&quot;</span>
+<span class="w">            </span>log<span class="w"> </span><span class="s2">&quot;    just pipeline-review \&quot;</span><span class="nv">$PROJECT_DIR</span><span class="s2">\&quot; &lt;approve|reject|modify&gt; [feedback]&quot;</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">3</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span>error<span class="p">|</span>failed<span class="o">)</span>
+<span class="w">            </span>machine_status<span class="w"> </span><span class="s2">&quot;{\&quot;status\&quot;:\&quot;</span><span class="nv">$STATUS</span><span class="s2">\&quot;}&quot;</span>
+<span class="w">            </span>log<span class="w"> </span><span class="s2">&quot;Pipeline </span><span class="nv">$STATUS</span><span class="s2"> — manual investigation required (never auto-approved).&quot;</span>
+<span class="w">            </span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%s\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OUTPUT</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;error\|traceback&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-5<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span>*<span class="o">)</span>
+<span class="w">            </span>machine_status<span class="w"> </span><span class="s2">&quot;{\&quot;status\&quot;:\&quot;unexpected\&quot;,\&quot;raw\&quot;:\&quot;</span><span class="nv">$STATUS</span><span class="s2">\&quot;}&quot;</span>
+<span class="w">            </span>die<span class="w"> </span><span class="s2">&quot;unexpected status: </span><span class="nv">$STATUS</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">    </span><span class="k">esac</span>
+<span class="k">done</span>
+
+machine_status<span class="w"> </span><span class="s1">&#39;{&quot;status&quot;:&quot;max-loops&quot;}&#39;</span>
+log<span class="w"> </span><span class="s2">&quot;Max loops (</span><span class="nv">$MAX_LOOPS</span><span class="s2">) reached.&quot;</span>
+<span class="nb">exit</span><span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<p>要点：python3 只经 argv/heredoc（零字符串拼接——T1205 面封死）；stuck 检测与自动 approve 全删（裁决 B——blocked 一律停，exit 3）；<code>get_field</code> 兜底 <code>|| echo unknown</code> 使 <code>set -e</code> 下 FATAL 分支可达（F1035）；grep 只用于展示行（带 <code>|| true</code>），不参与状态判定（T1203）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 跑 Task 3 测试确认绿 + 手工正样本</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_run_pipeline_smoke.py -v</code>
+Expected: 全 passed</p>
+<p>Run（验收 2 正样本——<strong>无 state 文件目录</strong>，确定走 <code>project not found</code> JSON error 分支、零 LLM 风险；<strong>禁</strong>用带 pipeline-state.json 的伪造目录直跑：<code>PipelineState</code> 全默认可加载，cmd_resume 会真 dispatch）：
+<div class="highlight"><pre><span></span><code><span class="nv">d</span><span class="o">=</span><span class="k">$(</span>mktemp<span class="w"> </span>-d<span class="k">)</span>/<span class="s2">&quot;dir&#39; with (parens)&quot;</span><span class="p">;</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span>bash<span class="w"> </span>run_pipeline.sh<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;exit=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+</code></pre></div>
+Expected: 非静默——响亮 error/FATAL 诊断 + exit 1（真实 <code>uv run pipeline resume</code> 对不存在项目返回 JSON error；python 读 step 经 argv 对 hostile 名安全打印 unknown）——关键是<strong>不静默死</strong></p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>run_pipeline.sh<span class="w"> </span>tools/extract_json_field.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: c26 run_pipeline.sh smoke-tool rewrite — argv/heredoc python (F003/F1013/T1205), drop auto-approve + state writes (F002/F1014, ruling B), loud failure (F1035), JSON status extraction (T1203)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-shellcheck">Task 5: shellcheck 防线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>.pre-commit-config.yaml</code>（新增 shellcheck-py mirror hook）
+- Modify: <code>pyproject.toml</code> + <code>uv.lock</code>（dev group 加 shellcheck-py）
+- Modify: <code>justfile</code>（check 链加 shellcheck 行）
+- Modify: <code>tools/pre-push-check.sh</code>、<code>tests/round-exec.sh</code>、<code>tests/lock-tool-hashes.sh</code>、<code>tests/test-gates.sh</code>（如 shellcheck 报 error/warning 的机械修复）</p>
+<p><strong>Interfaces:</strong> 无代码接口；产出 = CI/pre-commit 门禁。</p>
+<p><strong>test_kind:</strong> regression_guard</p>
+<ul>
+<li>[ ] <strong>Step 1: 加依赖与门禁</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>shellcheck-py
+</code></pre></div>
+<p><code>.pre-commit-config.yaml</code>（local 段之前）加：</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/shellcheck-py/shellcheck-py</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.10.0.1</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shellcheck</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\.sh$</span>
+</code></pre></div>
+<p><code>justfile</code> check 链（<code>uv run shenbi-sync-contracts</code> 行之前）加：</p>
+<div class="highlight"><pre><span></span><code>    uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-tool-hashes.sh tests/test-gates.sh
+</code></pre></div>
+<p>（显式五文件清单 = 验收 5 枚举；<code>git ls-files '*.sh'</code> 可随时核对无新增遗漏——有新 .sh 时清单须更新，pre-commit 的 regex 面自动覆盖）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑 shellcheck 修存量</strong></li>
+</ul>
+<p>Run: <code>uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-tool-hashes.sh tests/test-gates.sh</code>
+Expected: 初跑可能对四个未重写脚本报 SC2086/SC2155 等——逐条机械修复（加引号/<code>local x=$(...)</code> 拆分/显式 <code>#!/usr/bin/env bash</code>）；run_pipeline.sh 与 extract_json_field.py 按本 plan 构造应零报。<strong>warning 不得静默 disable</strong>——确需豁免的逐行 <code># shellcheck disable=SCXXXX</code> + 理由注释。</p>
+<ul>
+<li>[ ] <strong>Step 3: 全量门禁</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: EXIT=0（含新 shellcheck 行；<code>uv lock --check</code> 因 pyproject 变更须绿——uv add 已同步 lock）</p>
+<p>Run: <code>uv run pre-commit run shellcheck --all-files</code>
+Expected: Passed</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.pre-commit-config.yaml<span class="w"> </span>pyproject.toml<span class="w"> </span>uv.lock<span class="w"> </span>justfile<span class="w"> </span>tools/pre-push-check.sh<span class="w"> </span>tests/round-exec.sh<span class="w"> </span>tests/lock-tool-hashes.sh<span class="w"> </span>tests/test-gates.sh
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: c26 shellcheck defense line — shellcheck-py in pre-commit + just check, fix legacy *.sh findings (spec #64 T3)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li>覆盖：11/11 finding → T1/T2（F1031/F1032/F1030）、T3/T4（F002/F003/F1013/F1014/F1035/T1203/T1205）、T2 README（F902）、T5（防线/验收 5）✓</li>
+<li>占位符扫描：无 TBD/「适当处理」类；全部 recipe 体与脚本为完整代码 ✓</li>
+<li>类型一致：<code>make_uv_stub</code> Task 1 产 Task 3 弃用（Task 3 内联 stub，避免跨文件 import 依赖 tests 非包结构）；exit code 契约（0/1/2/3）在 T3 断言与 T4 实现一致 ✓</li>
+<li>G0.9：无 LLM 产物 fixture 场景（全 stub/构造 JSON 状态，非 skill 输出仿造）✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1251 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-11-15-spec105-audit-finding-contract/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #105 · 审计发现契约硬化（audit-finding-contract）：severity 词表单源（对齐登记域）六传感换装、词表外 fail-loud、派发完整性语义拆分、聚合条目级 severity 与反馈格式缺口清偿 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #105 · 审计发现契约硬化（audit-finding-contract）：severity 词表单源（对齐登记域）六传感换装、词表外 fail-loud、派发完整性语义拆分、聚合条目级 severity 与反馈格式缺口清偿 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-11-15-spec105-audit-finding-contract.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-11-15-spec105-audit-finding-contract/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #105 · 审计发现契约硬化（audit-finding-contract）：severity 词表单源（对齐登记域）六传感换装、词表外 fail-loud、派发完整性语义拆分、聚合条目级 severity 与反馈格式缺口清偿 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-11-15-spec105-audit-finding-contract.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-105-audit-finding-contractseverity-fail-loud-severity" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #105 · 审计发现契约硬化（audit-finding-contract）：severity 词表单源（对齐登记域）六传感换装、词表外 fail-loud、派发完整性语义拆分、聚合条目级 severity 与反馈格式缺口清偿
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 根因
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 任务分解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 任务分解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#t1-severity-enumsseverity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T1 · severity 词表与传感正则单源化（对齐 enums.Severity 登记域）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t2-fail-loudg4avvocab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T2 · 词表外 fail-loud（G4.av.vocab）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T3 · 派发完整性语义拆分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T4 · 反馈与聚合卫生（写作端）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 验收
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 风险
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-105-audit-finding-contractseverity-fail-loud-severity">Spec #105 · 审计发现契约硬化（audit-finding-contract）：severity 词表单源（对齐登记域）六传感换装、词表外 fail-loud、派发完整性语义拆分、聚合条目级 severity 与反馈格式缺口清偿</h1>
+<p><strong>日期</strong>：2026-11-15｜ <strong>系列</strong>：评审工艺批（review-craft）｜ <strong>状态</strong>：<strong>Done (PR #351)</strong>（r2.7，2026-11-16 Revised——audit-T4 处置 a+d 实弹收口：T2 生产域收缩 key 形/bracket-bold 归 #116 采集域/验收 3 分域表；r2.6，2026-11-15 Revised<strong>——修订链：r2 价值门驳斥五问[T1 改道对齐 enums.Severity 登记域+收编第六消费点/T2 双正则语义显式拆分/T3 补 #51 控制流先例/T4 ending 面修入本件]→r2.1 二轮复核[status-vocab 编码/路径归真/legend 绿测]→r2.2 轮 1[C1 判别器三段式/I1 接线双点位/I2 差分三层/I3 导出面/I4 registry 面/I5 签名合取]→r2.3 轮 2[C1' legend 拆分豁免后处理/I1' isascii+isupper/I2' 归一前置/I3' 判据 grep 消假阴性/I4' 复合标签豁免口/M1 预检作用域/M2 registry 编码消歧/M3 常量拓扑]→r2.5 轮 3+轮 4[C-1 CJK 分支</strong>精确等值<strong>（禁止子串/前缀）+复合 CJK 豁免口③/I-1 空格 legend 首词平凡分支归真/I-2 判据(c) 五传感一致+longitudinal 行为变更单列/I-3 legend 归真=</strong>模板形<strong>（SKILL 模板行回声）+③ 零覆盖声明/I-C key 形 <code>\*{0,2}</code>+IGNORECASE 对齐传感先例+key-名 token 豁免/Mi-2 path 形签名/Mi-3 <code>G4.av.dispatch_integrity</code> 三点同步/Mi-4 口径对账 648@时点/M-5 (b) union 覆盖口径/M-6 「零 <code>Severity</code> import」措辞+<code>- [ERROR]</code> 语料零实弹注记]→r2.6 轮 5[I-1 (b) 矩阵归位——轮 4 空洞表两条不空（MINOR cell 22 份/CRITICAL cell 3 份走真实副本），真空洞仅 CRITICAL bold/ERROR bracket/I-2 红绿补两条英文 key 钉（<code>Severity: MAJOR</code>→FAIL 验 IGNORECASE、<code>**Severity**</code>→PASS 验 key-名豁免）+plan 注记两条（回放分母三数/捕获污染剥离）]；r2.4 编号被工作树碰撞吞没、内容并入本版）｜ </strong>优先级<strong>：🟠 P1
+</strong>动机证据<strong>：<code>src/shenbi/pipeline/revision_router.py:127-146</code>（路由只认 BLOCKING/CRITICAL 两档三形态正则）+ <code>:371-406</code>（collect_audit_issues if/elif </strong>无 else 分支<strong>——词表外严重度词不命中任一正则即贡献 0 条；机制证实，vol1 audits 全量 grep <code>MAJOR|BLOCKER|[HIGH]|严重度:高</code> 零实弹命中——</strong>T2 定位为预防性硬化<strong>）；<code>src/shenbi/pipeline/audit_aggregate.py:37</code>（_SEV_WORDS=BLOCKING|CRITICAL|MINOR|WARNING|ERROR 五词——与路由词表分家）+ <code>:167-175</code>（render_aggregate 条目 <code>- {u.text}</code> </strong>不带逐条 severity<strong>——FindingUnit.severity 数据在渲染面丢失，修订技能只见节标题）；<code>src/shenbi/pipeline/chapter_loop.py:672-683</code>（_BLOCKING_MARKER_RE </strong>第三套词表<strong>：另收 FAIL 标题/表格粗体形）+ <code>src/shenbi/pipeline/parallel_dispatch.py:373-386</code>（第四套：尾巴从 router 导入、主干复制）+ <code>src/shenbi/pipeline/audit_layer.py:38</code>（_ERROR_LABEL_RE 行锚 bracket 形第五套独立词表——</strong>语料零实弹传感<strong>：<code>- [ERROR]</code> 在 vol1 audits 0 命中，换装差分零→零）+ </strong><code>tools/report_longitudinal.py:558</code>（第六套：节头正则 <code>^## (BLOCKING|CRITICAL|WARNING|ERROR) Findings</code> 缺 MINOR——render 顺序 MINOR 在 WARNING/ERROR 前，解析遇 MINOR 节即 break，MINOR/WARNING/ERROR 三节静默丢弃=纵向报告腐化；<code>:525-544</code> merge_units 复刻聚合去重循环）<strong>；<code>src/shenbi/contracts/enums.py:9</code>（</strong>已存在 <code>Severity = Literal["BLOCKING","CRITICAL","MINOR"]</code> 单源<strong>）+ <code>docs/framework/status-vocab.md:21</code>（AuditSeverity 域已登记且</strong>声称<strong>消费点=escalation 路由 revision_router.py、parallel_dispatch.py——实测两文件零 <code>Severity</code> import（各有其他 enums import，:31/:152），</strong>登记表死线<strong>：比「散布五处」更强的根因证据，r1 漏认）；<code>novel-xinghuo-vol1/audits/chapter-40-reader-pull.md:44</code>（实弹：<code>- [BLOCKING] 派发完整性：请补齐 chapters/chapter-40.md…</code>——</strong>基础设施失败与正文缺陷共用 BLOCKING 词<strong>，污染 blocking_found/escalation 频次统计）；<code>src/shenbi/pipeline/dispatch_helper.py:612-624</code>（_resolve_read_with_fallback 缺 read 返回 <code>[]</code>——</strong>缺失输入静默从 prompt 消失<strong>，无预检无 fail-loud）；<code>src/shenbi/pipeline/chapter_loop.py:3836-3862</code>（</strong>#51 ghost-chain guard 控制流先例<strong>：draft-consuming 技能派发前存在性预检→不派发→escalation checkpoint——T3 是该守卫对审计技能+contract required reads 全清单的泛化）；<code>src/shenbi/gates/g4/generic.py:239-260</code>（审计产物 G4 校验现成挂点；</strong>:252 G4.av. 分支现绑 check_audit_line_refs——新增 G4.av.<em> 规则须扩此分支</em><em>，否则 pwi 复核判 stale 静默吞）+ <code>src/shenbi/pipeline/llm_output_integrity.py</code>（同侧扩展位——现有五检查函数同构惯例：模式列表+预编译+<code>G4.&lt;group&gt;.&lt;rule&gt;</code> issue；<code>detect_write_failure</code> 不发射 issue 非同构成员）；<code>src/shenbi/pipeline/chapter_loop.py:882</code>（G4_FORMAT_EXAMPLES </em><em>19 键</em><em>）——grep <code>scene_budget</code> 全文件零命中；<code>novel-xinghuo-vol1/audits/escalation-35-report.md:33-37</code>（实弹照录 <code>G4.cp.scene_budget:…</code> + <code>(请重新生成此检查的输出以达到标准格式)</code> 零信息兜底行；#114 记载 scene_budget 跨 ch5/35/39 三次三振非孤例）；<code>src/shenbi/pipeline/review_checklist.py:539-544</code>（ending_constraints 实注入 </em><em>3 章</em><em>：<code>range(3,0,-1)</code>+<code>chapter &lt; 4</code> 守卫）vs <code>skills/shenbi-review-group-craft/SKILL.md:166</code>（自称「近 10 章收尾型历史」——</em><em>文档对模型撒谎</em>*；escalation-35-report.md:95 实弹 <code>ending_constraints | cliffhanger, cliffhanger, other</code> 恰 3 项佐证）。</p>
+<p><strong>触及的不变量维度</strong>：无（审计发现契约基建——新 check id <code>G4.av.vocab</code>/<code>G4.av.dispatch_integrity</code> 为审计产物有效性门【G4.av 族新增两员，既有 G4.av.stale_line_ref】，不挂叙事维度；P2 期 check-id 普查面自然覆盖）</p>
+<hr />
+<h2 id="0">0. 根因</h2>
+<p><strong>审计契约是文档约定不是数据契约</strong>：severity 语义散布<strong>六处</strong>手拼正则（词表/形态各不相同），且<strong>已登记的单源（enums.Severity）零消费</strong>——status-vocab.md 声称 router/parallel_dispatch 消费、实测两文件零 <code>Severity</code> import，登记与现实脱节；LLM 审计产物靠正则反解析散文——每多一种报告写法就要多一条正则尾巴，词表外写法静默丢包；BLOCKING 一词承载两种语义（内容缺陷 vs 派发事故）；聚合渲染丢条目级 severity（且纵向 parser 因 MINOR 缺词丢弃后三节）；重派反馈对部分 G4 族只有零信息兜底行。净效果：<strong>路由面的真值依赖审计员的格式纪律，而格式纪律本身无人把关</strong>。</p>
+<p><strong>用户裁定（2026-11-15）</strong>：不考虑在飞项目——本件不含存量 audits 清洗工具；新校验器对既有项目的存量审计文件不回溯改写（回放校验仅出报告，见 §2）。</p>
+<p><strong>备选案已评估并否决</strong>：「severity 词表扩 MAJOR 第四档」——词表扩张面=24 份 review SKILL 词表节+全部消费正则+聚合，先 fail-loud 杀静默丢包、CRITICAL/MINOR 使用分布数据后再议中间档；「审计产物全面结构化（finding() 发射器落 LLM 面）」——#88 单源目标在机器面尚有 ~420 处手拼未清偿，LLM 面全面 JSON 化是大破面，本件先做词表单源+fail-loud 最小核；「平行新造第三 severity 常量族」——r2 改道否决：enums.Severity 登记域已存在（spec #34 纪律：新状态域必须先在登记表立域再落定义），单源模块必须从该域派生并对齐，不得另起炉灶。</p>
+<h2 id="1">1. 任务分解</h2>
+<h3 id="t1-severity-enumsseverity">T1 · severity 词表与传感正则单源化（对齐 enums.Severity 登记域）</h3>
+<ul>
+<li><strong>前置（spec #34 纪律——先改登记表再落码）</strong>：<code>docs/framework/status-vocab.md</code> AuditSeverity 域行修订——<strong>编码方式钉死（r2.1+r2.3 M2 消歧）</strong>：<strong>原 AuditSeverity 行保留</strong>（<code>enums.Severity</code> 域不动，消费点声明修真）+ <strong>新增两行</strong>（合计 47→49，非拆行）：<strong>RoutingTier</strong>（BLOCKING/CRITICAL，<code>[ERROR]</code> 硬档别名入行注记）与 <strong>AggregateVocab</strong>（BLOCKING/CRITICAL/MINOR/WARNING/ERROR——WARNING/ERROR 为聚合面 legacy 词）——符号指向 severity.py 的 Literal 形常量（嵌套 <code>Literal[Severity, "WARNING", "ERROR"]</code> PEP 586 展平经 <code>__args__</code> 解析可行，plan 期单测钉住；子集关系 <code>Severity ⊆ AggregateVocab</code> 由测试断言）；<code>tools/status_vocab_registry.py</code> 5 列契约与 reconcile 面不动（纯 tuple 常量会被 <code>_enum_or_literal_values</code> 判 unresolvable）</li>
+<li>新 <code>src/shenbi/contracts/severity.py</code>：<strong>从 <code>enums.Severity</code> import 派生</strong>，<strong>两组符号拓扑（M3）</strong>——registry 面 Literal 形常量（<code>RoutingTier</code>/<code>AggregateVocab</code>）与传感面运行时元组（<code>ROUTING_TIERS</code>/<code>AGGREGATE_VOCAB</code>，<code>get_args</code> 取值——仓内先例 g0_skill_contract.py:163/chapter_revision.py:162）同模块派生 + 四锚定形态（bracket/bold/cell/key）编译正则单源 + 既有三尾巴（<code>_SEV_ENUM_TAIL</code>/<code>NEGATION_PAYLOAD_TAIL</code>/<code>QUOTED_VALUE_TAIL</code>）迁入；legacy 别名单列常量（<code>ROUTING_HARD_TIER_ALIASES=("ERROR",)</code>——不入 RoutingTier 值集，registry 值集相等契约禁扩）；chapter_loop heading 形的 <code>FAIL</code> 词为 GateStatus 渗漏非 severity 词表——消费点本地组合 <code>re.compile("|".join([*ROUTING_TIERS, "FAIL"]) + …)</code>（severity 词无字面量交替→过 AST lint；<code>FAIL</code> 本地字面量合法——非 severity 词不在 lint 禁域）；单字 legacy 标签（audit_layer <code>[ERROR]</code>——语料零实弹传感）换装后以 import 证明覆盖（AST lint 只防交替字面量，单字标签为已知豁免口——判据注记）</li>
+<li><strong>六消费点换装</strong>：revision_router（路由双正则）、chapter_loop <code>_BLOCKING_MARKER_RE</code>、parallel_dispatch consolidator、audit_layer <code>_ERROR_LABEL_RE</code>、audit_aggregate 锚定形族、<strong>tools/report_longitudinal.py <code>:558</code> 节头正则（连带修 MINOR 缺词分家——MINOR 节不再中断解析）</strong>——全部 import 单源符号；</li>
+<li>AST lint（#88 check_id 单源/#91 比较侧守卫先例，<code>_pattern_arg</code> 只认 ast.Constant 字面量的既定强度即可）：severity 词交替字面量的 <code>re.compile</code> 仅允许出现在单源模块（扫描域 <code>src/shenbi/pipeline</code>+<code>src/shenbi/contracts</code>+<code>tools</code>），别处出现即 lint FAIL。</li>
+<li><strong>registry 测试锁与 lint 面声明（I4）</strong>：<code>tests/unit/tools/test_status_vocab_registry.py:19</code> <code>len(rows) == 47</code> 计数锁随双行新增同步 47→49；<code>tools/lint_status_strings.py</code> 两消费面核验声明——<code>_registry_union()</code> 扩 WARNING/ERROR 仅放大 allow-set（安全），<code>_unregistered_code_domains</code> 家族后缀正则（<code>(Status|State|Mode|Verdict|Severity|Decision|Zone|Role)$</code>）不命中 ROUTING_TIERS/AGGREGATE_VOCAB 命名（避开）。</li>
+</ul>
+<p><strong>判据</strong>（r2.3 I3 修正——原滤行 grep 对现状即零命中无鉴别力：<code>re.compile(</code> 在赋值行、交替字面量在续行）：<code>git grep -nE "BLOCKING\|CRITICAL" -- src/shenbi/pipeline tools/</code>（<strong>不滤行</strong>）在换装后除 contracts/severity.py 外零命中（换装前实测 7 处/5 文件、逐条为代码行零注释——换装后 0）；<strong>AST lint 零违例为机制面主判据</strong>；六消费点 import 证明；<strong>行为保持差分（I2+I-2 强化）</strong>——差分面三层：(a) tests/fixtures 既有审计产物回放逐项一致（差分基线先冻结，#99 先例+tools/gen_provenance_baseline.py 基建）；(b) <strong>fixtures 扩容（union 口径 M-5+r2.6 矩阵归位）</strong>——从 novel-xinghuo-vol1 复制真实审计入 <code>tests/fixtures/audits/</code>（G0.9 合规：真实 skill 输出副本，provenance 头注明来源章），<strong>union 覆盖：每个词至少一份、每种锚定形态至少一份，以语料实有组合为准</strong>（语料实测矩阵@轮 5：BLOCKING b132/bo2/c4、CRITICAL b51/bo0/c3、MINOR b373/bo3/<strong>c22</strong>、WARNING b10/bo11/c11、ERROR b0/bo7/c3——<strong>文件数口径（audits/ 全目录含该形态的文件数，非出现次数；b=bracket 列表项/bo=bold/c=cell）</strong>——<strong>空洞组合仅 CRITICAL bold 与 ERROR bracket 两条</strong>，归 (c) 构造行内红绿单测；MINOR cell 22 份/CRITICAL cell 3 份<strong>语料实有、走 (b) 真实副本</strong>——cell 传感真实长 CJK 相邻单元格正是换装漂移高发形态；禁手造 fixture 填积矩阵；现状 2 文件仅 1 处 <code>[WARNING]</code> 统计力不足）；(c) <strong>传感逐消费点红绿单测（I-2 拆分）</strong>——<strong>五传感（router 双正则/<code>_BLOCKING_MARKER_RE</code> 含 heading+table-bold 分支/consolidator/_ERROR_LABEL_RE/aggregate 锚定族）换装前后判定逐项一致；longitudinal 节头单列行为变更红绿测（MINOR 节不再中断+非 severity H2 break 语义保持），不入差分一致面</strong>；AST lint 红测（新手拼正则→FAIL）。<strong>已知豁免口（对抗回放 ④ b+轮 2 I4+轮 3 C-1 承认）</strong>：①四锚定形态外的第五形态（圆括号/callout 等）不在传感域——SKILL 模板锚定 bracket 形态是现行纪律面，本件不扩张形态域；②<strong>词表内词+后缀复合标签</strong>（<code>- [MINOR·观察]</code>/<code>- [MINOR·待验]</code>/<code>**[MINOR·提示]**</code>——vol1 实弹族）传感侧本就不识别（severity 结构降级 verbatim context，差分「行为保持」如实保持现状）、T2 判别器侧豁免——<strong>该形态换装后仍静默丢 severity 结构，收编归 #117 发现级 parser</strong>（传感放宽=行为变更，破坏 T1 差分判据，不在本件）；③<strong>复合 CJK 严重度词</strong>（较高/中等/高危）不入判别器家族（见 T2 C-1）——同款 #117 收编。</p>
+<h3 id="t2-fail-loudg4avvocab">T2 · 词表外 fail-loud（G4.av.vocab）</h3>
+<ul>
+<li><code>llm_output_integrity.check_audit_severity_vocab(path: Path)</code>（<strong>Mi-2：path 形签名与同族五检查函数同构</strong>——dispatch_helper/generic 两接线点均传 Path）：<strong>校验正则与传感正则语义显式分离</strong>——传感正则（T1）= 词表内锚定计数；校验正则（本 task）= <strong>形态槽位通配捕获 + 统一后处理管线</strong>。<strong>r2.2 判别器设计（C1 修正——裸通配已被 vol1 语料证伪：<code>**判定**</code>/<code>**章节**</code> ×百级、<code>- [读者回报]</code> ×40 等合法标签全灭）</strong>：</li>
+<li><strong>key 形</strong>（唯一全通配槽位——key 前缀即判别器）：<code>\*{0,2}(?:severity|严重度)\*{0,2}\W{0,6}(\S+)</code> + <code>re.IGNORECASE</code>（<strong>I-C：与传感先例 probe24 校准形对齐——<code>\*{0,2}</code> 覆盖 <code>**严重度**：</code> 混合形态、IGNORECASE 防 <code>SEVERITY: MAJOR</code>/<code>Severity: MAJOR</code> 大写 key 漏检；无此对齐则英文 key 词表外写法静默漏报+<code>**Severity**</code> 英文裸 key bold 误报双破面</strong>）；key 形捕获可携 QUOTED_VALUE_TAIL 防引号值（<code>"severity": "low"</code> JSON 模板字面量——#18-1/probe23 传感侧同款教训，plan 期注记）；</li>
+<li><strong>统一后处理管线（r2.3+r2.5 钉死执行顺序与匹配语义）</strong>：①<strong>归一前置</strong> <code>token = token.upper()</code>（先归一再判别——后置则 <code>- [major]</code> 小写词表外写法过不了判别器→静默漏放，恰是本件根因要消灭的形态）；②<strong>判别器</strong>——ASCII 分支 <code>tok.isascii() and tok.isupper() and len(tok) &gt;= 2</code>（<strong>禁止裸 <code>isupper()</code></strong>——实测 <code>'MINOR·观察'.isupper()</code> 返 True：CJK 不参与大小写判定）<strong>或</strong> CJK 分支<strong>精确等值集合成员判定</strong> <code>tok in {"严重","高","重大","中","低","警告"}</code>（r2.7：<code>阻断</code> 已移出——ResonanceVerdict 注册域）（<strong>r2.5 C-1 钉死：禁止子串/前缀读法</strong>——子串读法使 <code>**严重度**</code> 裸 key bold 形（vol1 实存 75 份）含「严重」→过判别器→查表∉词表→FAIL，误伤面爆炸且 shadow 闸门永开不了；精确等值下 <code>严重度</code>∉家族→豁免→PASS ✓、<code>严重度: 严重</code> 的 key 捕获值 <code>严重</code>∈家族→FAIL ✓）；<strong>key-名 token 豁免（I-C 补）</strong>——token∈key 名集合 {SEVERITY, 严重度}（归一后）直接放行，封英文裸 key bold 误报面；复合 CJK 形态[较高/中等/高危]∉家族→豁免——T1 豁免口③，#117 收编；③<strong>legend 拆分豁免（后处理非正则守卫）</strong>——token 按 <code>[/／、,，]</code> 拆分，<strong>全段 ∈ AGGREGATE_VOCAB → 判 legend 豁免放行</strong>（<code>severity:BLOCKING/CRITICAL/MINOR</code>——<strong>模板形回归预防（I-3/I-B 归真：SKILL 模板行回声，probe6 ch1 实弹——<code>parallel_dispatch.py:362-365</code> 注释所载 <code>4. **严重度**：BLOCKING / CRITICAL / MINOR</code>、模板源头 skills/shenbi-review-continuity/SKILL.md:116 等；当前 vol1 audits 语料对完整 legend 形零命中、<code>severity</code> 英文 key 全语料零命中）</strong>；传感侧 <code>_SEV_ENUM_TAIL</code> 负向前瞻在通配捕获下机制失效：贪婪吞尽后前瞻在行尾恒通过/空格形态回溯出截断 token <code>BLOCKIN</code>，实测双灭——照搬路径已被证伪；<strong>③ 路径回放语料零覆盖，以单测钉死</strong>；<strong>空格分隔 legend 只首词受检（I-1 归真）</strong>——<code>(\S+)</code> 空格截断，<code>**严重度**：BLOCKING / CRITICAL / MINOR</code> 经「key 捕获首词 <code>BLOCKING</code>∈词表」平凡分支放行（<code>/</code>后第 2+ 词不在校验域）或 bold 形捕获 <code>严重度</code> CJK 精确等值未命中豁免——③ 拆分器不参与该形态）；④查表 ∉ AGGREGATE_VOCAB → 违规；</li>
+<li><strong>bracket 形</strong>：<code>- \[([\w·\-]+)\]</code> 捕获后进统一管线——<code>[读者回报]</code>/<code>[提示]</code>/<code>[待评]</code> 等 CJK 类目标签不过判别器直接豁免；</li>
+<li><strong>bold 形</strong>：行内 <code>\*\*([\w\-]+)\*\*</code> 进统一管线（<code>**判定**</code>/<code>**章节**</code>/<code>**结论**</code>/<code>**通过**</code>/<code>**严重度**</code> CJK 豁免；<code>**BLOCKER**</code> ASCII 大写→查表→FAIL）；</li>
+<li><strong>cell 形 v1 不建</strong>（<code>| PASS |</code>/<code>| 通过 |</code>/confidence <code>| HIGH |</code> 同形歧义面大——词表外 cell 待 #116 标定数据后议）；</li>
+<li><strong>禁止从传感正则推导校验正则</strong>（传感正则只捕词表内词，复用则 fail-loud 永不触发——r1 最大实施歧义，r2 钉死）；</li>
+<li>锚定形态行所载 severity 词 ∉ AGGREGATE_VOCAB → 违规条目；散文提及（非锚定形）不报；</li>
+<li><strong>接线双点位（I1 修正）</strong>：首线发射=<code>dispatch_helper.py:2968-2973</code> <code>is_audit</code> 块（check_audit_completeness/check_audit_line_refs 同位点追加）；pwi 复核=<code>gates/g4/generic.py:252</code> G4.av. 分支扩展（vocab finding 路由到新 checker——不扩则被判 stale 静默吞）。违规 → G4 FAIL + 重写指引文案（「词表外严重度：用 BLOCKING/CRITICAL/MINOR 重写本条」）。</li>
+</ul>
+<p><strong>判据</strong>：红测六条（<code>- [MAJOR] x</code>→FAIL／<code>**BLOCKER**</code>→FAIL／<code>严重度: 严重</code>→FAIL／<code>严重度: 高</code>→FAIL／<strong><code>- [major]</code> 小写→FAIL</strong>——归一前置的红测钉／<strong><code>Severity: MAJOR</code> 大写英文 key→FAIL</strong>——IGNORECASE 依赖的验收钉[缺此条则删 IGNORECASE 无测试失败=I-C 破面不可检测]）；绿测（<code>[MINOR]</code>→PASS／<code>- [minor]</code> 小写词表内→PASS／prose "major"→PASS／<strong><code>**Severity**</code>（英文裸 key bold 形）→PASS</strong>——key-名豁免依赖的验收钉／<strong>legend 模板形 <code>severity:BLOCKING/CRITICAL/MINOR</code> 与 <code>**严重度**：BLOCKING / CRITICAL / MINOR</code> 双形态不报</strong>——模板行回声回归预防（probe6）／<strong><code>**判定**</code>+<code>**章节**</code>+<code>- [读者回报]</code>+<code>- [MINOR·观察]</code>+<code>**严重度**</code>（bold 裸 key 无值跟随——封 bold 形独立捕获路径）全 PASS</strong>——C1 语料实证标签族钉进绿测）；对 vol1 存量章审计回放新校验器出报告（命中数与清洗清单+误伤计数，不自动改写；<strong>口径（Mi-4 对账+r2.6 plan 注记）：audits/ 全量 648@2026-11-15 轮 5 实测=613 章审计形+14 aggregate+13 escalation+8 其他（目录不受 git 跟踪、计数随项目增长）——生产接线 <code>_is_audit_file</code> 排除 aggregate 触达 613 章审计形，回放分母 plan 期钉显式三数[613 生产触达+14 aggregate 差集+13 escalation 差集]</strong>；<strong>③ legend 路径回放零覆盖已知，单测背书</strong>；<strong>plan 期注记两条</strong>：捕获污染剥离（<code>ERROR（对应 BLOCKING）</code>/<code>严重度：高。</code> 尾部标点形态——判别前剥 <code>[（(].*$</code> 或并入 #117 挂账）与 key-名豁免形态域（现文形态无关、动机仅 bold 裸 key——加注或收窄））；<strong>误报处置=回放零误伤后接 G4 FAIL</strong>（shadow 先行）。<strong>r2.7 实弹收口（audit-T4 处置 a+d，用户 2026-11-16 授权执行）</strong>：全形态回放 198 命中零真阳性（<code>Successful</code>/<code>OK</code>/<code>MISSING</code>/<code>maxGapFIRE</code> 等状态/计数/配置标签族）——bracket/bold 通配槽词法不可零误伤；<strong>生产接线收缩为 key 形</strong>（<code>PRODUCTION_VOCAB_FORMS</code>——spec r2.4 自证「key 形=唯一全通配槽位，key 前缀即判别器」；vol1 613 份 key-only 回放零误伤）；bracket/bold 保留 <code>ALL_VOCAB_FORMS</code> 于回放工具做 #116 数据采集，不接生产 FAIL；<code>阻断</code> 移出 CJK 判别族（ResonanceVerdict 注册域）。本判据红六条中 bracket/bold 两例（<code>- [MAJOR]</code>/<code>**BLOCKER**</code>）为 <strong>ALL-forms 校验域验收</strong>；生产 key 形域验收以 <code>严重度: 严重/高</code>/<code>Severity: MAJOR</code> 为准。</p>
+<h3 id="t3">T3 · 派发完整性语义拆分</h3>
+<ul>
+<li><strong>框架前置预检</strong>（控制流先例=#51 ghost-chain guard <code>chapter_loop.py:3836-3862</code>：派发前存在性预检→不派发→escalation checkpoint；reads 可用性语义先例=escalation reads 三态判定 <code>revision_router.py:268-303</code>：OPTIONAL_READS fnmatch 剔除/本技能 writes-updates 剔除/glob 展开/存在性）：审计技能派发前确定性校验 contract required reads 存在；缺失 → 走既有 dispatch failure 路径（retry/escalation），<strong>不派发 LLM</strong>——「输入缺失」从 LLM 的 BLOCKING 语义域里整体消失（<strong>作用域钉死 M1：预检仅挂审计派发面（新预检点），<code>_resolve_read_with_fallback:612-624</code> 通用解析面与 <code>_AGGREGATE_READ_FALLBACK_RE</code>（:609 F10 legacy fail-open——chapter-revision 依赖）语义不动</strong>——通用面缺 read 静默返回 [] 的行为对非审计技能保持现状，其吞输入面由预检在审计面绕开而非改通用解析）；</li>
+<li>G4 侧兜底规则（<strong>次防线定位</strong>——主防线框架预检不依赖措辞；兜底 pattern 本身是又一则手拼匹配，措辞改写（如「无法访问输入文件」）可绕，对抗回放 ④ c 承认）：审计报告中 payload 匹配<strong>派发完整性签名</strong>的 BLOCKING 条目 → 报告判无效 FAIL（<strong>check id=<code>G4.av.dispatch_integrity</code>（Mi-3 三点同步：T2 的 generic.py:252 分支扩展同批纳入第三路由；T4 名册差集盘点纳入；§维度行族登记）</strong>）。<strong>签名收紧（I5 修正——裸词 <code>请补齐</code> 是内容 finding 常用修复措辞如「字数不足，请补齐…」，误伤方向与绕过方向对称）</strong>：签名=文件路径 token（<code>chapters/</code>|<code>plans/</code>|<code>truth/</code> 前缀路径，<strong>反引号包裹形态优先</strong>——实弹族 ch10/12/14/16/20/40 全部反引号形态，可进一步压掉裸路径误伤）∧ 重跑/补齐文件措辞（<code>重跑|补齐|补入</code>）<strong>合取</strong>——单裸词不触发；该规则误伤计数并入 T2 回放报告（vol1 含 <code>- [BLOCKING] 输入缺失：请补入 chapters/chapter-N.md 后重跑</code> 实弹族——#109 偶数章饿死同源）。</li>
+</ul>
+<p><strong>判据</strong>：红测——审计派发时 chapter 文件缺失 → 派发失败（零 API 调用、零审计产物落盘、走 retry 路径；红测基建先例 <code>tests/pipeline/test_redispatch_g4_and_draft_precheck.py:106</code> <code>_must_not_dispatch</code> 同构）；含「派发完整性」签名（路径∧措辞合取）的 BLOCKING 报告 → G4 FAIL（id=G4.av.dispatch_integrity）；绿测——「字数不足，请补齐至 3200 字」类内容 finding（无路径 token）不判无效。</p>
+<h3 id="t4">T4 · 反馈与聚合卫生（写作端）</h3>
+<ul>
+<li>G4_FORMAT_EXAMPLES（<strong>19 键</strong>）补缺族：盘点 g4 checker 名册 vs EXAMPLES 键差集（一次性 diff 入 plan，<strong>差集含 <code>G4.av.vocab</code>/<code>G4.av.dispatch_integrity</code> 新键</strong>），首批补 <code>G4.cp.scene_budget</code>（示例文案取该 checker 失败消息期望格式——escalation-35-report.md:33-37 实弹兜底行对照）；</li>
+<li>aggregate 渲染条目携带 severity（<code>- **{sev}** · {text}</code> 形态——节标题保留，条目级不再依赖继承）；<strong>同步改 <code>tools/report_longitudinal.py</code> <code>_parse_aggregate_sections:547-567</code></strong>（条目解析剥离 severity 前缀+<strong>双格式容差</strong>——旧格式 aggregate（<code>- text</code> 无前缀）仍解析，write_audit_aggregate 下轮覆盖自然换代+节头正则单源化已含 MINOR 修复）；下游消费差分验证（grep <code>.aggregate.md</code> 全消费面）；</li>
+<li>ending_constraints 注入窗口 3→10 章（<code>review_checklist.py:539-544</code>：<code>range(3,0,-1)</code>→<code>range(10,0,-1)</code> + <strong>连带</strong> <code>chapter &lt; 4</code>→<code>chapter &lt; 11</code> + docstring「last 3 chapters」/注释同步；纯 regex 分类零 LLM 成本），消灭 SKILL.md:166 文档/实现漂移——「连续≥3 章同型收尾」规则在 10 章窗内才有意义。<strong>r2 顺序裁定：本面修入本件执行范围</strong>——原 r1「review_checklist.py 面在 #96 后」经核为批次文件面纪律（spec96 全文零命中 ending_constraints/收尾型，其 review_checklist 面为 paragraph_cv/transition_count/ai_marker_hits 预计算，零逻辑重叠）；PR #349 重排后 #105 队头/#96 第 14 位+SDD 串行纪律下无并发面；且验收 1 要求 T1-T4 全绿——顺延将留 SKILL.md:166 对模型撒谎 13 个队列位。#96 施工时按其 §121 re-anchor 规约处理。</li>
+</ul>
+<p><strong>判据</strong>：<code>git grep -n "scene_budget" src/shenbi/pipeline/chapter_loop.py</code> 命中 EXAMPLES；aggregate 渲染含条目级 severity（红绿测试）；longitudinal parser 新格式红绿（含 MINOR 节不再中断+双格式容差）；注入块 ending_constraints 长度=10（SKILL 文案零改动即重新为真）。</p>
+<h2 id="2">2. 验收</h2>
+<ol>
+<li>T1-T4 判据全绿；</li>
+<li>差分基线：换装前后对 fixtures 全量审计产物，路由/聚合输出逐项一致（五传感面；longitudinal 的 MINOR 修复为设计内行为变更不在此列）；</li>
+<li>bug-hunt：词表外 finding 的 <strong>key 形</strong>（<code>严重度: 严重/高</code>/<code>Severity: MAJOR</code>）被生产门拦、bracket/bold 形（<code>- [MAJOR]</code>/<code>**BLOCKER**</code>）被 ALL-forms 校验域拦（r2.7 收口，机制对照=现状 elif 静默丢包）；输入缺失场景走框架失败路径不再产 LLM BLOCKING；</li>
+<li>T1 生成测试 ≥94（单源模块重构质量）。</li>
+</ol>
+<h2 id="3">3. 风险</h2>
+<ul>
+<li>六传感换装行为漂移 → 差分基线先行 + 五传感逐项一致红测（最大风险面，T1 判据钉死；longitudinal MINOR 修复独立红测）；</li>
+<li>T2 对存量报告误伤 → 只校锚定形态（散文提及豁免）+ severity 相似性判别器（C1）+ CJK 精确等值（C-1）+ key-名 token 豁免（I-C）+ cell 形 v1 不建 + 回放报告先行；</li>
+<li>T2 判别器残留误伤面（ASCII 大写非 severity token 如 <code>[TODO]</code>/<code>**WIP**</code>）→ 回放报告误伤计数为 shadow 闸门（零误伤后接 FAIL）；</li>
+<li>T3 预检误判（glob/可选读）→ 复用 escalation reads 可用性三态判定既有逻辑（OPTIONAL_READS/produces/glob 展开）；T3 兜底签名误伤 → 合取收紧+反引号优先+误伤计数入回放；</li>
+<li><strong>共享文件面</strong>：revision_router.py/chapter_loop.py 与 #106 同文件（<strong>#105 先施工</strong>，#106 plan 首步 re-anchor）；dispatch_helper.py 预检面 #92 已归档（1ff91d2d 仅 load_deps 换装 5 行，无冲突面）；review_checklist.py ending 面<strong>r2 修入本件</strong>（裁定理由见 T4，#96 后续 re-anchor）。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

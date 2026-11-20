@@ -1,0 +1,1867 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/single-model-sdd-prompt/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Single model sdd prompt - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Single model sdd prompt - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/single-model-sdd-prompt.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/single-model-sdd-prompt/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Single model sdd prompt - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/single-model-sdd-prompt.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#single-model-sdd-workflow-prompt-v80-skill" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Single model sdd prompt
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        使用方式与交付物
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心原则（v6 强化）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rubric-v63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目补充 rubric（单源注入 · v6.3）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目补充 rubric（单源注入 · v6.3）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit_loopscope-rubric-sha_range-pattern-3568-v62-skill-620" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        审查循环 audit_loop(scope, rubric, sha_range) ← 可复用 pattern，阶段 3/5/6/8 显式调用（v6.2 对齐 skill 6.2.0 协议）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="执行流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 0 · 准备（只读，不建分支）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 1 · 价值门（这份 spec 值得做吗）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 2 · 事实核实（机械）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 3 · Spec 设计审查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 4 · Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 5 · Plan 审查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 6 · 执行
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="阶段 6 · 执行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#leafinfra-subagent-driven-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        leaf/infra 分流（subagent-driven-development 的自定义路由）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 7 · 验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 8 · 最终审查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 9 · PR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 10 · CI+合并
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 11 · 清理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段 12 · 归档
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段间状态与恢复（compaction 协议）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        批处理
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization 守则
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-progressmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录 A · progress.md 模板
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profile（本仓差异 · 标记区之外，跨仓不同步）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        变更史（执行者不读历史）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<!-- sdd-core:start v8.0 -->
+<h1 id="single-model-sdd-workflow-prompt-v80-skill">Single-Model SDD Workflow Prompt v8.0（自治版 · 价值门 + 解法门 + 回归 skill 机制）</h1>
+<hr />
+<h2 id="variables">Variables</h2>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$SPEC_PATH</code></td>
+<td><code>&lt;填入 spec 绝对路径&gt;</code>（必填）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>无 <code>$QUEUE</code> 变量（v6.2 删）：批处理 = 用户重复执行 <code>/sdd-next</code>，见文末「批处理」节。</p>
+</blockquote>
+<h2 id="_1">使用方式与交付物</h2>
+<ul>
+<li><strong>单 spec 模式</strong>：填 <code>$SPEC_PATH</code>，从阶段 0 执行到终止条件（GO 路线跑到阶段 12；REJECT/OPS 终止并出 docs PR；DEFER 只记 progress.md 不改 git；REWRITE 修订出 docs PR 后重跑阶段 1）。</li>
+<li><strong>批处理</strong>：重复执行 <code>/sdd-next</code>——每份一个新会话：freshness 天然基于最新 main、上下文零污染、每份之间留人工检查点（见文末「批处理」节）。</li>
+<li><strong>交付物</strong>：GO → 合并的 PR + 归档记录；REJECT → 驳斥证据 + 注册表更新（docs PR）；DEFER → 裁决报告（progress.md，不改 git）；OPS → 执行证据 + 注册表更新（docs PR）；REWRITE → 修订后的 spec（docs PR）+ 重跑。<strong>一份失效 spec 被裁决 REJECT，与一份 spec 被修复合并，是同等合格的交付。</strong></li>
+</ul>
+<hr />
+<h2 id="v6">核心原则（v6 强化）</h2>
+<ol>
+<li><strong>证据先于断言（Iron Law · 每条消息级，非阶段级）</strong>：<strong>任何</strong>含「通过/完成/就绪/绿/done/已修」字样的消息，该断言的具体验证命令<strong>必须在同一条消息内运行过并粘贴输出</strong>。上一轮跑过 ≠ 本轮成立。</li>
+<li><strong>审查不可绕过（机制化）</strong>：所有审查（阶段 3/5/6/8）走 <code>superpowers:requesting-code-review</code> skill 调度 + <strong><code>docs/superpowers/review-rubric.md</code> 单源路径注入</strong>（回执协议见该节，v6.3）。每个 task commit 后<strong>必须</strong>产出 <code>&lt;workspace&gt;/audit-T&lt;N&gt;.md</code>（fresh-context 子 agent 首审 findings 表）。阶段 7 核验 <code>audit-T*.md</code> 数量 == task 数，缺失即 BLOCKED。<strong>progress.md 与 audit-T<N>.md 分工</strong>：progress.md（首行为 skill ledger 身份，兼具 SDD 裁决/门禁记录）是权威进度追踪——compaction 恢复与 skill 的 resume 检查读<strong>同一文件</strong>，答"task 完成了吗"；audit-T<N>.md 是审查产物（本项目特有，阶段 7 计数核验用，答"task 审过了吗"）。两者并存不冲突。</li>
+<li><strong>基础设施代码由协调者亲自实现</strong>：子 agent 只做叶子任务。</li>
+<li><strong>偏差实时记录</strong>：每个 task commit 当轮即更新 <code>spec-deviations.md</code> 的 <code>### T&lt;N&gt;</code> 段。</li>
+<li><strong>每轮修复必被重审（scoped）</strong>：任一 C/I 修复后必须跑 scoped re-review（只验 ADDRESSED/NOT_ADDRESSED + fix diff 内新破坏，不漫游全量）——不存在未经重审的修复。全量重审保留在两处：task 首审、阶段 8 终审。修复轮 5 轮封顶，封顶后熔断裁决（见 audit_loop）。</li>
+<li><strong>价值先于投入</strong>：阶段 1 裁决 GO 之前零实施动作（不建代码分支、不写测试、不改 spec 以外的文件）。REJECT/DEFER/OPS 是合法且期望的产出——硬修一份已失效 spec、或为纯运维工作硬走 12 阶段，都是浪费整轮 SDD。</li>
+<li><strong>单 spec 原子性</strong>：一次只执行一份 spec（其 §2 簇策略内的联动项除外，以 spec 文本声明为准）。执行中发现应合并/应拆分/前提失效 → 停下回阶段 1 重裁，不就地膨胀 scope。</li>
+<li><strong>域约束纪律</strong>：本仓 §Profile·域约束 声明的红线（如付费/写状态操作禁为验证目的触发、fixture 真实性、生成物禁手改）全程有效——SDD 任何阶段不得为"验证"目的触犯。</li>
+</ol>
+<hr />
+<h2 id="rubric-v63">项目补充 rubric（单源注入 · v6.3）</h2>
+<p><code>requesting-code-review</code> skill 自带通用 rubric（plan alignment / code quality / architecture / testing / production readiness + Critical/Important/Minor 三级）。<strong>本项目的补充维度单源在 <code>docs/superpowers/review-rubric.md</code></strong>（设计级维度表 1-8＋文件级检查表＋设计审查 SHA 约定——I/L 教训编号已改写为 fresh-context 子 agent 可见的自包含描述）。</p>
+<p><strong>注入方式（v6.3，废除本文件内嵌副本）</strong>：<code>audit_loop</code> 的 rubric 参数 = skill 通用 rubric + <code>review-rubric.md</code> <strong>路径注入</strong>（＋plan 的 Global Constraints 逐字块）。派子 agent 时 prompt 附「先 Read <code>docs/superpowers/review-rubric.md</code>，报告开头回执其节标题清单」——<strong>无回执 = 未注入，该轮审查无效</strong>。禁止手工复制 rubric 文本进 prompt（派发副本不可审计：rubric 改版后副本与单源漂移无察）。编辑审查维度只改 <code>review-rubric.md</code>。</p>
+<blockquote>
+<p>设计审查（阶段 3 spec / 阶段 5 plan）无代码 diff：BASE_SHA 取空树或 spec/plan 首次 commit、HEAD_SHA 取 spec/plan 文件当前 SHA，scope 由文件清单定义（非 diff）。子 agent 读 spec/plan/AGENTS.md 全文 + <code>review-rubric.md</code>。</p>
+</blockquote>
+<h3 id="audit_loopscope-rubric-sha_range-pattern-3568-v62-skill-620">审查循环 <code>audit_loop(scope, rubric, sha_range)</code> ← 可复用 pattern，阶段 3/5/6/8 显式调用（v6.2 对齐 skill 6.2.0 协议）</h3>
+<div class="highlight"><pre><span></span><code>入参：
+  scope      = 本次审查的文件清单（非 diff，list of paths）
+  rubric     = skill 通用 rubric + `docs/superpowers/review-rubric.md` 路径注入（先读＋报告开头
+               回执节标题——无回执=未注入，该轮无效）+ plan 的 Global Constraints 逐字块（注意力透镜）
+  sha_range  = (BASE_SHA, HEAD_SHA)，design review 用 (空树, 文件SHA)；code review 用 (上 task commit, 本commit) 或 (merge-base main, HEAD)
+
+首审（每 scope 一次，全量）：
+  1. 有 commit 范围 → 生成 diff 包：skill 的 `scripts/review-package PLAN_FILE BASE HEAD`
+     （diff 走文件，不过协调者上下文；**无 diff 文件禁止派审查者**）；design review（阶段 3/5）
+     无 commit 范围 → scope 文件直读，跳过 diff 包
+  2. 派 fresh-context 子 agent（不继承上轮），声明 &quot;This is a FULL audit of ALL files in scope.&quot;
+  3. 子 agent prompt 含：scope 文件清单 + diff 包路径（如有）+ 读 spec/plan/AGENTS.md + rubric + grep 调用方
+  4. 子 agent 报告所有 🔴C / 🟡I / 🟢M（附文件:行号）+ ⚠️&quot;Cannot verify from diff&quot;项
+     + **末尾覆盖清单**——读过的文件、执行过的 grep/命令、rubric 逐维度一行结论（✅/发现编号）
+  5. 协调者逐条 VERIFY（打开真实文件核对，不轻信子 agent）+ 对覆盖清单抽查 ≥1 项复跑核验
+     ——**无覆盖清单的空报告 = 无效轮，重派**（覆盖清单义务只约束全量轮：首审/终审）；
+     ⚠️ 项由协调者亲自消解（持有跨 task 上下文）——确认属实按 spec ❌ 进修复轮
+
+修复轮（每轮 = 一次修复 + 一次 scoped re-review；5 轮封顶）：
+  - 修复：leaf task R1-3 复用原 implementer（上下文在，知道自己的代码）、R4-5 换新 implementer
+    并升模型档（三轮复用仍不收敛 = 看不见自己的问题）；infra task 协调者亲自修
+    （本协议唯一例外：修复者=协调者，重审照走）
+  - 重审：scoped re-review（skill re-review-prompt 模板）——只验各 finding ADDRESSED/NOT_ADDRESSED
+    + fix diff 内新破坏；**未触碰代码的新发现 → ledger 暂存，不入循环**（防漫游）
+  - Minor：本轮顺手修；不修则记 `Task &lt;N&gt;: minor (deferred): &lt;一句话&gt;` → 阶段 8 终审统一 triage
+  - 修复者每轮必须：改 → 跑覆盖测试 → 报告附命令与输出 → 才派重审
+  - 每轮 ledger 追加：`Task &lt;N&gt;: fix round &lt;R&gt;/5 (&lt;X&gt; addressed, &lt;Y&gt; open; commits &lt;a&gt;..&lt;b&gt;)`
+
+熔断（两个独立出口，触发者必须写进裁决）：
+  - **打摆熔断（v6.3）**：连续 3 个 fix round 每轮都出新 C/I 且分布跨模块 → 停止修复循环记
+    BLOCKING 报备——设计/架构问题不是审查问题，继续修只会互相打出新 finding
+  - **5 轮封顶**（第 5 轮仍有 open finding）：
+  - 逐条裁决：审查者错/可争议 → park（`Task &lt;N&gt;: parked — &lt;finding&gt; — ruling: &lt;为何代码成立&gt;`）；
+    真实但无下游依赖 → park 并注明 deferred；真实且 load-bearing（后续 task 建于其上 / plan 缺陷）
+    → STOP 报备用户（带着 finding、冲突的 plan 原文、修复史）
+  - 裁决只能发生在封顶后；每条裁决必入 ledger——静默丢弃禁止
+
+终止：scoped re-review 全 ADDRESSED 且 fix diff 无新 C/I → complete；或封顶后全部 park/STOP。
+单 pass 冒充全量 = 假审（C-3）；但 scoped re-review 明示只验增量，不是冒充。
+</code></pre></div>
+<hr />
+<h2 id="_2">执行流程</h2>
+<p><strong>全局规则</strong>：所有阶段「引擎」字段列的 skill <strong>必须实际调用</strong>（Skill tool），<strong>禁止内联等价替代</strong> —— 不允许自己读 spec 替代 <code>requesting-code-review</code>、自己跑 ruff 替代 <code>verification-before-completion</code>、自己写 plan 替代 <code>writing-plans</code>。列了引擎 = 必须用，不是参考。Iron Law 适用：调用 skill 后必须粘贴 skill 的实际输出/返回，"我应该调"≠"调了"。</p>
+<p><strong>全局规则 2（commit pathspec 保护）</strong>：worktree 常有用户未提交的 docs/配置修改——<strong>所有 commit 显式列文件路径，禁 <code>git add -A</code> / <code>git add .</code></strong>；用户 unstaged 改动全程原样保留（代码 commit 与归档/裁决的 docs PR 一律适用）。</p>
+<hr />
+<h3 id="0">阶段 0 · 准备（只读，不建分支）</h3>
+<ul>
+<li>读 spec 全文 + <code>AGENTS.md</code> + <strong>spec 引用的证据文件</strong>（证据指针、头部 <code>Depends on</code> 字段——全部打开读。spec 是结论压缩，证据文件是全貌）</li>
+<li><strong>证据源路由</strong>：证据按来源定核验方式——版本库内文件 → git/磁盘直开；gitignored 运行工件（§Profile·证据源路由细节）→ 磁盘三层核验（存在性/内容形态/时间）；报告/裁决书类 → 打开对应文档。三类之外（仅存会话记忆）= 不可核验——<strong>核心主张证据不可核验 → 判 DEFER</strong>（证据落盘后重进价值门）；次要主张不可核验 → 记 deviation</li>
+<li><strong>缺位主张登记</strong>：spec 含「零存在/无检查/未消费/未接线」类否定主张时先列清单——它们没有 file:行号 锚，阶段 1 步骤 4 须主动造锚（穷尽 grep 反查）；阶段 0 不登记 = 步骤 4 大概率静默跳过</li>
+<li>建工作态目录：<strong>plan 文件名基名 = spec 基名</strong>（确定性映射），用 skill 的 <code>scripts/sdd-workspace &lt;PLAN_PATH&gt;</code> 产出/确保 <code>.superpowers/sdd/&lt;plan-basename&gt;/</code>（gitignored，是工作态不是交付物；plan 阶段 4 才写，目录与 ledger 阶段 0 即按此规则建）。<code>progress.md</code> 首行<strong>必须是</strong> <code># SDD ledger — plan: &lt;PLAN_PATH&gt;</code>——这是 subagent-driven-development resume 检查的身份契约；缺了这行，技能会把你的 ledger 当 stray 另起炉灶 → 已完成 task 被整段重派（skill 标注的"最昂贵失败"）。SDD 各节跟在首行之后（模板见附录 A）</li>
+<li><strong>不建代码分支</strong>：分支在阶段 1 裁决 GO 之后建——REJECT/DEFER 不产生代码分支</li>
+</ul>
+<h3 id="1-spec">阶段 1 · 价值门（这份 spec 值得做吗）</h3>
+<ul>
+<li><strong>引擎</strong>：协调者机械核查 + 价值两问（步骤 1-3）+ 1 个 fresh-context 驳斥子 agent（步骤 4）</li>
+<li><strong>步骤 1 · Freshness 分级</strong>（机械）：</li>
+<li>spec 带 §0 → 原样执行该命令；不带（手写 spec）→ <code>git log --oneline --since="$(git log --follow -1 --format=%cI -- &lt;SPEC_PATH&gt;)" -- &lt;spec 点名的文件集&gt;</code>——<strong>锚点=spec 最后修订落地时刻（%cI 全时刻，v6.3：日粒度锚会把同日 commit 留在窗外）</strong></li>
+<li><strong>GREEN</strong>：无输出（涉及文件未动）· <strong>YELLOW</strong>：有 commit 但核心符号仍在（grep spec 点名的函数/列名/文件:行 上下文确认）· <strong>RED</strong>：核心文件已删 / 函数重写 / 符号消失</li>
+<li><strong>Scope 落点核对</strong>（v6.1 防假阴性 GREEN）：§0 命令之外，另跑 <code>git log --oneline --since="&lt;spec 日期&gt;" -- &lt;Scope 行全部文件&gt;</code>——Scope 文件有 commit 而 §0 文件无 → 按 YELLOW 处理并记"方案落点漂移"。证据未过期 ≠ 方案落点未漂移（实例：#229 §0 未列 <code>run.py</code>，#228 恰好改了它 55 行）</li>
+<li><strong>GREEN-via-invisibility 禁令</strong>（v6.3）：§0/Scope 引用集含 git 不可见路径（gitignored 如 <code>data/reports/</code>、<code>logs/</code>）→ 该文件<strong>禁判 GREEN</strong>——git 无输出只证明 git 看不见，不证明未动。降 YELLOW 改磁盘核验：① 文件仍存在？② 内容与 spec 引用形态一致？③ mtime 是否晚于 spec 修订日？——①②任一不过 → RED；②过而③晚 → 维持 YELLOW 记 deviation（mtime 对活跃写入面是噪声，语义交步骤 4 复核）；<strong>不得单凭 mtime 判 RED</strong></li>
+<li><strong>步骤 2 · 注册表核对</strong>（机械，对照 <code>specs/INDEX.md</code>）：</li>
+<li><strong>重复</strong>：同文件/同症状是否已有活跃 spec（含簇 sibling）；解析 §2 簇策略交叉引用（如 #30 声明"#28簇策略"→ 查 #28 状态，避免重复修复）</li>
+<li><strong>依赖</strong>：头部 <code>Depends on</code> 指向的 spec 是否已完成/归档；指向已 <strong>REJECT</strong> 的 spec = 前提失效，进 REWRITE/REJECT 评估，而非仅 DEFER</li>
+<li><strong>优先级</strong>：本 spec 是否队头；非队头需豁免理由（用户点名 / 依赖链倒排），记入裁决</li>
+<li><strong>资源冲突</strong>（v6.1）：§Profile·资源槽 所列共享槽（迁移版本号/契约常量/枚举/新增 config key）被 ≥2 活跃 spec 同时声明，或 Scope 同文件重叠 → 记冲突入裁决，后执行者 plan 期改号/换槽</li>
+<li><strong>任务级交叉引用对账</strong>（v6.3）：<code>grep -nE '#[0-9]+ T[0-9]+' &lt;SPEC_PATH&gt;</code> 提取正文引用的它 spec 任务号（正则未触发的"描述隔开续写"读行上下文人工归属），协调者逐条裁定：承载<strong>依赖语义</strong>（验收引用其产出/执行前提/顺序受制）→ 必须在 <code>Depends on</code> 声明，缺失=REWRITE 触发点；<strong>纯提及</strong>（口径引用/解耦声明/先例）→ progress.md 记裁定备查。逐条记录，不得整类豁免</li>
+<li><strong>GATED 呈报</strong>（v6.1）：命中 <code>Status: Proposed (Gated)</code> 或 DEFER 理由为"待用户裁决"、且门控条件当前已可裁决 → 向用户呈决策简报（选项+事实+推荐），<strong>不静默跳过</strong>。单 spec 模式：停下等裁决；队列模式：呈报后按 DEFER（待用户）跳过取下一份——普通 DEFER 跳过条款不免除呈报义务</li>
+<li><strong>步骤 3 · 价值两问</strong>（v6.1，协调者作答并写入 progress.md，各 ≤2 句、须引证据；<strong>先于驳斥</strong>——双空可省一次子 agent 派发）：</li>
+<li><strong>Q1 do-nothing</strong>：若 90 天不做，具体什么坏、多坏、多大概率？——答不出具体损害 = 价值存疑</li>
+<li><strong>Q2 consumer</strong>：产出的下游消费者是谁、改变哪个决策/流程？——🔴 豁免条件：损害属"资产损失/数据错误"级；🔵/🎨/优化类答不出具体消费者 → 视同低收益</li>
+<li><strong>早退</strong>：Q1/Q2 双空（无具体损害且无具体消费者）→ 可直接 DEFER；<strong>REJECT 不得以两问替代驳斥</strong>——仍须步骤 4 证据</li>
+<li>目的：把"值得做"与"问题存在"（步骤 4）分开——SDD 一轮本身是成本支出</li>
+<li><strong>步骤 4 · 核心主张复核（v6.3 三问→五问）</strong>（fresh-context 子 agent，审计 P7.5 驳斥方法——<strong>既驳问题主张，也驳解法主张</strong>）：</li>
+<li>子 agent prompt 含：spec §1 全文（或手写 spec 的问题陈述段）+ 证据文件路径 + 指令"在当前 main HEAD <strong>试图驳斥</strong>核心主张——先独立枚举 main HEAD 上所有可能已缓解该症状的机制（含 spec 未预期的路径），再核对 spec 证据，不得把 spec 的根因分析当搜索起点（去锚定）"。五问：<ul>
+<li><strong>① 证据仍在且语义未变？</strong>（逐条打开 file:行号；gitignored 引用按步骤 1 磁盘核验）</li>
+<li><strong>② 修复是否已在 main 落地？</strong>（git log 该文件 + grep 修复后代码形态——<strong>自己 vs 他人 PR 的归因分界见步骤 5 ARCHIVE-AS-DONE</strong>）</li>
+<li><strong>③ 验收条件仍可达成？</strong>（bug spec → 仍复现？优化 spec → 低效仍在？设计 spec → 症状仍在？）</li>
+<li><strong>④ 解法对抗回放</strong>：假设 spec 修法已全部实施，沿 spec 自诊断的根因路径反向推演博弈路径（配置开关关闭/降级路径绕过/新旧行并存/只修症状不修根因等）能否让根因复发？任一路径仍通 → 判"改道"。<strong>无论结论为何必须列出测试过的博弈路径清单</strong>——只写"闭环"两字 = 无效复核</li>
+<li><strong>⑤ 替代路径（buy-before-build）</strong>：对 spec 每个新建机制 grep 同域既有实现（同义词/中英/相近职责），覆盖 ≥60% 职责 → 主张"升格既有"而非新建。<strong>必须列出候选机制枚举清单</strong>＋各自覆盖估计——无清单 = 无效复核；spec 自称"升格既有"的修法必须过 ④ 证明改写 ≠ 重建</li>
+</ul>
+</li>
+<li><strong>缺位主张穷尽反查</strong>：否定主张（"零存在/无检查/未消费"）无锚可开——子 agent 必须穷尽 grep（中文标签/英文标识/同义机制）并<strong>粘贴命令与输出</strong>；找不到反证时输出反查命令清单供协调者复验</li>
+<li>纪律：只读——读文件 + DB 仅 SELECT；禁写端点 / 触发扫描/回测/训练 / LLM 真调用；大 DB 禁整体加载进内存；密钥不入任何产物</li>
+<li>产出：存活 / 驳斥 / 降级 / 升级 / <strong>改道</strong> + 文件:行号证据 + ④⑤清单。协调者<strong>逐条 VERIFY</strong>（打开文件核对；DB 数字用独立 SELECT 复查关键值——审计 EP-1 教训：并发测量曾把稳态误判为慢；缺位主张反查命令至少抽查一条复跑）</li>
+<li><strong>步骤 5 · 裁决</strong>（写入 progress.md <code>## 价值裁决</code>，六选一）：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>裁决</th>
+<th>触发条件</th>
+<th>出口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GO</strong></td>
+<td>freshness GREEN/YELLOW + 主张存活 + 无重复 + 依赖就绪</td>
+<td>建分支（命名见 §Profile·分支命名；🔴/🟡→fix，🔵/🎨→feat/refactor）→ 阶段 2</td>
+</tr>
+<tr>
+<td><strong>REJECT</strong></td>
+<td>主张被驳斥 / main 已含等效修复（<strong>他人或不可追溯</strong>——本 spec 自己的已合 PR 走 ARCHIVE-AS-DONE）/ 与活跃 spec 重复</td>
+<td>spec 头 <code>Status:</code> 改 <code>Rejected (&lt;日期&gt; · &lt;一句话理由&gt;)</code> → <strong>归档动作按 §Profile·归档策略</strong>（驳斥证据由 docs PR 描述 + commit 承载）→ INDEX 删行 + 计数/最后更新行 → docs PR <code>docs(sdd): reject spec #N — &lt;理由&gt;</code> → merge → <strong>终止，裁决报告即交付物</strong></td>
+</tr>
+<tr>
+<td><strong>ARCHIVE-AS-DONE</strong>（v6.3）</td>
+<td>步骤 4 ② 命中"修复已在 main 落地"<strong>且</strong>可追溯为<strong>本 spec 自己的已合 PR</strong>（<code>git log --oneline origin/main \| grep -E "s&lt;N&gt;([^0-9]\|$\)\|spec ?#?&lt;N&gt;"</code> 主题匹配）——spec 已被自己的批次完成、仅收尾遗留</td>
+<td>spec 头 <code>Status:</code> 定稿 <code>Done (PR #M)</code> → <strong>归档动作按 §Profile·归档策略</strong> → INDEX 删行 + 计数/最后更新行 → docs PR <code>docs(archive): &lt;N&gt; done (PR #M)</code> → merge → <strong>终止，清偿即交付，不再走阶段 12</strong>。与 REJECT 分界 = 归因：REJECT=失败（驳斥），本裁决=成功欠收尾。无法确认主题匹配 → 不适用，回 REJECT 常规判断</td>
+</tr>
+<tr>
+<td><strong>DEFER</strong></td>
+<td>依赖未就绪 / 优先级让位且无豁免理由</td>
+<td>spec 保持 <code>Proposed</code> 原状（"未执行"即其状态，不改 git）→ 裁决理由记 progress.md → 终止（队列模式取下一份）</td>
+</tr>
+<tr>
+<td><strong>REWRITE</strong></td>
+<td>freshness RED / 主张需修正但问题真实 / 任务级交叉引用失声明 / ④⑤ 判改道</td>
+<td>修订 spec（§0/§1 证据同步更新，<code>Status:</code> 加 <code>Revised &lt;日期&gt;</code>，<code>Depends on</code> 补失声明项）→ docs PR → merge → <strong>重跑本阶段</strong></td>
+</tr>
+<tr>
+<td><strong>OPS（出队直办）</strong></td>
+<td>步骤 1-4 全过，但剩余工作为纯运维动作（无代码/测试面，如"运行既有脚本+写文档"）。此类主张常可由协调者以单命令直接验证（<code>ls</code>/<code>grep</code> 级）替代步骤 4 子 agent——证据粘贴进 progress.md</td>
+<td>直办并贴执行证据（命令+输出）→ docs PR（删 INDEX 行+spec 文件，<strong>PR 描述贴执行证据——此 PR 即归档，不再走阶段 12</strong>）→ merge → 终止。直办中发现仍需代码（&gt;10 行）→ 回本阶段改判 GO（实例：#232——脚本/保留策略/配置/测试自 #189 齐备，剩余=跑一次+一行文档）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>成本收益提醒：高风险<strong>形状</strong> = schema 迁移 / 核心路径行为变更 / 历史回放或回填 / 日期-时区语义（L6·B5 事故类）/ touch <code>migrations.py</code>·<code>enums.py</code>·<code>llm/client.py</code> / 3+ 调用方。低收益（Q2 无具体消费者）× 任一高风险形状 → 倾向 DEFER，理由写明</li>
+<li>多 task spec 逐 task 问"砍掉损失多少"——低价值 task 在裁决中记 <strong>DEFER-scope</strong>，实施前以 docs PR 修订 spec（保持单 spec 原子性；实例：#230-T2 历史补期限深）</li>
+<li>RED freshness 且主张存活 → 强制 REWRITE（不带着过期证据进设计审查）</li>
+<li><strong>REWRITE 循环熔断</strong>（v6.3）：同一份 spec 连续 2 次 REWRITE → 停止，报备用户裁决——证据长期漂移或 spec 结构性问题，第三轮重写大概率仍是 REWRITE</li>
+</ul>
+<h3 id="2">阶段 2 · 事实核实（机械）</h3>
+<ul>
+<li><strong>引擎</strong>：fresh-context 子 agent</li>
+<li><strong>审什么</strong>：spec 里<strong>对代码库的引用</strong>（路径/签名/行号±3 硬容差/import——±5 实证放行过恰好 5 行的偏移）—— 查"对不对"。freshness YELLOW → 受影响引用加倍核对</li>
+<li><strong>动作</strong>：机械漂移（行号偏移/路径错）→ 修 spec；歧义漂移（签名不符）→ 记入 spec-deviations <code>### 阶段2</code> 段（此时 plan/task 尚不存在，不标 task 号），作为阶段 4 plan 的约束传入——受影响 task 在 plan 中标 BLOCKED，plan 期仍无法消解 → 回阶段 1 重裁；<strong>证据失效（核心引用已不存在）→ 回阶段 1 改判</strong></li>
+</ul>
+<h3 id="3-spec">阶段 3 · Spec 设计审查</h3>
+<ul>
+<li><strong>引擎</strong>：<code>requesting-code-review</code></li>
+<li><strong>审什么</strong>：spec 的<strong>设计本身</strong>（架构/完整性/YAGNI/合规）—— 查"好不好"</li>
+<li><strong>动作</strong>：<code>audit_loop(scope=[spec, AGENTS.md]（内容型 spec 的证据文件追加进 scope，gitignored 工件磁盘直读）, rubric=review-rubric.md 单源注入, sha_range=(空树, spec文件SHA))</code></li>
+<li><strong>退出</strong>：收敛后写 <code>progress.md ## Spec 审查摘要</code></li>
+</ul>
+<h3 id="4-plan">阶段 4 · Plan</h3>
+<ul>
+<li><strong>引擎</strong>：<code>superpowers:writing-plans</code></li>
+<li><strong>输入</strong>：阶段 1 价值裁决 GO + 阶段 2 机械核查过 + 阶段 3 设计审查过的 spec（基于已验证 spec 写 plan，避免 spec 缺陷导致 plan 白写）</li>
+<li><strong>plan 文件名</strong>：<code>docs/superpowers/plans/&lt;spec 基名&gt;.md</code>（= spec 文件名——workspace 派生与 ledger 身份都依赖此映射，禁自起别名）</li>
+<li><strong>plan 必填</strong>（skill 契约 + 项目加项）：</li>
+<li>头部：REQUIRED SUB-SKILL 行 + Goal/Architecture/Tech Stack + <strong>Global Constraints 段</strong>（spec 的项目级约束<strong>逐字复制</strong>——它是 task reviewer 的注意力透镜，注入阶段 6/8 每次审查派发）</li>
+<li>每 task：Files（精确路径:行）+ <strong>Interfaces Consumes/Produces</strong>（真实签名，从源码复制非伪代码——I1；跨 task 签名漂移的防线）+ <strong>bite-sized 步骤</strong>（checkbox；代码步骤含真实代码；测试步骤含命令与<strong>期望输出</strong>，如 <code>Expected: FAIL with "NameError"</code>——红绿烧进 plan）</li>
+<li><code>复杂度: leaf|infra</code> · <code>test_kind: tdd_red_green | characterization | regression_guard</code> · AC 覆盖表（每 AC → task → test）</li>
+<li>No placeholders："TBD / 类似 Task N / 适当的错误处理 / 写测试覆盖上述（无测试代码）" = plan 失败</li>
+<li>§Profile·plan 加项 声明的额外必填字段（测试层级/fixture 真实性/独立评分/离线可复验改写等）</li>
+</ul>
+<h3 id="5-plan">阶段 5 · Plan 审查</h3>
+<ul>
+<li><strong>引擎</strong>：<code>requesting-code-review</code>（<strong>独立子 agent，与阶段 3 分离</strong>）</li>
+<li><strong>动作</strong>：<code>audit_loop(scope=[plan, spec], rubric=review-rubric.md 单源注入 + Plan 专属补充 rubric, sha_range=(空树, plan文件SHA))</code></li>
+<li><strong>Plan 专属补充 rubric</strong>（注入时追加到 rubric 参数）：</li>
+<li>AC 覆盖完整性（每 spec AC 有 task + test）</li>
+<li>每个签名的 grep 验证记录</li>
+<li>test_kind 合理性（新逻辑=tdd_red_green；行为保持重构=characterization/regression_guard）</li>
+<li>task 分解正确性（无跨 task 隐式依赖）</li>
+<li>leaf/infra 分类准确性</li>
+<li><strong>退出</strong>：收敛后写 <code>progress.md ## Plan 审查摘要</code></li>
+</ul>
+<h3 id="6">阶段 6 · 执行</h3>
+<ul>
+<li><strong>引擎</strong>：<code>subagent-driven-development</code>（plan 路径：阶段 4 产出的 plan 文件）</li>
+<li><strong>项目补充</strong>（skill 不知的本项目特有规则）：</li>
+<li><strong>leaf/infra 分流</strong>：见下方 —— skill 假设 task 独立可分派，但本项目 infra 类 task（涉及 §Profile·infra 模块 清单）必须协调者亲自实现，不分派</li>
+<li><strong>上下文卫生（用 skill 机器，勿手搓）</strong>：task 文本走 <code>scripts/task-brief PLAN_FILE N</code>（implementer 只读 brief 文件，禁读整个 plan；精确值只存在于 brief）；diff 走 <code>scripts/review-package PLAN_FILE BASE HEAD</code>（BASE = 派发前记录的 <code>git rev-parse HEAD</code>，<strong>禁 <code>HEAD~1</code></strong>——多 commit task 会被截断）；implementer 报告落 <code>&lt;workspace&gt;/task-N-report.md</code>，返回只带状态契约四值之一：<strong>DONE / DONE_WITH_CONCERNS</strong>（先读 concerns 再进审查）<strong>/ NEEDS_CONTEXT</strong>（补上下文重派同 agent）<strong>/ BLOCKED</strong>（按 skill 四分支处置，禁无视或原样重试）</li>
+<li><strong>每 task commit 后首审</strong>：<code>audit_loop(scope=该 task 改动文件, rubric=review-rubric.md 单源注入 + Global Constraints 逐字块, sha_range=(BASE, 本 task commit))</code>，findings 写入 <code>&lt;workspace&gt;/audit-T&lt;N&gt;.md</code>；修复轮按 audit_loop 协议（scoped re-review + 5 轮熔断）。<strong>无 audit-T<N>.md 不得开始 T<N+1></strong>（阶段 7 计数核验）</li>
+<li><strong>模型分档</strong>：按 §Profile·模型分档 执行（ON：派发显式指定档位＋R4-5 升档＋终审最强档；OFF：单血统全同档——经用户裁定的仓库）</li>
+<li><strong>infra 路径 TDD</strong>：infra task 的 <code>test_kind: tdd_red_green</code> → 协调者实现时<strong>必须调用</strong> <code>superpowers:test-driven-development</code>（红→绿→重构；禁先写实现后补测试）</li>
+<li><strong>验收可执行化</strong>：spec 每条 AC 在对应 task 完成时<strong>实际运行</strong>其验证命令（测试/只读 CLI/脚本），命令+输出粘贴 progress.md <code>## 验收证据</code>——AC"写了但没跑" = task 未完成</li>
+<li><strong>UI spec 附加验收</strong>（§Profile·验收形态 为 UI 的仓库）：spec 涉及 UI 行为/视觉 → 用当前环境可用的浏览器技能（如 <code>browser-use:web-gui-tester</code> / chrome-devtools 截图）做改动前后截图对比，存 <code>&lt;workspace&gt;/ui/</code>，progress.md 引用——UI 回归肉眼可察但断言难写，截图是最低成本证据。<strong>不绑定具体 skill 名</strong>（环境技能集会变；v6.1 修正失效引用 <code>webapp-testing</code>）</li>
+<li><strong>前提失效中止</strong>：实施中发现 spec 前提不成立（修复方案套不上 / 代码已根本变化）→ 停当前 task → 回阶段 1 重裁。禁止硬修、禁止绕过</li>
+</ul>
+<h4 id="leafinfra-subagent-driven-development">leaf/infra 分流（subagent-driven-development 的自定义路由）</h4>
+<ul>
+<li><strong>leaf</strong>：单文件、无跨模块、无并发/序列化、无 DB schema、不涉及 infra 模块</li>
+<li>skill 分派 implementer 子 agent + task-reviewer（两 verdict + 项目补充 rubric）</li>
+<li>逐 task 串行</li>
+<li><strong>infra</strong>：多文件 / ProcessPool / threading / DB migration / 枚举/契约变更 / 跨 task；或涉及 §Profile·infra 清单模块；或被 3+ 消费方 import</li>
+<li><strong>协调者亲自实现</strong>（不分派）→ TDD → 审查子 agent（审查铁律）</li>
+<li>分类错误时立即升级（leaf 误判 → 回收 → 协调者接手）</li>
+</ul>
+<p><strong>单模型现实</strong>：协调者即唯一执行模型，infra 必亲自实现；leaf 可分派 implementer 子 agent <strong>或</strong>亲自实现（按上下文长度裁决）。两种路径<strong>都必须</strong>走 task 后 fresh-context 重审（产出 audit-T<N>.md），无例外。</p>
+<p><strong>Infra 强制审查项</strong>：□ pickle 实测通过？□ migration 幂等+SCHEMA_VERSION？□ 枚举唯一定义+前端 regenerate？□ 跨 task 签名兼容？□ 全量回归绿？</p>
+<p><strong>BLOCKED task</strong>（阶段 2 歧义漂移在 plan/执行期未消解 / 阶段 10 CI 无法运行）→ 阶段 10 决议：skip（手动实施）或 abort（归档标注未完成）。</p>
+<h3 id="7">阶段 7 · 验证</h3>
+<ul>
+<li><strong>引擎</strong>：<code>verification-before-completion</code>（<strong>每条声称的 gate，非阶段独占</strong>）</li>
+<li><strong>门禁命令</strong>（全部跑，完整输出粘贴到 progress.md；<strong>命令以 AGENTS.md 为权威真理源，本 prompt 一律不重抄</strong>——重抄必漂移，v6.1 审核已发现本节旧抄本与 AGENTS.md 实际命令不一致）：</li>
+<li><strong>输出首行指纹（v6.3）</strong>：每段门禁输出首行粘贴 <code>git rev-parse --short HEAD &amp;&amp; date +%s</code> 的实际输出——事后对账可复推（同轮伪造引述可检出）</li>
+<li>§Profile·门禁 声明的提交前全量命令（各仓权威源：AGENTS.md §验证 或 justfile check），原样执行</li>
+<li>§Profile·门禁附加项 逐条原样执行（有输出须 <code>git log main..HEAD -- &lt;file&gt;</code> 证 pre-existing 非本分支）</li>
+<li><strong>额外核验</strong>：<code>ls &lt;workspace&gt;/audit-T*.md | wc -l</code> == plan task 数（漏审=BLOCKED）；UI spec → <code>&lt;workspace&gt;/ui/</code> 前后截图齐全</li>
+<li><strong>回归红绿回撤验证</strong>（test_kind=regression_guard 必做——L2"零交易回测"的机械解药）：写测试→过→<strong>撤掉修复</strong>→测试<strong>必须红</strong>→复原→过；四步输出全贴 progress.md。只红绿各跑一次 ≠ 回归测试有牙</li>
+</ul>
+<h3 id="8">阶段 8 · 最终审查</h3>
+<ul>
+<li><strong>引擎</strong>：<code>requesting-code-review</code></li>
+<li><strong>动作</strong>：<code>audit_loop(scope=全 branch 改动文件, rubric=review-rubric.md 单源注入 + Global Constraints 逐字块, sha_range=(merge-base main, HEAD))</code>，<code>scripts/review-package PLAN_FILE MERGE_BASE HEAD</code> 生成 diff 文件。<strong>火力按 §Profile·模型分档</strong>（ON 时最强档——skill 明文 final review "not the session default"）——合并前最后一道门；并指向 ledger 的 minor(deferred)/parked 行做 triage（哪些必须修后才可合并）</li>
+<li><strong>fix 循环（恰好一波）</strong>：有 C/I → <strong>单</strong> fix 子 agent 携完整 findings（禁 per-finding 多 fixer——各自重建上下文的成本曾超过全部 task 之和）→ 一次 scoped re-review → 余项按熔断裁决（park-with-ruling / STOP 报备）。<strong>没有第二波</strong>——load-bearing 余项在阶段 9/10 呈报用户</li>
+</ul>
+<h3 id="9-pr">阶段 9 · PR</h3>
+<ul>
+<li><strong>引擎</strong>：<code>finishing-a-development-branch</code></li>
+<li><strong>main 漂移检查</strong>：<code>git fetch origin &amp;&amp; git log HEAD..origin/main --oneline</code> 非空 → rebase <code>origin/main</code> → <strong>重跑阶段 7 全部门禁</strong>（rebase 前本地绿 ≠ 合并前绿）→ 再出 PR</li>
+<li><strong>动作</strong>：Option 2（push + create PR）——finishing 的三选项菜单在本项目<strong>已常设裁决为 Option 2</strong>，不现场问用户；PR 描述含：<strong>价值裁决摘要</strong>（freshness 分级 + 价值两问答案 + 驳斥结论 + GO 理由）+ spec-deviations 全文 + ledger 摘要</li>
+</ul>
+<h3 id="10-ci">阶段 10 · CI+合并</h3>
+<ul>
+<li><strong>引擎</strong>：—（原生 <code>gh</code> / CI 操作；非 skill 驱动）</li>
+<li><strong>合并条件</strong>：<strong>CI 必须真实运行且全绿</strong> + 零未解决线程；合并方式 <code>gh pr merge &lt;PR号&gt; --squash --delete-branch</code>（PR 号放最前、只写数字<strong>不带 <code>#</code></strong>——<code>#123</code> 会被 shell 当注释吞掉参数；squash + 删远端分支一步到位；网页端合并则必须同步点 Delete branch）</li>
+<li><strong>CI 无法运行（计费/配额/infra）≠ 自治合并</strong>——属 BLOCKING deviation，必须向用户报备请求裁决（即使本地 gate 全绿）</li>
+<li><strong>收到 PR 评论时</strong>：先一次性收集全部评论与失败注解再动手（禁修一个推一次）；用 <code>receiving-code-review</code> skill 处理（push back / validate / 不表演同意）；线程级 reply+resolve 纪律按 §Profile·PR 协议（零未解决方可报告完成）</li>
+<li>plan-mandated finding 呈现 finding+plan 文本问哪个为准</li>
+</ul>
+<h3 id="11">阶段 11 · 清理</h3>
+<ul>
+<li><strong>动作</strong>：<code>git checkout main &amp;&amp; git pull &amp;&amp; git branch -D &lt;branch&gt; &amp;&amp; git remote prune origin</code>；随后<strong>远端删除兜底</strong>：单独执行 <code>git push origin --delete &lt;branch&gt;</code>（不并入上方 <code>&amp;&amp;</code> 链），失败<strong>不吞错</strong>——用 <code>git ls-remote --heads origin &lt;branch&gt;</code> 核实：无输出 = 阶段 10 已删（正常收尾）；有输出 = 真失败（权限/分支保护/网络）→ WARN 报备人工处理（L3：静默吞错）</li>
+<li><code>git remote prune origin</code> 只清本地跟踪引用，<strong>不会删远端分支</strong>——远端删除只发生在阶段 10 <code>--delete-branch</code> 或上面的兜底命令</li>
+<li><strong>post-merge verification</strong>：在 main HEAD 重跑 ruff/mypy/pytest，输出粘贴进 progress.md，<strong>方可声称「SDD 完成」</strong></li>
+</ul>
+<h3 id="12">阶段 12 · 归档</h3>
+<ul>
+<li><strong>动作</strong>：归档按 §Profile·归档策略 执行（删除式：删 spec+plan 文件；双库式：移 specs/archive/ 与 plans/archive/）；更新 INDEX（删行 + 计数 + 「最后更新」行，编号策略见 §Profile）；提交 <code>docs(archive): &lt;N&gt; done (PR #M)</code></li>
+<li><strong>归档分支同规</strong>：归档提交走 <code>docs/&lt;slug&gt;-archive</code> 分支出 PR，合并与清理同阶段 10/11（<code>--delete-branch</code> + 远端删除兜底）——归档分支不豁免</li>
+<li><strong>核验</strong>：<code>git grep &lt;spec-filename&gt;</code> 应无输出（文件已删；历史查 <code>git log --oneline -- &lt;spec-path&gt;</code>）</li>
+<li><strong>workspace 保留</strong>：<code>&lt;workspace&gt;/</code> 不在阶段 12 删除（偏离 skill 的即删语义，有意保留）——留待下一次 <code>/sdd-next</code> 开新份时移入 prior-runs，期间可做事后审计</li>
+</ul>
+<hr />
+<h2 id="compaction">阶段间状态与恢复（compaction 协议）</h2>
+<ul>
+<li><code>&lt;workspace&gt;/progress.md</code> 是唯一跨阶段状态源（首行 = skill ledger 身份，SDD 各节跟后——SDD compaction 协议与 skill resume 检查读<strong>同一文件</strong>，互认）。<strong>每阶段完成当轮即追加</strong>（裁决、门禁输出、commit SHA）——不落盘 = 没发生</li>
+<li>会话被压缩/续接后：第一步读 <code>&lt;workspace&gt;/progress.md</code>（含 skill ledger 行）重建阶段指针，从断点继续。<strong>活分支禁止从阶段 0 重启</strong>（会重建 workspace、重跑价值门、产生第二套 audit-T 计数）。遇旧 flat 路径 <code>.superpowers/sdd/progress.md</code>（v6.1 遗留）= 历史工作态，按 prior-runs 处理，不覆盖不续跑</li>
+<li>阶段 1 的价值裁决只在<strong>执行开始时</strong>有效；若中途 main 出现同域大改（阶段 9 漂移检查发现），重跑 freshness 分级确认证据仍成立</li>
+<li><strong>步骤指针（v6.3）</strong>：阶段 0-5 无 skill ledger，各<strong>步骤</strong>完成当轮在 progress.md 落一行（如 <code>阶段1·步骤2 注册表核对 ✓</code>）——中断续跑时阶段内定位不靠猜（执行段粒度仍由 ledger＋audit-T 计数承担）</li>
+<li><strong>跨 session 残留对账</strong>：progress.md 已终态（或已移 prior-runs）但仍存在未删分支 / 未合并 PR（含 <code>docs/*-archive</code> 归档 PR——<code>fix|feat/s&lt;N&gt;-*</code> glob 不覆盖它，须单查）→ 只收尾阶段 11/12，<strong>不开新份</strong>——INDEX 行在归档 PR 合并前仍在，开新份可能重取同一 spec</li>
+</ul>
+<h2 id="_3">批处理</h2>
+<p>批处理 = <strong>用户重复执行 <code>/sdd-next</code></strong>（v6.2 删 <code>$QUEUE</code> 单会话队列模式——它失去每份独立 freshness、烧上下文、且无人工检查点）：</p>
+<ul>
+<li><strong>串行由分支状态保证</strong>：上一份 merge + 归档 PR 合并 + main 更新之后，<code>/sdd-next</code> 的断点/残留检测才会放行取下一份（见该命令）</li>
+<li>每份独立跑完整阶段 0-12（独立会话/分支/PR/归档；REJECT/OPS 亦为一份完整交付）；单份内 DEFER/GATED/REJECT/OPS 终止语义见阶段 1 裁决表</li>
+<li><strong>连续 REJECT 刹车</strong>（原队列停机条件的无状态化）：<code>/sdd-next</code> 启动时查 <code>git log --oneline --grep="docs(sdd): reject"</code>——最近两次 SDD 终态均为 REJECT → 先提示用户"注册表或 main 走向系统性漂移，建议人工抽查剩余队列"，确认后再继续</li>
+</ul>
+<hr />
+<h2 id="anti-rationalization">Anti-Rationalization 守则</h2>
+<table>
+<thead>
+<tr>
+<th>模型可能说</th>
+<th>回应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Minor 可以静默丢弃"</td>
+<td>禁止。Minor 当轮顺手修，或记 <code>minor (deferred)</code> 入 ledger 由终审 triage——任何丢弃必须显式裁决入 ledger。</td>
+</tr>
+<tr>
+<td>"已审查 N 轮可终止" / "再修一轮就收敛"</td>
+<td>修复轮 5 轮封顶：到顶逐条裁决（park-with-ruling / STOP）——不无限循环，也不提前放弃。</td>
+</tr>
+<tr>
+<td>"终审再修一波"</td>
+<td>禁止。终审 fix 恰好一波 + 一次 scoped re-review，余项走裁决——第二波是上下文与回归的放大器。</td>
+</tr>
+<tr>
+<td>"测试应该通过" / "子 agent 报告成功"</td>
+<td>必须运行并粘贴输出，VCS diff + 测试独立验证。</td>
+</tr>
+<tr>
+<td>"上一轮跑过 ruff/pytest"</td>
+<td>Iron Law：声称成立的当轮消息必须重跑。上一轮 ≠ 本轮。</td>
+</tr>
+<tr>
+<td>"偏差可末尾补"</td>
+<td>每个 task commit 当轮即更新 spec-deviations 的 <code>### T&lt;N&gt;</code> 段。</td>
+</tr>
+<tr>
+<td>"上轮查过 / diff 里没有"</td>
+<td>每轮全量重审，scope 由 task 定义不由 diff。</td>
+</tr>
+<tr>
+<td>"这是 leaf 可分派"</td>
+<td>涉及 infra 模块/并发/DB schema → 升级。</td>
+</tr>
+<tr>
+<td>"这两个 task 改不同文件，可并行分派"</td>
+<td>禁止。共享工作树 → git 冲突。逐 task 串行（skill Red Flag）。</td>
+</tr>
+<tr>
+<td>"doc-only 修改/gitignored 文件，不必重审"</td>
+<td>禁止。每轮修复必被 scoped re-review（核心原则 5）——doc-only 修复同样进重审。</td>
+</tr>
+<tr>
+<td>"本地 gate 全绿，CI 跑不了可直接合并"</td>
+<td>禁止。CI 无法运行 = BLOCKING deviation，必须报备用户。</td>
+</tr>
+<tr>
+<td>"task 已完成可直接进下一个"</td>
+<td>禁止。无 <code>&lt;workspace&gt;/audit-T&lt;N&gt;.md</code> 不得开始 T<N+1>。</td>
+</tr>
+<tr>
+<td>"CI 失败我修"</td>
+<td>区分：代码失败→修；infra（计费/配额）→ BLOCKING 报备，不自治修。</td>
+</tr>
+<tr>
+<td>"我自己造个状态机表追踪进度"</td>
+<td>禁止。用 skill 的 ledger 格式（<code>Task N: complete (commits ...)</code>），不另造。</td>
+</tr>
+<tr>
+<td>"我自己读 spec/跑 ruff/写 plan 就行，不必调 skill"</td>
+<td>禁止。引擎字段列了 skill = 必须调（执行流程全局规则）。内联等价 = v3 失败模式。</td>
+</tr>
+<tr>
+<td>"spec 事实正确 = 必须执行"</td>
+<td>禁止。GO 需 freshness + 驳斥 + 注册表三查全过；硬修一份已失效 spec = 浪费整轮 SDD。</td>
+</tr>
+<tr>
+<td>"问题真实 = 值得做"</td>
+<td>禁止。价值两问（do-nothing/consumer）不过的 spec，问题再真也 DEFER/OPS 出队——SDD 一轮本身是成本支出。</td>
+</tr>
+<tr>
+<td>"价值门上次跑过 / INDEX 已排过序"</td>
+<td>每次执行前现查。main 和注册表都在动，昨天的 GO 今天不作数。</td>
+</tr>
+<tr>
+<td>"REJECT 显得没产出"</td>
+<td>REJECT 附驳斥证据 = 省下一整轮 SDD 的合格交付（核心原则 6）。</td>
+</tr>
+<tr>
+<td>"REJECT/OPS 收尾直接改 INDEX，不出 docs PR"</td>
+<td>禁止。INDEX 是 git 文件，任何裁决的注册表变更都走 docs PR（禁直推 main）；OPS 的执行证据就贴在该 PR 描述。</td>
+</tr>
+<tr>
+<td>"DEFER 的依赖 spec 顺手一起做了"</td>
+<td>禁止。单 spec 原子性（核心原则 7）；依赖 spec 自己走完整流程。</td>
+</tr>
+<tr>
+<td>"main 动了但本地门禁绿，直接合并"</td>
+<td>禁止。rebase + 阶段 7 门禁重跑后才可 PR（阶段 9 漂移检查）。</td>
+</tr>
+<tr>
+<td>"会话续接了，从阶段 0 重跑一遍保险"</td>
+<td>禁止。读 progress.md + ledger 从断点续；重启 = 双份 audit-T + 脏计数（compaction 协议）。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="a-progressmd">附录 A · <code>progress.md</code> 模板</h2>
+<div class="highlight"><pre><span></span><code><span class="gh"># SDD ledger — plan: docs/superpowers/plans/&lt;spec 基名&gt;.md</span>
+<span class="gh"># SDD #&lt;N&gt; &lt;slug&gt;（&lt;SPEC_PATH&gt;）· workspace = .superpowers/sdd/&lt;spec 基名&gt;/</span>
+
+<span class="gu">## 价值裁决（阶段 1）</span>
+<span class="k">-</span><span class="w"> </span>freshness: GREEN|YELLOW|RED（命令 + 输出摘要 + Scope 落点核对结果）
+<span class="k">-</span><span class="w"> </span>do-nothing: &lt;90 天不做的具体损害 + 概率&gt;
+<span class="k">-</span><span class="w"> </span>consumer: &lt;下游消费者 + 改变的决策&gt;
+<span class="k">-</span><span class="w"> </span>注册表: 重复=无|#M · 依赖=就绪|#M 未完成|前提失效 · 优先级=队头|豁免理由 · 资源冲突=无|&lt;冲突项与改号方&gt; · 任务级交叉引用=对账一致|失声明清单
+<span class="k">-</span><span class="w"> </span>驳斥复核: ①②③=存活|驳斥|降级|升级 · ④对抗回放=闭环（附博弈路径清单）|仍通路径清单 · ⑤=候选机制枚举清单（子 agent 结论 + 协调者 VERIFY 记录；缺位主张附反查命令清单）
+<span class="k">-</span><span class="w"> </span><span class="gs">**裁决: GO|REJECT|DEFER|REWRITE|OPS|ARCHIVE-AS-DONE**</span> — 理由
+
+<span class="gu">## Spec 审查摘要（阶段 3）</span>
+<span class="gu">## Plan 审查摘要（阶段 5）</span>
+
+<span class="gu">## 执行 ledger（阶段 6）</span>
+Task N: complete (commits &lt;base7&gt;..&lt;head7&gt;, review clean | &lt;K&gt; parked) · audit-T&lt;N&gt;.md ✓
+Task N: fix round R/5 (&lt;X&gt; addressed, &lt;Y&gt; open; commits ...)（有修复轮时）
+Task N: minor (deferred): &lt;一句话&gt;（有暂存时）
+
+<span class="gu">## 门禁输出（阶段 7 / 阶段 11 post-merge）</span>
+&lt;命令 + 完整输出&gt;
+
+<span class="gu">## spec-deviations 摘要（全文在 spec-deviations.md，格式 `### T&lt;N&gt;`）</span>
+
+<span class="gu">## UI 证据（仅 UI spec）</span>
+前/后截图路径 + 差异说明
+
+<span class="gu">## 审查成本（v6.3）</span>
+各阶段 audit_loop 轮数 / audit-T 计数 / 子 agent 会话数 / 熔断与裁决触发计数（门禁命中率观察窗数据源）
+
+<span class="gu">## 最终状态</span>
+merged PR <span class="ni">#N</span> | REJECTED | DEFERRED | OPS（直办，docs PR <span class="ni">#M</span>）| ARCHIVE-AS-DONE (PR <span class="ni">#M</span>) — &lt;日期&gt;
+</code></pre></div>
+<hr />
+<!-- sdd-core:end -->
+
+<h2 id="profile">Profile（本仓差异 · 标记区之外，跨仓不同步）</h2>
+<ul>
+<li><strong>门禁</strong>：权威源 <code>just check</code>（契约 lints + repo 一致性 + ruff + mypy + basedpyright + sync 幂等 diff + 两段 pytest）；<strong>附加项</strong>：<code>uv lock --check</code>（本分支改过 pyproject/uv.lock 时）；全部走 <code>just</code>/<code>uv run</code> 与 CI <code>uv run --frozen</code> 同构——系统 python 的验证不算证据</li>
+<li><strong>infra 模块</strong>：<code>src/shenbi/pipeline/</code>（dispatch_helper · chapter_loop · parallel_dispatch · 状态机）· <code>gates/g4/</code> · <code>contracts/</code> · <code>cost/</code> · <code>audit/</code> · <code>orchestration/</code> · <code>trace/</code>，及 <code>phase_runner.py</code> · <code>scoring.py</code> · <code>sync_contracts.py</code> · <code>safe_write.py</code> · <code>recovery.py</code></li>
+<li><strong>模型分档</strong>：<strong>OFF——2026-11-15 用户裁定单血统定案</strong>（协调、infra 实现、四裁决、逐条 VERIFY 同源；异血统多样性归立项/元审会话层，先例 #115-#117，不入 SDD 执行环路）</li>
+<li><strong>归档策略</strong>：<strong>双库分置</strong>——spec → <code>docs/superpowers/specs/archive/</code>，plan → <code>docs/superpowers/plans/archive/</code>；<code>specs/INDEX.md</code> 删行（<strong>编号 append-only 不重排不复用</strong>——系列/依赖按编号交叉引用）+ <code>plans/INDEX.md</code> 同步</li>
+<li><strong>分支命名</strong>：<code>fix|feat|chore/spec-&lt;N&gt;-&lt;slug&gt;</code>（🟥🟠 findings 修复→fix，架构/批量清理→chore，新能力→feat；<strong>不用 worktree</strong>——个人单仓库分支隔离已足够）</li>
+<li><strong>验收形态</strong>：无前端——验收一律可执行化（fixtures 驱动测试 / 只读 gate CLI），无截图类证据</li>
+<li><strong>plan 加项</strong>：测试层级声明（T1|T2|T3 归属）+ <code>tests/fixtures/</code> 真实产物引用（G0.9：scenario 输入只能引用真实产物，禁手写 fixture）；涉及评分场景声明 G3.4 独立评分子 agent 调度方式（dispatcher 自评无效；阈值 ≥94 晋级 / ≥90 单项通过）；<strong>F947</strong>：验收若依赖真实 LLM dispatch 或手写 mock，plan 期必须改写为可离线复验形式（fixtures 回放/结构断言）——不改写即该 task BLOCKED</li>
+<li><strong>域约束</strong>：真实 LLM dispatch（<code>shenbi-dispatch</code> / <code>pipeline init|resume|review</code>）<strong>付费且写状态</strong>（truth/staging/progress 落盘）——SDD 全流程禁为「验证」目的触发（<code>shenbi-validate G0</code> 允许：无副作用）；deps.json 等生成物禁手改（改契约源头 + <code>just generate</code>，幂等 diff 会打回）</li>
+<li><strong>资源槽</strong>：Literal 单源 <code>src/shenbi/contracts/enums.py</code>；契约常量；新增 config key（无迁移版本槽——schema 走契约同步）</li>
+<li><strong>PR 协议</strong>：<code>AGENTS.md §PR Review Protocol</code>——一次性收集全部评论与失败注解再动手；每线程单独 reply（<code>gh api .../comments/{id}/replies</code>）；GraphQL resolve（REST 无此端点）；零未解决方可报告完成</li>
+<li><strong>证据源路由细节</strong>：F 编号 → <code>docs/superpowers/audit-runs/2026-08-14/findings-ledger.md</code> 对应条目；运行项目工件（<code>novel-*/</code> 等 gitignored，<code>.gitignore</code> 的 <code>/novel-*/</code> 规则）→ 磁盘直核（存在性/内容/行号三层）；盲审/复盘报告/G3.4 裁决书 → 打开对应文档</li>
+</ul>
+<hr />
+<h2 id="_4">变更史（执行者不读历史）</h2>
+<blockquote>
+<p><strong>v8.0 变更</strong>（2026-11-17 · 双仓统一核心）：通用流程与 a-stock 收敛为<strong>字节级同源核心区</strong>（<code>&lt;!-- sdd-core:start v8.0 --&gt;</code> … <code>&lt;!-- sdd-core:end --&gt;</code>，a-stock 侧 CI 抓取本仓 raw 比对执法）。本仓随核心获得：价值两问（步骤 3）· Scope 落点核对 · GATED 呈报 · OPS 第六裁决（纯运维出队直办）· <strong>B1 落地：per-plan workspace</strong>（<code>scripts/sdd-workspace</code> → <code>.superpowers/sdd/&lt;plan-basename&gt;/</code>，progress.md 首行 = skill ledger 身份——替代 flat 多批次账本与末块提取；旧 flat 文件按 prior-runs 归置）· plan 基名=spec 基名映射 · 终审单波修复已在 v7.2。项目差异全部在 §Profile（单血统裁定/双库归档/append-only 编号/F947/G0.9/核心域约束等保留不动）。门禁指纹与 overnight 五重终态校验的衔接：外部 overnight 脚本若重启，须按 per-plan 路径适配后再启用。</p>
+<p><strong>v7.1 变更</strong>（2026-11-15 · /sdd-next 多专家深审 14 findings 全修，启动面变更见 <code>docs/superpowers/sdd-next.md</code> 头部）：①新裁决 <strong>ARCHIVE-AS-DONE</strong>——步骤 3 ②命中「修复已落地」且可追溯为本 spec 自己的已合 PR 时走清偿归档（Done 归因），杜绝把成功 spec 错标 Rejected（实证：#97 完结后归档欠账半月、靠 PR #349 人工清偿）；②<strong>audit_loop 空报告覆盖清单义务＋协调者覆盖抽查</strong>——0 C/I 终止须附完整覆盖清单（读过的文件／跑过的命令／逐维度结论），无清单=无效轮（封「报少即收敛」博弈面，对齐 #116「能失败≠会失败」教训）；③审查轮预算警告线（单 task/阶段累计 &gt;4 轮记 warning）；④<strong>rubric 单源抽离</strong>至 <code>docs/superpowers/review-rubric.md</code>——废除三源复制义务，子 agent 路径注入＋节标题回执；⑤门禁输出首行指纹（<code>git rev-parse --short HEAD</code>＋<code>date +%s</code>，供 overnight 五重终态校验机器复推）；⑥<strong>单模型架构升格为用户裁定定案</strong>——异血统多样性归立项／元审会话层（#115-#117 先例），不入 SDD 执行环路；⑦progress.md 模板增审查成本行；⑧阶段 0-5 步骤指针义务（无 ledger 阶段的 compaction 粒度）；⑨外部内容定界前导（规则在 <code>review-rubric.md</code> 头部）。补记：v7 后未升版补丁一笔——2026-11-10 <code>3b60895f</code>（阶段 10/11 分支删除硬化），现并入本版基线。</p>
+<p><strong>v7 变更</strong>（2026-10-30）：新增<strong>解法门</strong>——阶段 1 步骤 3 驳斥三问扩<strong>五问</strong>（④解法主张对抗回放 ⑤替代路径 buy-before-build）＋<strong>缺位主张穷尽反查义务</strong>＋证据源路由（findings-ledger 之外：运行项目工件/盲审报告）；freshness 修两缺陷（锚点改 spec 最后修订日（%cI 全时刻）；<strong>GREEN-via-invisibility 禁令</strong>——gitignored 路径 git 无输出 ≠ 未动，降级磁盘核验）；步骤 2 加正文 <code>#&lt;N&gt; T&lt;N&gt;</code> <strong>任务级交叉引用对账</strong>（机械提取＋语义裁定，失声明=REWRITE 触发）；阶段 2 范围扩运行项目工件＋行号容差 ±5→±3；rubric 升级（维度 2 <strong>双向 dead-wire</strong>／维度 5 新 FAIL 门<strong>误报成本</strong> shadow 纪律／新维度 8 <strong>解法最小性</strong>）；audit_loop 加<strong>打摆熔断</strong>（连续 3 轮新 C/I 跨模块→BLOCKING 报备）；REWRITE 连续 2 次停机；Plan rubric 加跨 spec 联动项归属检查；<code>$QUEUE</code> 标注遗留模式（现行无人值守批处理=外部 overnight 脚本）；Anti-Rationalization 增 6 行；progress.md 模板同步。<strong>动机</strong>：spec #82-#84 r1 外部审核 backtest——8 项缺陷（同域重复建设/门读可变数据源/gitignored 证据死胎/任务级依赖失声明等）中旧管线机制必拦 0 项；根因=价值门为 findings 型 repo 内 spec 设计，#72 起出现运行项目内容 spec 新属种＋「解法最优性」维度在全部阶段整体缺位（本仓历史 REJECT 全为失效型，无一为解法质量型）。</p>
+<p><strong>v6 变更</strong>（2026-08-15）：新增阶段 1 价值门（freshness / 注册表 / 驳斥三查 + GO·REJECT·DEFER·REWRITE 四裁决）；阶段重编号 0-12（无外部文档引用旧编号，无需同步）；新增队列模式、compaction 恢复协议、main 漂移 rebase 协议、验收可执行化（本项目无前端，以可执行验收替代截图类证据）、PR 线程 reply+resolve 协议（接入 AGENTS.md §PR Review Protocol）。<strong>修正 v5 三处缺陷</strong>：① 归档路径 <code>docs/superpowers/archive/</code> 不存在 → 实际为 <code>specs/archive/</code> + <code>plans/archive/</code> 双库；② rubric 引用的 I1/L1-L4/C-3 教训编号在本仓库无定义（fresh-context 子 agent 不可见）→ 全部改写为自包含检查描述；③ 补入本仓高频失败模式（dead-wire、契约三源同步、状态字面量单一信源、成本与状态纪律、环境同构）；④ INDEX 改为<strong>仅追踪活跃 spec</strong>（不维护归档计数），编号 append-only 不重编号（对齐 INDEX 登记与编号约定）。</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

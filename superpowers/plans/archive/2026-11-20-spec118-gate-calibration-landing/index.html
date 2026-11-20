@@ -1,0 +1,2173 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-20-spec118-gate-calibration-landing/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #118 门标定落地批 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #118 门标定落地批 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-20-spec118-gate-calibration-landing.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-20-spec118-gate-calibration-landing/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #118 门标定落地批 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-20-spec118-gate-calibration-landing.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-118-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #118 门标定落地批 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints-spec-profilem-2-spec-f947g09g011-single-model-sdd-promptmd-profileplan-lint_threshold_reconciliation-strict-just-check53-7-plan-task-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（编译自 spec 项目级约束＋§Profile——M-2 修正：spec 无逐字块，此为编译面；F947/G0.9/G0.11 出自 single-model-sdd-prompt.md §Profile「plan 加项」；lint_threshold_reconciliation --strict 判据经 just check:53 接线在阶段 7 全量门统一跑——本 plan 各 task 不单独跑该 lint）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints（编译自 spec 项目级约束＋§Profile——M-2 修正：spec 无逐字块，此为编译面；F947/G0.9/G0.11 出自 single-model-sdd-prompt.md §Profile「plan 加项」；lint_threshold_reconciliation --strict 判据经 just check:53 接线在阶段 7 全量门统一跑——本 plan 各 task 不单独跑该 lint）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-spec-t8-payoff_density" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: spec T8 · payoff_density 变异负例＋三残行分类收口（执行序最先——时限约束项）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-spec-t1-voice_density-hard-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: spec T1 · voice_density 两级拆分（在场 hard＋密度 WARN）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-spec-t2-hook-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: spec T2 · hook 多字/结构臂＋单字降 WARN＋镜像等价钉
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-spec-t3-protagonist-roster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: spec T3 · protagonist roster 去重＋名字单独下限
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-spec-t4-transition-per-1000-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: spec T4 · transition per-1000 密度封顶（1.0/千字）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-spec-t5-simile-narrative-only-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: spec T5 · simile narrative-only 换装＋WARN 路由报告行
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-spec-t6-ending-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: spec T6 · ending 扩分类器（限 ≤4 新形态）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-spec-t7-content_uniqueness-p1-fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: spec T7 · content_uniqueness P1 修＋fixture 重摆＋权威重跑报告
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ac-spec-2-task-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AC 覆盖表（spec 验收 §2 → task → test）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-118-implementation-plan">Spec #118 门标定落地批 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 机械执行 2026-11-20 用户七门裁定＋content_uniqueness P1 修＋三残行分类收口（spec r2.2 权威），每 task 红测双向＋50 章重跑＋baseline 同步三件套。</p>
+<p><strong>Architecture:</strong> 全部行为改动集中在 <code>src/shenbi/gates/g4/chapter_drafting.py</code> 九函数＋<code>src/shenbi/text/voice_lexicon.py</code> 常量单源＋<code>src/shenbi/contracts/skills/genre_config.py</code> validator；负例证据走 #116 变异引擎（<code>tools/gen_gate_power_fixtures.py</code> MUTATIONS 扩展）维护者侧重生成 fixture；取数走 <code>just gate-power</code>（零 LLM 离线回放）。执行序 spec T8 先行（时限风险前置），plan task 编号=执行序，spec task 号在标题括注。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pytest（unit T1 层）/ just task runner / structlog（<code>shenbi.logging.get_logger</code>）。</p>
+<h2 id="global-constraints-spec-profilem-2-spec-f947g09g011-single-model-sdd-promptmd-profileplan-lint_threshold_reconciliation-strict-just-check53-7-plan-task-lint">Global Constraints（编译自 spec 项目级约束＋§Profile——M-2 修正：spec 无逐字块，此为编译面；F947/G0.9/G0.11 出自 single-model-sdd-prompt.md §Profile「plan 加项」；<code>lint_threshold_reconciliation --strict</code> 判据经 just check:53 接线在阶段 7 全量门统一跑——本 plan 各 task 不单独跑该 lint）</h2>
+<ul>
+<li><strong>触面止于</strong>（spec 验收 2，核验＝hunk 落点全在枚举内）：<code>chapter_drafting.py</code> 九函数（<code>_check_voice_density</code>/<code>_check_chapter_end_hook</code>/<code>_load_protagonist_names</code>/<code>_check_protagonist_presence</code>/<code>_check_protagonist</code>/<code>_check_transitions</code>/<code>_check_simile_band</code>/<code>ending_archetype_of</code>/<code>_check_content_uniqueness</code>）＋<code>voice_lexicon.py</code>＋<code>contracts/skills/genre_config.py</code>＋<code>tools/gate_power_replay.py</code>＋<code>tools/gen_gate_power_fixtures.py</code>＋<code>tools/lint_voice_meme.py</code>＋测试文件＋fixture 重摆＋baseline/提案 docs＋<code>reports/</code>——无未裁定检查被顺手改。</li>
+<li><strong>红测改钉保留原 FAIL 方向样本</strong>（C1 双向义务——防全绿漂移）。</li>
+<li><strong>fixture 真实性 G0.9/G0.11</strong>：scenario 输入只引用 <code>tests/fixtures/</code> 真实产物；变异 fixture 一律经 <code>tools/gen_gate_power_fixtures.py</code> 维护者侧重生成（provenance 头＋同源确定性），禁手造/手改/内联硬编码真实章文本。</li>
+<li><strong>阈值单源</strong>：新常量只落 <code>voice_lexicon.py</code>/<code>chapter_drafting.py</code> 模块级单一声明点＋定标注释（vol1 定标，跨书重跑复核——B5）；单源断言测试执法（禁裸副本）。</li>
+<li><strong>门检查器纯函数幂等、无副作用</strong>；<code>src/shenbi/</code> 禁 <code>print()</code>（structlog：<code>from shenbi.logging import get_logger</code>）；文件 I/O 走 <code>pathlib</code>。</li>
+<li><strong>commit pathspec 显式列文件</strong>，禁 <code>git add -A</code>/<code>git add .</code>；conventional commits（<code>feat:</code>/<code>test:</code>/<code>fix:</code>/<code>docs:</code>）。</li>
+<li><strong>每 task 三件套</strong>：红测双向＋50 章重跑（命令 <code>just gate-power novel-xinghuo-vol1 --out &lt;workspace&gt;/replay-T&lt;N&gt;.md</code>，数字进 task report；最终权威报告在 Task 8 落 <code>reports/</code>）＋baseline 行同步（归因/期望点火带列当轮更新；「最近回放数」统一在 Task 8 终值刷新）。</li>
+<li><strong>全离线</strong>：SDD 全程禁真实 LLM dispatch（F947：验收不依赖 dispatch，全部 fixtures 回放/结构断言）。</li>
+<li><strong>测试层级</strong>：全部 T1 层（per-skill unit，<code>tests/unit/gates/g4/</code>＋<code>tests/unit/tools/</code>）。</li>
+</ul>
+<p><strong>实施前公共步骤（Task 1 首步内执行一次）：</strong> <code>git rev-parse HEAD</code> 记录 BASE；跑 <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-baseline.md</code> 留改动前基线（已存在 reports/2026-11-20-gate-power-vol1.md 作对照源）。</p>
+<hr />
+<h3 id="task-1-spec-t8-payoff_density">Task 1: spec T8 · payoff_density 变异负例＋三残行分类收口（执行序最先——时限约束项）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/gen_gate_power_fixtures.py</code>（MUTATIONS 注册表＋<code>payoff_axis_stripped</code> 变异函数，~:296 后插入函数、:346 后注册）
+- Create: <code>tests/fixtures/gate-power/plans/chapter-9-plan.md</code>（维护者侧引擎重生成）
+- Create: <code>tests/fixtures/gate-power/chapter-9-payoff-stripped.md</code>（维护者侧引擎重生成，verbatim_copy --full）
+- Modify: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（新增 <code>test_payoff_stripped_warns_payoff_density</code>）
+- Modify: <code>docs/framework/gate-power-baseline.md</code>（三残行分类回填）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>MUTATIONS: dict[str, Callable[..., str]]</code>（:325-347 既有注册表）；<code>PROVENANCE_TMPL</code>（:29-34）；引擎 CLI（<code>main()</code> :350-384：<code>--mutation</code> choices 自动从 MUTATIONS 派生）。
+- Produces: <code>payoff_axis_stripped(text: str) -&gt; str</code>（变异函数）；<code>MUTATIONS["payoff_axis_stripped"]</code>；红测 <code>test_payoff_stripped_warns_payoff_density</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败红测</strong>（<code>tests/unit/gates/g4/test_gate_power_negatives.py</code> 末尾追加；测试走真实 g4 管线，fixture 为引擎产物）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_payoff_stripped_warns_payoff_density</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T8：chapter-9 plan 的 **payoff 拍** 轴登记被删 → payoff_density WARN 行.</span>
+
+<span class="sd">    负例=WARN-only（该门无 mf 臂）；变异产物=plans/chapter-9-plan.md</span>
+<span class="sd">    （引擎 payoff_axis_stripped）＋配对章 chapter-9-payoff-stripped.md（verbatim</span>
+<span class="sd">    --full）。窗口 k∈{7,8,9}：7/8 plan fixture 缺席＋9 轴被删 → 无轴 WARN 必发。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-9-payoff-stripped.md&quot;</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.payoff_density&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span> <span class="ow">and</span> <span class="s2">&quot;无轴登记&quot;</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;r&quot;</span><span class="p">],</span> <span class="n">rows</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_payoff_stripped_warns_payoff_density -v</code>
+Expected: FAIL with <code>KeyError</code>/fixture-missing 或 rows 为空（fixture 与变异均未生成，<code>_g4</code> 读不到章或 WARN 行不存在）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现变异函数并注册</strong>（<code>tools/gen_gate_power_fixtures.py</code>，<code>content_duplicated</code> 后插入）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">payoff_axis_stripped</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;删 **payoff 拍** 行的轴登记段（轴(债|名声|名字数|进度)→无轴）→ payoff_density WARN.</span>
+
+<span class="sd">    变异源=plan 文件（先例 hookdecl_mismatched）；门侧正则锚</span>
+<span class="sd">    chapter_drafting.py:1374-1375（\*\*payoff 拍\*\*[：:].*轴[（(]?(债|名声|名字数|进度)）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;(\*\*payoff 拍\*\*[：:][^｜\n]*?)｜轴[（(](?:债|名声|名字数|进度)[)）]&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>并在 <code>MUTATIONS</code> 字典 <code>"content_duplicated": content_duplicated,</code> 行后追加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;payoff_axis_stripped&quot;</span><span class="p">:</span> <span class="n">payoff_axis_stripped</span><span class="p">,</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 维护者侧重生成两个 fixture</strong>（源=gitignored 真实产物，G0.9；同源确定性）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>novel-xinghuo-vol1/plans/chapter-9-plan.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/fixtures/gate-power/plans/chapter-9-plan.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mutation<span class="w"> </span>payoff_axis_stripped<span class="w"> </span>--full
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>novel-xinghuo-vol1/chapters/chapter-9.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/fixtures/gate-power/chapter-9-payoff-stripped.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mutation<span class="w"> </span>verbatim_copy<span class="w"> </span>--full
+</code></pre></div>
+<p>Expected: 各打印一行 <code>&lt;out&gt; &lt;- &lt;source&gt; [...]</code>；<code>grep -c "轴(进度)" tests/fixtures/gate-power/plans/chapter-9-plan.md</code> 输出 <code>0</code>（原行 <code>扮猪吃虎｜轴(进度)｜小兑现</code> 已去轴段）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -v</code>
+Expected: 全 PASS（含新测与既有 25 测——plan fixture 新增不触既有 chapter-1 面）。</p>
+<ul>
+<li>[ ] <strong>Step 6: baseline 三残行分类回填</strong>（<code>docs/framework/gate-power-baseline.md</code>）</li>
+</ul>
+<p><code>G4.cd.payoff_density</code> 行（:61）：分类 <code>unclassified</code>→<code>floor-untested</code>，证据列填 <code>tests/unit/gates/g4/test_gate_power_negatives.py::test_payoff_stripped_warns_payoff_density</code>，归因改「回放 0 行发射（v3 近窗无轴登记章为 0——WARN-only 臂；<strong>spec #118 T8 红测已建</strong>）；裁定 2026-11-20 floor-untested」。
+<code>G4.cd.quote_type</code> 行（:62）：分类→<code>floor-untested</code>，证据列填 <code>tests/unit/gates/g4/test_spec76_voice_quote.py::test_g4cd_quote_type_three_point_sync</code>（既有行为红测——真实 g4 管线三场景 must_fix 点火，r2/I-7 裁定依据：分类证据义务已满足，不为 M-1 形态同源重复建测），归因注记同。
+<code>cd.provenance_anchor</code> 行（:75）：分类→<code>floor-untested</code>，证据列填 <code>tests/unit/gates/g4/test_spec83_provenance_anchor.py::test_provenance_mismatch_warns_and_match_green</code>，归因注记同。</p>
+<ul>
+<li>[ ] <strong>Step 7: 验收 lint＋commit</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_gate_power_baseline.py</code> → Expected: 三残行 WARN 消失（零 <code>unclassified</code> 残行）、exit 0（未到升格锚仅 WARN 面，此处应全清）。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>tests/fixtures/gate-power/plans/chapter-9-plan.md<span class="w"> </span>tests/fixtures/gate-power/chapter-9-payoff-stripped.md<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #118 T8 payoff_density 变异负例＋三残行分类收口（quote_type/provenance_anchor 引既有行为红测为证据链）&quot;</span>
+</code></pre></div>
+<h3 id="task-2-spec-t1-voice_density-hard-warn">Task 2: spec T1 · voice_density 两级拆分（在场 hard＋密度 WARN）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/text/voice_lexicon.py</code>（:33 后新增 <code>DEFAULT_VOICE_PRESENCE_MIN = 1</code> 常量＋注释）
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:1391-1438</code>（<code>_check_voice_density</code> 两级化＋模块头 <code>from shenbi.logging import get_logger</code>/<code>log = get_logger(__name__)</code>——若文件尚无则加）
+- Modify: <code>src/shenbi/contracts/skills/genre_config.py:142-148</code>（validator 扩 <code>presence_min∈[1,5]</code>）
+- Modify: <code>tools/lint_voice_meme.py:123-127</code>（旧键消费跟随密度臂口径）
+- Modify: <code>tools/gen_gate_power_fixtures.py</code>（<code>voice_stripped</code> 变异扩展——Step 2；<code>ACCOUNTING_VERBS</code> 须显式 import：<code>from shenbi.text.voice_lexicon import ACCOUNTING_VERBS</code>，该文件现未导入）
+- Modify: <code>tests/fixtures/gate-power/chapter-1-voice-stripped.md</code>（Step 2 重生成）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（改钉＋三态样本）；Create <code>tests/unit/text/test_voice_threshold_single_source.py</code>（单源断言）；<code>tests/unit/contracts/</code>（validator 红测两例）
+- Modify: <code>docs/framework/gate-power-baseline.md</code>（<code>G4.cd.voice_density</code> 行期望点火带＋归因）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>distinct_voice_signals(body: str, catchphrases: list[str] | None) -&gt; int</code>（voice_lexicon.py:90，三类信号同计——hard 臂操作数，r2/I-4 钉死）；<code>DEFAULT_VOICE_DENSITY_MIN = 2</code>（:33，密度臂缺省）；<code>read_genre_config</code>；<code>_g4</code> 测试助手。
+- Produces: <code>DEFAULT_VOICE_PRESENCE_MIN = 1</code>（在场臂缺省，单源）；<code>_check_voice_density</code> 两级行为：<code>memo_v2 ∧ signals &lt; presence_min</code> → mf <code>G4.cd.voice_density:{fp}:{signals}&lt;{presence_min}</code>（absent=三类全零才 FAIL）；<code>signals ≥ presence_min ∧ signals &lt; density_min</code> → WARN 行（劝谏面）；过线 → PASS 行。config 键：新 <code>voice_density_min.presence_min∈[1,5]</code>（validator :146-148 扩展）；旧 <code>min_per_chapter∈[0,5]</code> 读入仅填密度臂＋<code>log.warning</code> deprecate。</p>
+<ul>
+<li>[ ] <strong>Step 1: 实现首日离线重算</strong>（M-2 判据钉——预期数进 task report）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.text.voice_lexicon import catchphrases_from_card, distinct_voice_signals</span>
+<span class="s2">from shenbi.gates.shared import strip_narrative_body</span>
+<span class="s2">cps = catchphrases_from_card(Path(&#39;novel-xinghuo-vol1/characters/protagonist.md&#39;).read_text(encoding=&#39;utf-8&#39;))</span>
+<span class="s2">chs = [p for p in sorted(Path(&#39;novel-xinghuo-vol1/chapters&#39;).glob(&#39;chapter-*.md&#39;)) if len(p.stem.split(&#39;-&#39;))==2 and p.stem.split(&#39;-&#39;)[1].isdigit()]</span>
+<span class="s2">sig = [distinct_voice_signals(strip_narrative_body(p.read_text(encoding=&#39;utf-8&#39;)), cps) for p in chs]</span>
+<span class="s2">print(f&#39;n={len(sig)} absent(0)={sig.count(0)} ==1: {sig.count(1)} &gt;=2: {sum(1 for s in sig if s&gt;=2)}&#39;)&quot;</span>
+</code></pre></div>
+<p>Expected（阶段 3 审查同款重算参照）: <code>absent(0)</code> 为小数目（审查实测 82 章面 =1；以本命令 50 纯章形输出为准）——<strong>该数写进 task-2-report.md 作为重跑对照钉</strong>。</p>
+<ul>
+<li>[ ] <strong>Step 2: 变异引擎扩 <code>voice_stripped</code>＋重生成 fixture（实测钉：现 fixture signals=1——口癖灭但账房动词残存 1 类；新语义 1≥1 不 FAIL，须灭三类至 0 保旧测 FAIL 方向）</strong></li>
+</ul>
+<p><code>tools/gen_gate_power_fixtures.py</code> <code>voice_stripped</code>（:66-71 <code>_VOICE_NEUTRAL</code> 消费处）追加二段中和：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">voice_stripped</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;口癖短语→中性语＋账房动词/自嘲反问收尾中和 → signals=0（spec #118 T1 改钉）.</span>
+
+<span class="sd">    r2 实测：仅灭口癖留 signals=1（账房动词残存）——两级化后 1≥presence 不</span>
+<span class="sd">    FAIL；须三类全灭保 `test_voice_stripped_fails_voice_density_gate` 的</span>
+<span class="sd">    must_fix 断言（0&lt;1，C1 原 FAIL 方向保留）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">_VOICE_NEUTRAL</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">verb</span> <span class="ow">in</span> <span class="n">ACCOUNTING_VERBS</span><span class="p">:</span>  <span class="c1"># from shenbi.text.voice_lexicon import ACCOUNTING_VERBS</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">verb</span><span class="p">,</span> <span class="s2">&quot;记下&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(吧|呢)？(\s|$)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;。\2&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>  <span class="c1"># 自嘲反问收尾中和</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div>
+<p>维护者侧重生成：<code>uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapter-1.md tests/fixtures/gate-power/chapter-1-voice-stripped.md --mutation voice_stripped</code>
+验证：<code>uv run python -c "...distinct_voice_signals(strip_narrative_body(Path('tests/fixtures/gate-power/chapter-1-voice-stripped.md').read_text()), cps)..."</code> → Expected: <code>0</code>。</p>
+<ul>
+<li>[ ] <strong>Step 3: 写失败红测</strong>（<code>test_voice_stripped_fails_voice_density_gate</code> 断言<strong>不变</strong>——0&lt;1 仍 must_fix；新增三态测试追加其后）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_voice_density_two_level_three_states</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T1 裁定 B 三态：0 FAIL / 1 类在场过＋密度 WARN / ≥2 纯 PASS.</span>
+
+<span class="sd">    构造性输入（G0.9 允许面——结构级样本基于真实 fixture）：复用重生成后的</span>
+<span class="sd">    voice-stripped fixture（signals=0）＋真实卡/plan 前置物，逐态注入。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">inject</span><span class="p">,</span> <span class="n">want_fail</span><span class="p">,</span> <span class="n">want_warn</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;absent&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>  <span class="c1"># signals=0 → FAIL（=旧测同 fixture 面）</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;presence-only&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;他心想：这笔我先记下。&quot;</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>  <span class="c1"># 真实卡口癖原串「这笔我先记下。」逐字在场 → 1 类（C-1 修正：原注入缺「我」非口癖原串）</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;dense&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;他心想：这笔我先记下。入账的时辰到了。&quot;</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>  <span class="c1"># 口癖＋账房动词「入账」→ 2 类 → 纯 PASS</span>
+    <span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="n">label</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;characters&quot;</span><span class="p">,</span> <span class="s2">&quot;plans&quot;</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">FIX_DIR</span> <span class="o">/</span> <span class="n">sub</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="n">sub</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">(</span><span class="n">FIX_DIR</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-voice-stripped.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">inject</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">warn_rows</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.voice_density&quot;</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.voice_density:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">)</span> <span class="o">==</span> <span class="n">want_fail</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">warn_rows</span><span class="p">)</span> <span class="o">==</span> <span class="n">want_warn</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">warn_rows</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑红测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_voice_density_two_level_three_states -v</code>
+Expected: FAIL——<code>absent</code> 或 <code>presence-only</code> 态断言失败（变异已扩但门未两级化：absent 0&lt;2 FAIL ✓ 而 presence-only 1&lt;2 仍 must_fix ✗）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 实现</strong>（<code>voice_lexicon.py</code> :33 <code>DEFAULT_VOICE_DENSITY_MIN = 2</code> 后）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">#: 声口在场性 hard 臂缺省（spec #118 T1 裁定 B 两级拆分：在场 ≥1 hard——三类</span>
+<span class="c1">#: 信号任一在场即过，absent＝三类全零才 FAIL）。genre-config 覆盖键</span>
+<span class="c1">#: voice_density_min.presence_min（validator 域 [1,5]——0 非法，堵逐书清零</span>
+<span class="c1">#: hard 臂面）；旧键 min_per_chapter 只填密度/WARN 臂（deprecate）。</span>
+<span class="c1">#: v1 (2026-11-20, spec #118): 1（vol1 定标，跨书重跑复核——B5）</span>
+<span class="n">DEFAULT_VOICE_PRESENCE_MIN</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div>
+<p><code>chapter_drafting.py</code> <code>_check_voice_density</code> 全函数替换为：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_check_voice_density</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">CheckContext</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">mf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spec #76 v2 声口密度（spec #118 T1 裁定 B 两级拆分）.</span>
+
+<span class="sd">    hard 臂＝在场性（distinct_voice_signals ≥ presence_min，absent＝口癖/</span>
+<span class="sd">    账房动词/自嘲反问三类全零才 FAIL——r2/I-4 钉死操作数）；密度臂＝原 ≥2</span>
+<span class="sd">    语义降 WARN 报告行（劝谏面不拦章）。旧 config 键 min_per_chapter 只填</span>
+<span class="sd">    密度臂（T1(a)：映射进 hard 臂会使裁定在携带旧覆盖的项目上静默不生效）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_body</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">narrative</span>
+    <span class="n">_cps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">project_dir</span><span class="p">:</span>
+        <span class="n">_pcard</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span> <span class="o">/</span> <span class="s2">&quot;protagonist.md&quot;</span>
+        <span class="k">if</span> <span class="n">_pcard</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">_cps</span> <span class="o">=</span> <span class="n">catchphrases_from_card</span><span class="p">(</span><span class="n">_pcard</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">_signals</span> <span class="o">=</span> <span class="n">distinct_voice_signals</span><span class="p">(</span><span class="n">_body</span><span class="p">,</span> <span class="n">_cps</span><span class="p">)</span>
+    <span class="n">_vdm</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">read_genre_config</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pf</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;market_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;voice_density_min&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="p">)</span>
+    <span class="n">_presence_min</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">_vdm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;presence_min&quot;</span><span class="p">,</span> <span class="n">DEFAULT_VOICE_PRESENCE_MIN</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">_vdm</span>
+        <span class="k">else</span> <span class="n">DEFAULT_VOICE_PRESENCE_MIN</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">_vdm</span> <span class="ow">and</span> <span class="s2">&quot;min_per_chapter&quot;</span> <span class="ow">in</span> <span class="n">_vdm</span><span class="p">:</span>
+        <span class="n">_density_min</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_vdm</span><span class="p">[</span><span class="s2">&quot;min_per_chapter&quot;</span><span class="p">])</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;genre_config voice_density_min.min_per_chapter deprecated: fills density(WARN) arm only; use presence_min for the hard arm (spec #118 T1)&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_density_min</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_density_min</span> <span class="o">=</span> <span class="n">DEFAULT_VOICE_DENSITY_MIN</span>
+    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">memo_v2</span> <span class="ow">and</span> <span class="n">_signals</span> <span class="o">&lt;</span> <span class="n">_presence_min</span><span class="p">:</span>
+        <span class="c1"># 束6 逐字化报文保留（缺席修复指引不变）</span>
+        <span class="n">_miss</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_cps</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_body</span><span class="p">]</span>
+        <span class="n">_cp_part</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;未在场卡口癖（须逐字照抄、一字不可改）：&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;；&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;『</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">』&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_miss</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span><span class="si">}</span><span class="s2">；另可计分：&quot;</span>
+            <span class="k">if</span> <span class="n">_miss</span>
+            <span class="k">else</span> <span class="s2">&quot;卡口癖已全在场——补其余信号；可计分：&quot;</span>
+        <span class="p">)</span>
+        <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.cd.voice_density:</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">_signals</span><span class="si">}</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">_presence_min</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(v2 章——声口信号完全缺席；</span><span class="si">{</span><span class="n">_cp_part</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;账房动词任一（如『</span><span class="si">{</span><span class="s1">&#39;』『&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ACCOUNTING_VERBS</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span><span class="si">}</span><span class="s2">』）&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">memo_v2</span> <span class="ow">and</span> <span class="n">_signals</span> <span class="o">&lt;</span> <span class="n">_density_min</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.voice_density&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
+                <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;声口密度 </span><span class="si">{</span><span class="n">_signals</span><span class="si">}</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">_density_min</span><span class="si">}</span><span class="s2">（劝谏面不拦章——spec #118 T1 两级拆分）&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.voice_density&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+            <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span> <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">memo_v2</span> <span class="k">else</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;signals=</span><span class="si">{</span><span class="n">_signals</span><span class="si">}</span><span class="s2">/presence≥</span><span class="si">{</span><span class="n">_presence_min</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">memo_v2</span> <span class="k">else</span> <span class="s2">&quot; (v1 章——dispatch 域外，WARN 口径)&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>（模块头若尚无 logger：<code>from shenbi.logging import get_logger</code> ＋ <code>log = get_logger(__name__)</code>；<code>from shenbi.text.voice_lexicon import DEFAULT_VOICE_PRESENCE_MIN</code> 并入 :11-13 既有 import。）</p>
+<p><code>genre_config.py</code> :146-148 validator 扩展（旧键块后加新键块）：</p>
+<div class="highlight"><pre><span></span><code>        <span class="c1"># （重审轮 2 新问题修正）旧键检查改在场守卫形——先改既有 :146-148 块：</span>
+        <span class="c1">#   旧形： if vdm is not None and not 0 &lt;= vdm.get(&quot;min_per_chapter&quot;, -1) &lt;= 5:</span>
+        <span class="c1">#   新形： if vdm is not None and &quot;min_per_chapter&quot; in vdm and not 0 &lt;= vdm[&quot;min_per_chapter&quot;] &lt;= 5:</span>
+        <span class="c1"># 缺省 -1 会把 presence_min-only 新式 config 误拒（域违报文还使测试</span>
+        <span class="c1"># match=&quot;presence_min&quot; 经 dict repr 错误通过）——守卫后缺席键不检查。</span>
+        <span class="c1"># spec #118 T1: 两级拆分——在场臂新键（0 非法：堵逐书清零 hard 臂）；</span>
+        <span class="c1"># 旧键 min_per_chapter 域不变（密度/WARN 臂，消费端 deprecate WARN）。</span>
+        <span class="c1"># 嵌套层级（plan 审查 C-2 修正）：v=market_params，vdm=voice_density_min</span>
+        <span class="c1"># 子 dict——presence_min 是 vdm 的子键，非 v 的。</span>
+        <span class="n">vpm</span> <span class="o">=</span> <span class="n">vdm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;presence_min&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vdm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">vpm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">vpm</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;market_params.voice_density_min.presence_min∈[1,5], got </span><span class="si">{</span><span class="n">vpm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>（注：vdm 缺席而 presence_min 存在＝新键裸奔——同块 <code>if vdm is None and "presence_min" in v.get("voice_density_min", {}) ...</code> 形不成立（vdm 即该 dict）；实际裸奔形=vdm 为非 dict/缺 presence_min——validator 只治域不治缺席，缺席走消费端缺省 1，键族完整性由 genre-config 契约文档同步声明。）</p>
+<p><strong>validator 红测</strong>（追加到 <code>tests/unit/contracts/test_market_params.py</code>——复用其 <code>_base()</code>/<code>_FULL</code> 构造与 <code>GenreConfig.model_validate</code> 面；重审新缺陷 1 修正：真实校验面是 pydantic validator 经 model_validate 触发，且 hook_grading 须携带合法 <code>max_consecutive_micro∈[1,3]</code> 否则先被旧检查绊住）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_voice_presence_min_domain_rejects_zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T1(b): presence_min∈[1,5]——0 非法（堵逐书清零 hard 臂）.&quot;&quot;&quot;</span>
+    <span class="n">mp</span> <span class="o">=</span> <span class="n">_FULL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;voice_density_min&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;presence_min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;presence_min&quot;</span><span class="p">):</span>
+        <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">()</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;market_params&quot;</span><span class="p">:</span> <span class="n">mp</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_voice_presence_min_only_config_accepted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;旧键在场守卫：presence_min-only 新式 config 合法（不被旧键缺省 -1 误拒）.&quot;&quot;&quot;</span>
+    <span class="n">mp</span> <span class="o">=</span> <span class="n">_FULL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;voice_density_min&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;presence_min&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}}</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">()</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;market_params&quot;</span><span class="p">:</span> <span class="n">mp</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">cfg</span><span class="o">.</span><span class="n">market_params</span><span class="p">[</span><span class="s2">&quot;voice_density_min&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;presence_min&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>旧键→臂映射钉（pipeline 级，入 negatives 文件）</strong>——signals=1（口癖在场）＋genre-config 旧键 min_per_chapter=2 → 断言无 <code>G4.cd.voice_density</code> must_fix 且密度 WARN 行在（风险 M-6「测试断言」义务；目录构造复用三态测试 presence-only 场景＋<code>genre-config.json</code> 写入 <code>{"market_params": {"voice_density_min": {"min_per_chapter": 2}}}</code>）。</p>
+<p><code>tools/lint_voice_meme.py:123-127</code> 跟随：读键逻辑改为「density 臂取 <code>min_per_chapter</code>（缺省 <code>DEFAULT_VOICE_DENSITY_MIN</code>）」口径不变、注释补一句「spec #118 T1 起 min_per_chapter 语义=密度/WARN 臂」。</p>
+<ul>
+<li>[ ] <strong>Step 6: 单源断言测试</strong>（Create <code>tests/unit/text/test_voice_threshold_single_source.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #118 T1/I-2: 声口阈值单源断言（可执行替代空转 lint 判据）.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.text.voice_lexicon</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_VOICE_DENSITY_MIN</span><span class="p">,</span>
+    <span class="n">DEFAULT_VOICE_PRESENCE_MIN</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_threshold_constants_pinned</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">DEFAULT_VOICE_PRESENCE_MIN</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">DEFAULT_VOICE_DENSITY_MIN</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_bare_copies_outside_single_source</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;仓内（src/＋tools/）除单源 voice_lexicon 外无 presence/density 阈裸副本.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;grep&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-rn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-E&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DEFAULT_VOICE_(PRESENCE|DENSITY)_MIN</span><span class="se">\\</span><span class="s2">s*=</span><span class="se">\\</span><span class="s2">s*[0-9]&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;src/&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tools/&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">REPO</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="s2">&quot;voice_lexicon.py&quot;</span> <span class="ow">in</span> <span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">out</span><span class="p">),</span> <span class="n">out</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: 跑全量门测＋重跑对照</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py tests/unit/text/test_voice_threshold_single_source.py tests/unit/contracts/ -v</code>（contracts 面覆盖 genre_config validator 改动）
+Expected: 全 PASS（改钉 voice_stripped 仍 FAIL 方向＋三态＋单源断言）。</p>
+<p>Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T2.md</code>
+Expected: <code>G4.cd.voice_density</code> 行——新 FAIL 数＝Step 1 离线重算 <code>absent(0)</code> 数（14→该数），其余转 WARN/PASS；数字写 task-2-report.md 对照。</p>
+<ul>
+<li>[ ] <strong>Step 8: baseline 行同步＋commit</strong></li>
+</ul>
+<p><code>gate-power-baseline.md</code> <code>G4.cd.voice_density</code> 行：归因追加「<strong>裁定 B 已执行（spec #118 T1）</strong>：hard 臂=在场 ≥1（absent X 章 FAIL——见 replay-T2），密度臂 WARN N 章」；期望点火带填「FAIL=absent 章数；WARN=密度带外章数」。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/text/voice_lexicon.py<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>src/shenbi/contracts/skills/genre_config.py<span class="w"> </span>tools/lint_voice_meme.py<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>tests/fixtures/gate-power/chapter-1-voice-stripped.md<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>tests/unit/text/test_voice_threshold_single_source.py<span class="w"> </span>tests/unit/contracts/<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #118 T1 voice_density 两级拆分——在场 hard＋密度 WARN＋genre-config 键迁移钉死＋单源断言&quot;</span>
+</code></pre></div>
+<h3 id="task-3-spec-t2-hook-warn">Task 3: spec T2 · hook 多字/结构臂＋单字降 WARN＋镜像等价钉</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>_check_chapter_end_hook</code> :1208-1237 三态化）
+- Modify: <code>tools/gate_power_replay.py</code>（<code>hook_window_attribution</code> :128-147 同步＋锚注释更新）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（新增单字-only WARN 测）；<code>tests/unit/tools/test_gate_power_replay.py</code>（两例镜像↔门等价钉）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 门内联张力正则（:1211-1212）；镜像 <code>HOOK_TENSION_RE</code>/<code>SINGLE_CHAR_TENSION</code>（:110/:113）；<code>hook_window_attribution(content) -&gt; dict</code>（含 <code>multi</code>/<code>singles</code>/<code>single_char_only</code> 键）。
+- Produces: 门三态——<code>has_multi（多字张力词）∨ has_q ∨ has_ledger</code> → PASS 行；仅单字命中 → <code>s=WARN</code> 行（id 不变 <code>G4.cd.chapter_end_hook</code>，r=「仅单字张力词命中（…）——多字/？/账目行臂未中，劝谏面」）；全灭 → mf <code>G4.cd.no_hook</code>（不变）。镜像 <code>hook_window_attribution</code> 增 <code>gate_class: "hard"|"single_only"|"none"</code> 键（与门三态同名映射）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败红测</strong>（negatives 新增；mirror 等价钉两例）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_hook_single_char_only_warns_not_fails</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T2 裁定 A：单字-only 命中→WARN 行非 FAIL（三态中间档）.</span>
+
+<span class="sd">    构造：真实章尾窗仅留单字张力词（多字/？/数字串全灭）——voice-stripped</span>
+<span class="sd">    同款手法在 hook_killed 基础上保留单字。fixture 由引擎新增变异</span>
+<span class="sd">    hook_single_only 生成（Step 3）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-1-hook-single-only.md&quot;</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">]</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span> <span class="ow">and</span> <span class="s2">&quot;单字&quot;</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;r&quot;</span><span class="p">],</span> <span class="n">rows</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.no_hook:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">),</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</code></pre></div>
+<p><code>tests/unit/tools/test_gate_power_replay.py</code> <strong><code>TestNarrativeWindow</code> 类内追加</strong>（M-1 修正：仓内无 TestWindowAttribution 类——既有窗口一致性测试 :96 在 TestNarrativeWindow）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_mirror_gate_equivalence_single_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T2/I-6 等价钉①：镜像 single_char_only ⟺ 门 WARN.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/gate-power/chapter-1-hook-single-only.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">attr</span> <span class="o">=</span> <span class="n">hook_window_attribution</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;gate_class&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;single_only&quot;</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;single_char_only&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mirror_gate_equivalence_hard_arms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;等价钉②：多字/？/账目行臂真 ⟺ 门 PASS 行（真实 fixture 章既有形态）.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/gate-power/chapter-1-fatigue-flooded.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">attr</span> <span class="o">=</span> <span class="n">hook_window_attribution</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;gate_class&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hard&quot;</span>
+    <span class="k">assert</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;has_q&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;multi&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;has_ledger&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑红测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_hook_single_char_only_warns_not_fails "tests/unit/tools/test_gate_power_replay.py::TestNarrativeWindow::test_mirror_gate_equivalence_single_only" -v</code>
+Expected: FAIL——fixture 未生成（前）/现行门把单字-only 判 PASS（<code>gate_class</code> 键不存在，断言 KeyError）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 新变异＋门三态化＋镜像同步</strong></li>
+</ul>
+<p>变异函数（<code>tools/gen_gate_power_fixtures.py</code>，hook_killed 后）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hook_single_only</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;尾窗张力词单字化（多字→『还』、？→。、数字串→汉字）→ 单字-only 命中.</span>
+
+<span class="sd">    spec #118 T2 三态中间档负例：多字/？/账目行臂全灭、单字臂保留。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="n">narrative_window</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">paras</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="n">paras</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tail</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价&quot;</span><span class="p">,</span> <span class="s2">&quot;还&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[？?]&quot;</span><span class="p">,</span> <span class="s2">&quot;。&quot;</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="s2">&quot;数&quot;</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="n">out</span><span class="p">)</span>
+</code></pre></div>
+<p>注册 <code>MUTATIONS</code> ＋ 维护者侧生成：
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>novel-xinghuo-vol1/chapters/chapter-1.md<span class="w"> </span>tests/fixtures/gate-power/chapter-1-hook-single-only.md<span class="w"> </span>--mutation<span class="w"> </span>hook_single_only
+</code></pre></div></p>
+<p>门改动（<code>_check_chapter_end_hook</code> :1208-1237 的判定块替换；词表拆分进模块级常量＝单源，两文件同形注释互指）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_drafting.py 模块级（_check_chapter_end_hook 上方）：</span>
+<span class="c1">#: 章尾钩多字张力词（spec #118 T2 裁定 A：多字∨？∨账目行=hard 臂；单字集</span>
+<span class="c1">#: 但却还仍瞒藏账欠谜 与账房腔母题同词表——单字-only 命中降 WARN）。</span>
+<span class="c1">#: vol1 定标，跨书重跑复核（B5）。镜像=tools/gate_power_replay.py:110（同形同步义务）。</span>
+<span class="n">HOOK_MULTI_TENSION_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(然而|不过|依然|尚未|未解|不知|等待|没说|没答|未完|代价)&quot;</span><span class="p">)</span>
+<span class="n">HOOK_SINGLE_TENSION</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s2">&quot;但却还仍瞒藏账欠谜&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>if window_cjk &gt;= 30:</code> 块内：</p>
+<div class="highlight"><pre><span></span><code>            <span class="n">has_q</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[？?]&quot;</span><span class="p">,</span> <span class="n">window_text</span><span class="p">))</span>
+            <span class="n">has_multi</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">HOOK_MULTI_TENSION_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">window_text</span><span class="p">))</span>
+            <span class="c1"># 账目钩 (P1-3, 2026-10-23)——≥2 独立数字串（runs 非 bare chars）</span>
+            <span class="n">has_ledger</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">window_text</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+            <span class="n">has_single</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">ch</span> <span class="ow">in</span> <span class="n">HOOK_SINGLE_TENSION</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">window_text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_multi</span> <span class="ow">or</span> <span class="n">has_q</span> <span class="ow">or</span> <span class="n">has_ledger</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">,</span>
+                        <span class="s2">&quot;window_cjk&quot;</span><span class="p">:</span> <span class="n">window_cjk</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">has_single</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
+                        <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="s2">&quot;仅单字张力词命中（多字/？/账目行臂未中）——&quot;</span>
+                            <span class="s2">&quot;单字集与账房腔母题同词表，降劝谏面（spec #118 T2）&quot;</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;window_cjk&quot;</span><span class="p">:</span> <span class="n">window_cjk</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">excerpt</span> <span class="o">=</span> <span class="n">window_text</span><span class="p">[:</span><span class="mi">30</span><span class="p">]</span>
+                <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G4.cd.no_hook:</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">window_cjk</span><span class="si">}</span><span class="s2">字合并窗口未检出疑问句/张力词/账目行；&quot;</span>
+                    <span class="o">...</span>  <span class="c1"># 原 FAIL 文案原样保留</span>
+                <span class="p">)</span>
+</code></pre></div>
+<p>（原 :1211-1212 混编正则删除——多字项迁入 <code>HOOK_MULTI_TENSION_RE</code>，单字项迁入 <code>HOOK_SINGLE_TENSION</code>；但|却 在单字集内保留。）</p>
+<p>镜像同步（<code>gate_power_replay.py:110-147</code>）：镜像文件内与门同形定义 <code>HOOK_MULTI_TENSION_RE</code>/<code>HOOK_SINGLE_TENSION</code>（两文件同形注释互指锚；镜像的 <code>hits</code> 来自全词表 <code>HOOK_TENSION_RE</code>，multi 判定用 <code>hits - SINGLE_CHAR_TENSION</code> 与门 <code>HOOK_MULTI_TENSION_RE</code> 语义等价——plan 审查 M-5 已核），<code>hook_window_attribution</code> 返回 dict 增键：</p>
+<div class="highlight"><pre><span></span><code>        <span class="s2">&quot;gate_class&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;hard&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">has_q</span> <span class="ow">or</span> <span class="n">has_ledger</span> <span class="ow">or</span> <span class="p">(</span><span class="n">hits</span> <span class="o">-</span> <span class="n">SINGLE_CHAR_TENSION</span><span class="p">))</span>
+            <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;single_only&quot;</span> <span class="k">if</span> <span class="n">hits</span> <span class="o">&amp;</span> <span class="n">SINGLE_CHAR_TENSION</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
+        <span class="p">),</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py tests/unit/tools/test_gate_power_replay.py -v</code>
+Expected: 全 PASS——原 <code>test_hook_killed_real_chapter_fails_hook_gate</code> 仍红方向（全灭 FAIL，C1 保留）＋新三态＋两等价钉。</p>
+<ul>
+<li>[ ] <strong>Step 5: 重跑对照＋baseline＋commit</strong></li>
+</ul>
+<p>Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T3.md</code>
+Expected: <code>G4.cd.chapter_end_hook</code> 行 50 章＝P(多字/？/账目)＋W(15 单字-only)＋F0——<strong>15 单字章转 WARN</strong>（对照 replay-baseline.md 的 single_char_only=15 归因数）；数字入 task-3-report.md。baseline 行归因追加「裁定 A 已执行（spec #118 T2）：单字-only 15 章转 WARN，镜像等价钉×2 入测」。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tools/gate_power_replay.py<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>tests/fixtures/gate-power/chapter-1-hook-single-only.md<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>tests/unit/tools/test_gate_power_replay.py<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #118 T2 hook 多字/结构臂＋单字-only 降 WARN＋镜像 gate_class 等价钉×2&quot;</span>
+</code></pre></div>
+<h3 id="task-4-spec-t3-protagonist-roster">Task 4: spec T3 · protagonist roster 去重＋名字单独下限</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>_load_protagonist_names</code> :483-516 去重；<code>_check_protagonist_presence</code> :460-480 名字下限臂）
+- Modify: <code>tools/gate_power_replay.py</code>（I-4：<code>ARM_TO_CANONICAL</code> 增 <code>"G4.cd.protagonist_name_absent": "G4.cd.protagonist_presence"</code>＋<code>STATE_FREE_IDS</code> 增 <code>G4.cd.protagonist_presence</code> 族回射面——新 mf 臂须回射父行，否则 post118 报告出现无 baseline 行的未注册 canonical）；<code>tools/lint_gate_power_baseline.py</code>（<code>EXPLICIT_SUPPLEMENT</code> 同步增补——helper-append 形扫描不可见）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（roster 单测＋名字 0/代词≥3 红）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>split_frontmatter</code>（:497 既有）；<code>_check_protagonist_presence(text, names, threshold=3) -&gt; list[str]</code>；<code>_check_protagonist(ctx, c, mf)</code>（:1240 调用处——SKIP 行 :1244-1252 保持）。
+- Produces: roster 无重复（frontmatter＋YAML 双源同名只入一次）；<code>_check_protagonist_presence</code> 新增名字臂 issue 前缀 <code>G4.cd.protagonist_name_absent</code>（名字计数 0 且代词撑阈时发射——名字集=names 排除裸代词「他」）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败红测</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_protagonist_roster_no_duplicate_append</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T3 裁定 A：frontmatter＋YAML 双源同名只入表一次（:495/:508 双 append 修复）.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">_load_protagonist_names</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj&quot;</span>
+    <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span> <span class="o">/</span> <span class="s2">&quot;protagonist.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: 那罕</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">声口：账房腔。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">_load_protagonist_names</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;那罕&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">names</span>  <span class="c1"># 双 append 实弹形 [&#39;那罕&#39;,&#39;那罕&#39;,&#39;他&#39;]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_protagonist_name_absent_fails_presence_gate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T3 裁定 B：名字 0/代词 ≥3 → G4.cd.protagonist_name_absent FAIL.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_protagonist_presence</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">_check_protagonist_presence</span><span class="p">(</span><span class="s2">&quot;他数着账。他合上册。他睡了。&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;他&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.protagonist_name_absent&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">),</span> <span class="n">issues</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑红测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_protagonist_roster_no_duplicate_append tests/unit/gates/g4/test_gate_power_negatives.py::test_protagonist_name_absent_fails_presence_gate -v</code>
+Expected: FAIL——<code>names.count==2</code>（双 append）＋新 issue 前缀不存在。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><code>_load_protagonist_names</code> 的双 append 修复（:493-508 重写为单源优先＋去重兜底）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># spec #118 T3: frontmatter regex 与 YAML 双解析同名双 append 修复——</span>
+<span class="c1"># YAML 单源优先（split_frontmatter 边界单源 #85 T6），regex 仅作</span>
+<span class="c1"># YAML 失败时的回退；两路产出最终去重（保序）。</span>
+<span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">fm_text</span><span class="p">,</span> <span class="n">_body</span> <span class="o">=</span> <span class="n">split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">fm_text</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_yaml</span>
+
+        <span class="n">fm_core_lines</span> <span class="o">=</span> <span class="n">fm_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fm_core</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fm_core_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">fm_core_lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">fm_core_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">_yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fm_core</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">fm</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fm</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)</span>
+        <span class="k">pass</span>  <span class="c1"># malformed YAML frontmatter → fall back to regex name match below</span>
+<span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^name:\s*(.+)$&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+<p><code>_check_protagonist_presence</code> 名字臂（:475-480 重写）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">protagonist_names</span><span class="p">)</span>
+    <span class="c1"># spec #118 T3 裁定 B：名字（非裸代词）单独 ≥1——堵「代词撑满门」面；</span>
+    <span class="c1"># POV 声明替代走实现取 ≥1 简单面（spec 声明）。</span>
+    <span class="n">pronouns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;他&quot;</span><span class="p">,</span> <span class="s2">&quot;她&quot;</span><span class="p">,</span> <span class="s2">&quot;它&quot;</span><span class="p">}</span>
+    <span class="n">name_roster</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">protagonist_names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pronouns</span><span class="p">]</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.cd.protagonist_absent: protagonist appears </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> times (threshold: </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">name_roster</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">name_roster</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;G4.cd.protagonist_name_absent: 名字（非代词）0 次出现——代词不可撑门（spec #118 T3）&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑全量＋重跑对照</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/ -v</code>
+Expected: 全 PASS——<code>test_protagonist_vanished_real_chapter_fails_presence_gate</code> 仍红方向（全替换→total&lt;3 FAIL，C1 保留）。</p>
+<p>Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T4.md</code>
+Expected: 名字缺席章数＝<strong>实测 X（预期 0；非 0 记 finding 回裁不放宽——I-5 判据）</strong>；<strong>重放 protagonist 中位/最小不变（I-4 修正：镜像 <code>_protagonist_names</code> 本就单名去重——门侧去重修的是门内计数非镜像）</strong>；数字入 task-4-report.md。baseline 行归因追加「裁定 A+B 已执行（spec #118 T3）：roster 去重＋名字下限臂；C 阈值重标定推迟至本重跑取数后」。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tools/gate_power_replay.py<span class="w"> </span>tools/lint_gate_power_baseline.py<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #118 T3 protagonist roster 去重＋名字（非代词）单独 ≥1 下限臂＋回射注册&quot;</span>
+</code></pre></div>
+<h3 id="task-5-spec-t4-transition-per-1000-10">Task 5: spec T4 · transition per-1000 密度封顶（1.0/千字）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>_check_transitions</code> :954-956 封顶化＋模块级常量）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（改钉 flooded——断言形态更新）；<code>tests/unit/gates/g4/test_transition_cap_single_source.py</code>（Create——单源断言）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>count_transition_words(strip_narrative_body(ctx.content))</code>（:937 口径不变）；<code>ctx.wc</code>（<code>word_count_md</code>＝叙事体 CJK 计数——<strong>密度分母同口径</strong>）。
+- Produces: 模块级 <code>TRANSITION_CAP_PER_1000 = 1.0</code>（单源常量＋定标注释）；判定 <code>tc / max(ctx.wc, 1) * 1000 &gt; TRANSITION_CAP_PER_1000</code> → mf（报文带密度值与封顶）；mf id <code>G4.transition</code> 不变（报文形 <code>{tc}&gt;{max_t}</code> → <code>{density:.2f}&gt;{cap}/千字</code>）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（常量<strong>尚未落码</strong>——I-5/重审新缺陷 3 修正：常量块已移除，只留测试；Step 2 的 ImportError 红钉成立；常量＋定标注释在 Step 3 与实现同落）</li>
+</ul>
+<p>Create <code>tests/unit/gates/g4/test_transition_cap_single_source.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #118 T4/I-2: 转折封顶常量单源断言（可执行替代空转 lint 判据）.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRANSITION_CAP_PER_1000</span>
+
+<span class="c1"># 本文件在 tests/unit/gates/g4/ 下——parents[3]=tests/，repo 根须取 parents[4]</span>
+<span class="c1"># （plan 审查 I-2 修正：parents[3] 会 cwd 到 tests/ 使 grep 空输出断言虚设）。</span>
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cap_constant_pinned</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">TRANSITION_CAP_PER_1000</span> <span class="o">==</span> <span class="mf">1.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_density_caliber_recaptured</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;重标定行为区分红测（I-5）：旧阈带内/新封顶外章——tc=4, wc≈2000 →</span>
+<span class="sd">    旧 max(5,2)=5 PASS vs 新密度 2.0&gt;1.0 FAIL（构造性输入，G0.9 允许面）.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_json</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+    <span class="c1"># wc（word_count_md 叙事体 CJK）≈2000：每段 50 CJK ×40 段；tc=4：4 段首带</span>
+    <span class="c1"># 计数面连接词（不过，/此时，/突然，/终于，——count_transition_words 面）。</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;第</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">段&quot;</span> <span class="o">+</span> <span class="s2">&quot;字&quot;</span> <span class="o">*</span> <span class="mi">48</span> <span class="o">+</span> <span class="s2">&quot;。&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">)]</span>
+    <span class="n">paras</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;不过，&quot;</span> <span class="o">+</span> <span class="n">paras</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">paras</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;此时，&quot;</span> <span class="o">+</span> <span class="n">paras</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+    <span class="n">paras</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;突然，&quot;</span> <span class="o">+</span> <span class="n">paras</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span>
+    <span class="n">paras</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;终于，&quot;</span> <span class="o">+</span> <span class="n">paras</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">paras</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.transition:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">),</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># 新封顶下 4/2.0&gt;1.0 FAIL</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_bare_copies_outside_single_source</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;grep&quot;</span><span class="p">,</span> <span class="s2">&quot;-rn&quot;</span><span class="p">,</span> <span class="s2">&quot;-E&quot;</span><span class="p">,</span> <span class="s2">&quot;TRANSITION_CAP_PER_1000</span><span class="se">\\</span><span class="s2">s*=</span><span class="se">\\</span><span class="s2">s*[0-9.]+&quot;</span><span class="p">,</span> <span class="s2">&quot;src/&quot;</span><span class="p">,</span> <span class="s2">&quot;tools/&quot;</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">REPO</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="s2">&quot;chapter_drafting.py&quot;</span> <span class="ow">in</span> <span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">out</span><span class="p">),</span> <span class="n">out</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_transition_cap_single_source.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'TRANSITION_CAP_PER_1000'</code>。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（模块级常量落码＋:954-956 替换——常量定标注释：vol1 定标（B5——跨书重跑复核）：50 纯章形 gate-caliber 实测（word_count_md 叙事体 CJK 分母＋strip_narrative_body 计数面，2026-11-20 replay-baseline 同源）median=0.000/P95≈0.36/max=0.809 → 取 1.0＝max·1.24 裕度；flooded 负例密度 ≫1 仍 FAIL）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># spec #118 T4 裁定 B: per-1000 密度封顶（绝对阈 max(5, wc//1000) 退役）。</span>
+    <span class="n">_density</span> <span class="o">=</span> <span class="n">tc</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">wc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+    <span class="k">if</span> <span class="n">_density</span> <span class="o">&gt;</span> <span class="n">TRANSITION_CAP_PER_1000</span><span class="p">:</span>
+        <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.transition:</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">tc</span><span class="si">}</span><span class="s2">次/千字</span><span class="si">{</span><span class="n">_density</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&gt;</span><span class="si">{</span><span class="n">TRANSITION_CAP_PER_1000</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</code></pre></div>
+<p>（else 分支 PASS 行原样保留。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 改钉 flooded 红测</strong>（断言 <code>G4.transition:</code> 前缀不变——报文形变不影响前缀匹配；<code>test_transition_flooded_real_chapter_fails_transition_gate</code> 保持原断言即应仍绿——跑之验证）</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_transition_flooded_real_chapter_fails_transition_gate tests/unit/gates/g4/test_transition_cap_single_source.py -v</code>
+Expected: 双 PASS（flooded 密度 ≫1 仍红——原 FAIL 方向保留 C1；单源断言绿）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 重跑对照＋baseline＋commit</strong></li>
+</ul>
+<p>Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T5.md</code>
+Expected: <code>G4.transition</code> 50 章 <strong>零新 FAIL</strong>（观测带内——max 0.809&lt;1.0）；transition 归因段中位 0 不变；数字入 task-5-report.md。baseline 行归因追加「裁定 B 已执行（spec #118 T4）：per-1000 封顶 1.0（vol1 定标注释在常量处），零新 FAIL」。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>tests/unit/gates/g4/test_transition_cap_single_source.py<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #118 T4 transition per-1000 密度封顶 1.0（vol1 定标）＋单源断言&quot;</span>
+</code></pre></div>
+<h3 id="task-6-spec-t5-simile-narrative-only-warn">Task 6: spec T5 · simile narrative-only 换装＋WARN 路由报告行</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>_check_simile_band</code> :1289-1313）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（改钉 <code>test_simile_flooded_warns_pileup_side</code>）
+- Modify: <code>docs/framework/gate-power-baseline.md</code>（行 56 分类依据迁移注记）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>count_similes(content) -&gt; dict</code>（返回键 <code>per_1000</code>）；<code>strip_narrative_body</code>。
+- Produces: 计量面 <code>count_similes(strip_narrative_body(ctx.content))</code>（M7 对照列转正）；带外→报告行（<code>s=PASS</code>＋<code>r</code> 注记＋<code>per_1000</code> 载荷——同 scene_concreteness 报告先例；<strong>不进 WARN 通道</strong>）；带内→PASS 行（原样）。带常数 [2.0,4.0] 不变（B 重设带推迟——注释声明）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 改钉红测（先改测试——现行实现下新断言必红）</strong></li>
+</ul>
+<p><code>test_simile_flooded_warns_pileup_side</code> 重写为：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_simile_flooded_warns_pileup_side</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T5 裁定 C+A 改钉：narrative 口径 flooded → 报告行（s=PASS＋per_1000 载荷），WARN 通道无行.&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-1-simile-flooded.md&quot;</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.simile_band&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="n">rows</span>  <span class="c1"># 报告行非 WARN 通道</span>
+    <span class="k">assert</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;per_1000&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">4.0</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">),</span> <span class="n">rows</span>  <span class="c1"># 计量载荷＋注记在</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑红测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_simile_flooded_warns_pileup_side -v</code>
+Expected: FAIL——现行 <code>s=="WARN"</code>（旧断言期望新形态，实现未动）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（:1289-1313 重写）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_check_simile_band</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">CheckContext</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">mf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spec #71 simile density band（spec #118 T5 裁定 C+A 换装）.</span>
+
+<span class="sd">    计量面=narrative-only（strip_narrative_body——M7 对照列转正，消除</span>
+<span class="sd">    PRE/POST 污染）；带外降报告行（s=PASS＋per_1000 载荷，不进 WARN 通道</span>
+<span class="sd">    ——56% WARN 使劝谏通道失聪，裁定 A）。带 [2,4] 重设（裁定 B）推迟至</span>
+<span class="sd">    C 换装后用干净数字评估——本 task 不动带常数。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">simile_stats</span> <span class="o">=</span> <span class="n">count_similes</span><span class="p">(</span><span class="n">strip_narrative_body</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+    <span class="n">per_1000</span> <span class="o">=</span> <span class="n">simile_stats</span><span class="p">[</span><span class="s2">&quot;per_1000&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mf">2.0</span> <span class="o">&lt;=</span> <span class="n">per_1000</span> <span class="o">&lt;=</span> <span class="mf">4.0</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.simile_band&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">,</span> <span class="s2">&quot;per_1000&quot;</span><span class="p">:</span> <span class="n">per_1000</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.simile_band&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">,</span>
+                <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;simile density </span><span class="si">{</span><span class="n">per_1000</span><span class="si">}</span><span class="s2">/千字 outside [2,4] (low = dry, high = pile-up; &quot;</span>
+                    <span class="s2">&quot;报告行非 WARN——spec #118 T5 裁定 A；俗套喻体抽检归审计)&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;per_1000&quot;</span><span class="p">:</span> <span class="n">per_1000</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测＋重跑对照</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -v</code> → 全 PASS。
+Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T6.md</code>
+Expected: <code>G4.cd.simile_band</code> WARN 列 <strong>28→0</strong>（全转报告行 PASS）；数字入 task-6-report.md。baseline 行 56：期望点火带填「WARN 通道 0 行」＋分类依据迁移注记「discriminating 依据自『WARN 开火』迁移为『红测可捕获（T5 改钉）』（r2/M-3）」。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #118 T5 simile narrative-only 计量换装＋带外路由报告行（WARN 通道 28→0）&quot;</span>
+</code></pre></div>
+<h3 id="task-7-spec-t6-ending-4">Task 7: spec T6 · ending 扩分类器（限 ≤4 新形态）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>ending_archetype_of</code> :519-536 扩表）
+- Create: <code>tests/fixtures/gate-power/chapter-N-ending-&lt;form&gt;.md</code>（≤4 件真实章尾窗拷贝——引擎 <code>ending_ledgered</code> 同款手法或尾窗追记形态句，维护者侧重生成）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（每新 archetype ≥1 真实样本归类断言）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>ending_archetype_of(text) -&gt; str | None</code>（四分支：账目形态/呢？自嘲/心里复述/复述起手）；<code>strip_narrative_body</code>＋尾窗 <code>[-220:]</code> 口径。
+- Produces: ≤4 新 archetype 分支（形态名从采样归纳——<strong>停手条件：扩后 None 率仍 &gt;50% → 出 retire 提案回裁，不自行退役</strong>）；每形态 ≥1 真实章样本红测。</p>
+<ul>
+<li>[ ] <strong>Step 1: 采样 47 None 收尾</strong>（维护者侧离线，清单入 task-7-report.md）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.gates.g4.chapter_drafting import ending_archetype_of</span>
+<span class="s2">chs = [p for p in sorted(Path(&#39;novel-xinghuo-vol1/chapters&#39;).glob(&#39;chapter-*.md&#39;)) if len(p.stem.split(&#39;-&#39;))==2 and p.stem.split(&#39;-&#39;)[1].isdigit()]</span>
+<span class="s2">nones = [(p.name, ending_archetype_of(p.read_text(encoding=&#39;utf-8&#39;))) for p in chs]</span>
+<span class="s2">nones = [(n, t) for n, t in nones if t is None]</span>
+<span class="s2">print(f&#39;None total={len(nones)}&#39;)</span>
+<span class="s2">for n, _ in nones: print(n)&quot;</span>
+</code></pre></div>
+<p>→ 逐个打开 None 章尾窗（<code>tail -c 1200</code>）人工归纳形态频次，取 ≤4 高频形（候选方向：对白悬停/动作收束/景物余韵/悬念问句——<strong>以实际采样为准</strong>，超出 4 形即止）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写失败红测</strong>（每形态一测；样本=真实章尾窗 fixture。示例模板——形态名/正则以 Step 1 归纳为准替换 <code>&lt;form&gt;</code>/<code>&lt;RE&gt;</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_ending_new_form_classified</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T6：新 archetype &lt;form&gt; 至少 1 真实章样本归类非 None.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">ending_archetype_of</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">ending_archetype_of</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">FIX_DIR</span> <span class="o">/</span> <span class="s2">&quot;chapter-&lt;N&gt;-ending-&lt;form&gt;.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">res</span> <span class="o">==</span> <span class="s2">&quot;&lt;form&gt;&quot;</span><span class="p">,</span> <span class="n">res</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -k ending -v</code> → Expected: FAIL（新形态分支未实现，返回 None）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（<code>ending_archetype_of</code> 分支扩表——每分支带形态注释＋采样来源章号；fixture 由引擎 <code>ending_ledgered</code> 同款手法维护者侧生成：尾窗追加该形态收束句，或对采样命中章整拷贝 <code>--full</code>＋provenance 头）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># spec #118 T6 扩表（≤4 形态，vol1 采样归纳——来源章号见各分支注释；</span>
+    <span class="c1"># 扩后 None 率仍 &gt;50% 的停手条款见 spec）：</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;RE&gt;&quot;</span><span class="p">,</span> <span class="n">tail</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;form&gt;&quot;</span>
+    <span class="o">...</span>  <span class="c1"># 其余新形态同式</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测＋重跑对照</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -k ending -v</code> → 全 PASS（含既有 <code>test_ending_repeated_helper_three_ledger_closers</code>——账目形态分支不变，C1 保留）。
+Run: <code>just gate-power novel-xinghuo-vol1 --out .superpowers/sdd/2026-11-20-spec118-gate-calibration-landing/replay-T7.md</code>
+Expected: ending 归因段 None 章数 47→<strong>新数（扩表覆盖率数字入 task-7-report.md；仍 &gt;50% → 停手出 retire 提案回裁——此为回裁义务非本 task 失败）</strong>。baseline 行 67 归因追加「裁定 A 已执行（spec #118 T6）：+K 形态，None 率 47/50→X/50」。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/fixtures/gate-power/chapter-*-ending-*.md<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>docs/framework/gate-power-baseline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #118 T6 ending 扩分类器（+K 形态，vol1 采样归纳）&quot;</span>
+</code></pre></div>
+<h3 id="task-8-spec-t7-content_uniqueness-p1-fixture">Task 8: spec T7 · content_uniqueness P1 修＋fixture 重摆＋权威重跑报告</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py</code>（<code>_check_content_uniqueness</code> :1082-1113 目录对齐＋SKIP 行）
+- Move/Create: <code>tests/fixtures/gate-power/chapters/chapter-1-duplicated.md</code>＋<code>tests/fixtures/gate-power/chapters/chapter-3.md</code>（重摆＋维护者侧重生成）；Delete: <code>tests/fixtures/gate-power/project-output/</code>（旧路径残件）
+- Modify: <code>tests/unit/gates/g4/test_chapter_drafting.py:34-53</code>（C-3：既有 <code>test_fails_when_content_overlap_above_40_percent</code> 建 <code>rd/project-output/chapters</code> 布局——目录切换后必红；其 <code>chapters = rd / "project-output" / "chapters"</code> 改 <code>rd / "chapters"</code>，docstring 同步）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（SKIP 显式红测＋既有 <code>test_content_duplicated...</code> 改路径）
+- Create: <code>reports/2026-11-20-gate-power-vol1-post118.md</code>（权威终版重跑报告）
+- Modify: <code>docs/framework/gate-power-baseline.md</code>（全行「最近回放数」终值刷新至 post118 报告）；<code>docs/framework/gate-calibration-proposals.md</code>（裁定表逐项标「已执行」）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_text_fingerprint</code>/<code>_fingerprint_of</code>（指纹口径不变）；<code>GateStatus.SKIP</code>（先例 <code>_check_protagonist</code> :1244-1252 同构发射）；<code>ctx.pf</code>（本章路径比对排除）。
+- Produces: 比对目录 <code>Path(ctx.rd) / "chapters"</code>（对齐真实布局）；目录缺席/基数 ≤1 → SKIP 行（<code>id=G4.cd.content_uniqueness, s=SKIP, r=原因</code>——不再静默）；既有比对/40% 阈逻辑不变。<strong>git 考古结论</strong>（坏了/从未活过）写 task-8-report.md。</p>
+<ul>
+<li>[ ] <strong>Step 1: git 考古</strong>（结论入 task-8-report.md）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-S<span class="w"> </span><span class="s2">&quot;project-output&quot;</span><span class="w"> </span>--<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-5
+git<span class="w"> </span>log<span class="w"> </span>--all<span class="w"> </span>--oneline<span class="w"> </span>--diff-filter<span class="o">=</span>A<span class="w"> </span>--<span class="w"> </span><span class="s2">&quot;**/project-output/chapters*&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-5
+</code></pre></div>
+<p>判定：门的 <code>rd/project-output/chapters</code> 布局是否曾对应任何真实生产布局（rd=round dir 语义下 chapters 落 <code>rd/chapters/</code>——预期结论「从未活过」；以考古输出为准）。另记（M-3）：<code>ctx.rd is None</code> 时仍零行发射（生产 dispatch 恒传 rd——dispatch_helper 布局面；SKIP 义务覆盖目录缺席/基数不足两态，rd-None 态记 task report 注记不扩验收）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写失败红测</strong>（SKIP 显式——空 rd 场景）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_content_uniqueness_skip_row_when_dir_absent</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #118 T7：目录缺席/基数≤1 → 显式 SKIP 行（含原因）非静默（r2/M-1 复用 SKIP 先例；I-3 双分支）.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="c1"># 分支①（I-3 修正：章不落 chapters/ 下——目录缺席臂）：</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj&quot;</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">正文数段。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;SKIP&quot;</span> <span class="ow">and</span> <span class="s2">&quot;比对目录缺席&quot;</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;r&quot;</span><span class="p">],</span> <span class="n">rows</span>
+    <span class="c1"># 分支②：目录在但基数 ≤1——r 含「基数」</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj2&quot;</span>
+    <span class="p">(</span><span class="n">d2</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ch2</span> <span class="o">=</span> <span class="n">d2</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+    <span class="n">ch2</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">正文数段。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">res2</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ch2</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">d2</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">d2</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+    <span class="n">rows2</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res2</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">rows2</span> <span class="ow">and</span> <span class="n">rows2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;SKIP&quot;</span> <span class="ow">and</span> <span class="s2">&quot;基数&quot;</span> <span class="ow">in</span> <span class="n">rows2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;r&quot;</span><span class="p">],</span> <span class="n">rows2</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py::test_content_uniqueness_skip_row_when_dir_absent -v</code>
+Expected: FAIL——rows 为空（现行静默返回）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（:1082-1113 重写头部）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_check_content_uniqueness</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">CheckContext</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">mf</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;F415-0815 memoized overlap vs other chapters.</span>
+
+<span class="sd">    spec #118 T7（裁定二 P1 修）：比对目录对齐真实布局 rd/chapters（原</span>
+<span class="sd">    rd/project-output/chapters 在生产布局缺席——门静默不跑，50 章回放</span>
+<span class="sd">    0 行发射，#116 挖出的死门）；目录缺席/基数 ≤1 显式 SKIP 行（先例</span>
+<span class="sd">    _check_protagonist :1244-1252 同构），不再静默。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rd</span><span class="p">:</span>
+        <span class="n">chapters_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">rd</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">chapters_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                    <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">,</span>
+                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;比对目录缺席: </span><span class="si">{</span><span class="n">chapters_dir</span><span class="si">}</span><span class="s2">（spec #118 T7 显式 SKIP）&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">other_chapters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chapters_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other_chapters</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">fp</span><span class="p">,</span>
+                    <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">,</span>
+                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;比对基数 ≤1（</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">other_chapters</span><span class="p">)</span><span class="si">}</span><span class="s2">）——无跨章比对面（spec #118 T7）&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="o">...</span>  <span class="c1"># 既有指纹比对逻辑原样保留（:1090-1113 不动）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: fixture 重摆＋维护者侧重生成</strong>（G0.9/G0.11——禁手移改内容）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>novel-xinghuo-vol1/chapters/chapter-1.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/fixtures/gate-power/chapters/chapter-1-duplicated.md<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mutation<span class="w"> </span>content_duplicated<span class="w"> </span>--full<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--donor<span class="w"> </span>novel-xinghuo-vol1/chapters/chapter-3.md
+cp<span class="w"> </span>tests/fixtures/gate-power/project-output/chapters/chapter-3.md<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>tests/fixtures/gate-power/chapters/chapter-3.md<span class="w">   </span><span class="c1"># donor 比对章——verbatim_copy 产物原样重摆（provenance 头已在）</span>
+rm<span class="w"> </span>-r<span class="w"> </span>tests/fixtures/gate-power/project-output
+</code></pre></div>
+<p>既有 <code>test_content_duplicated_fails_content_overlap_gate</code> 的 <code>_g4("project-output/chapters/chapter-1-duplicated.md")</code> 改 <code>_g4("chapters/chapter-1-duplicated.md")</code>。跑之确认仍红（FAIL 方向保留——<code>G4.cd.content_overlap</code> mf）。</p>
+<p>注意：<code>_g4</code> 传 <code>rd=FIX_DIR</code>——fixture <code>FIX_DIR/chapters/</code> 下章基数=2（duplicated+chapter-3），比对面成立。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑全量＋权威重跑</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/ tests/unit/tools/ -v</code> → 全 PASS。
+Run: <code>just gate-power novel-xinghuo-vol1 --out reports/2026-11-20-gate-power-vol1-post118.md</code>
+Expected: <strong>史上首份 content_uniqueness 真实点火数据</strong>（50 章 vs 82 章池比对——PASS/SKIP/FAIL 实况）；全检查前后对照数字（voice FAIL=absent 数/simile WARN 0/ending None 新数/hook 15→WARN）；高误报 → 记 finding 回裁不放宽。全行 baseline「最近回放数」刷新至 post118 报告；提案文档裁定表逐项标「已执行」。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/fixtures/gate-power/chapters/<span class="w"> </span>tests/fixtures/gate-power/project-output<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py<span class="w"> </span>tests/unit/gates/g4/test_chapter_drafting.py<span class="w"> </span>reports/2026-11-20-gate-power-vol1-post118.md<span class="w"> </span>docs/framework/gate-power-baseline.md<span class="w"> </span>docs/framework/gate-calibration-proposals.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #118 T7 content_uniqueness 比对目录对齐＋显式 SKIP＋首份真实点火数据（fixture 重摆+权威重跑报告）&quot;</span>
+</code></pre></div>
+<p>（M-4 修正：<code>tests/fixtures/gate-power/project-output</code> 已列入上方 pathspec——已删目录的暂存由显式列路径承载，pathspec 含已删路径合法。）</p>
+<hr />
+<h2 id="ac-spec-2-task-test">AC 覆盖表（spec 验收 §2 → task → test）</h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. T1-T8 判据全绿（三件套）</td>
+<td>Task 1-8</td>
+<td>各 task Step「重跑对照」＋task-N-report.md</td>
+</tr>
+<tr>
+<td>2. diff 面止于九函数枚举（<strong>M-6：模块级 hunk 预期在列</strong>——Task 2 logger/presence_min import、Task 3 HOOK_* 常量、Task 5 TRANSITION_CAP 常量产生的 chapter_drafting.py 模块级 hunk 属九函数改动的附属面，核验时按「函数体＋其模块级常量/import 附属」口径）</td>
+<td>全部</td>
+<td>阶段 7 <code>git diff origin/main..HEAD --stat</code> hunk 核验</td>
+</tr>
+<tr>
+<td>3. just check 全绿（含哨兵零 WARN 残行）</td>
+<td>全部</td>
+<td>阶段 7 <code>just check</code></td>
+</tr>
+<tr>
+<td>4. 50 章重跑报告落 reports/（前后对照）</td>
+<td>Task 8</td>
+<td>reports/2026-11-20-gate-power-vol1-post118.md</td>
+</tr>
+<tr>
+<td>5. 提案裁定表逐项「已执行」＋点火带首填</td>
+<td>Task 8 Step 5</td>
+<td>gate-calibration-proposals.md＋baseline 期望点火带列</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TDD 说明</strong>：全部 task <code>test_kind: tdd_red_green</code>（行为改动＋红测先行）；Task 1/3/8 含 fixture 重生成步骤（维护者侧引擎，G0.9）。<strong>复杂度：全部 infra</strong>（<code>chapter_drafting.py</code>∈§Profile infra 模块清单——协调者亲实现，TDD 红→绿→重构纪律；每 task commit 后 fresh-context 首审出 <code>audit-T&lt;N&gt;.md</code>）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
