@@ -46,6 +46,10 @@ from shenbi.text.cjk import dialogue_char_ratio
 
 log = get_logger(__name__)
 
+#: spec #118 T1 旧键 deprecate 警告的每 config 路径去重（audit-T2/M-2——
+#: 50 章回放曾 50 行重复；读侧 memo 无输出副作用，门行幂等不变）。
+_VDM_DEPRECATE_SEEN: set[str | None] = set()
+
 
 _HOOK_LEDGER_HEADING = re.compile(
     r"^#{1,3}\s*(?:Section\s*7.*|\d+[.、]\s*Hook Ledger.*|Hook Ledger.*|.*伏笔清单.*|.*钩子台账.*)$",
@@ -1419,11 +1423,13 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
         # T1(a): 旧键只填密度/WARN 臂——映射进 hard 臂会使两级化裁定在
         # 携带旧覆盖的项目上静默不生效（vol1 genre-config 即此形）。
         _density_min = int(_vdm["min_per_chapter"])
-        log.warning(
-            "genre_config voice_density_min.min_per_chapter deprecated: fills density(WARN) arm only; use presence_min for the hard arm (spec #118 T1)",
-            file=str(ctx.fp),
-            value=_density_min,
-        )
+        if ctx.project_dir not in _VDM_DEPRECATE_SEEN:  # 每 config 路径一次（audit-T2/M-2）
+            _VDM_DEPRECATE_SEEN.add(ctx.project_dir)
+            log.warning(
+                "genre_config voice_density_min.min_per_chapter deprecated: fills density(WARN) arm only; use presence_min for the hard arm (spec #118 T1)",
+                project_dir=ctx.project_dir,
+                value=_density_min,
+            )
     else:
         _density_min = DEFAULT_VOICE_DENSITY_MIN
     if ctx.memo_v2 and _signals < _presence_min:

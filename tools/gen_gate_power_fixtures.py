@@ -213,7 +213,9 @@ def voice_stripped(text: str) -> str:
         text = text.replace(phrase, neutral)
     for verb in ACCOUNTING_VERBS:
         text = text.replace(verb, "记下")
-    # 自嘲反问收尾中和（_SELF_MOCK_RE 的 吧？/呢？ 句式面）
+    # 自嘲反问收尾中和——有意取窄面（吧？/呢？ 全角收束形；_SELF_MOCK_RE 的
+    # 不成？/得了？/半角 ? 形不中和：源漂移引入残余自嘲信号会让 FAIL 面红测
+    # 变红=期望的警报面，audit-T2/M-3）。
     return re.sub(r"(吧|呢)？(\s|$)", r"。\2", text)
 
 

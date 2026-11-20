@@ -129,7 +129,8 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     )
     tag = "v2" if v2 else "v1"
     if signals < vmin:
-        domain = "FAIL 域(v2)" if v2 else "WARN 域(v1)"
+        # spec #118 T1: v2 密度缺口=劝谏面（门侧 WARN 臂；FAIL 仅在场性缺席）
+        domain = "WARN 密度域(v2)" if v2 else "WARN 域(v1)"
         return [f"[声口] ch{chapter}({tag}) 密度 {signals}/{vmin} 缺——{domain}"]
     return [f"[声口] ch{chapter}({tag}) 密度 {signals}/{vmin} 达标"]
 
