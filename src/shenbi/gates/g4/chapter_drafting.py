@@ -552,6 +552,21 @@ def ending_archetype_of(text: str) -> str | None:
         return "心里复述"
     if re.search(r"这一(笔|夜|章)", tail):
         return "复述起手"
+    # spec #118 T6 扩表（≤4 形态，vol1 47 None 采样归纳 2026-11-20——离线
+    # 筛选频次 未答回避 10/落笔收束 10/景物余韵 7/未答问句 4；落地后既有
+    # 分支优先占用 3 章，扩后实跑 None 19/50=38%<50% 停手线（重放
+    # replay-T7 权威数；离线预估 16 为筛选近似）。序：问句收尾最具体先判，
+    # 回避次之，落笔/景物居后；来源章号见 fixture provenance）：
+    if re.search(r"？\s*$", tail[-40:].rstrip()):
+        return "未答问句"  # ch10/29/36/4
+    if re.search(r"(没答|没说破|没再问|没敢往下|悬着|没落)", tail[-100:]):
+        return "未答回避"  # ch1/14/15/21...
+    if re.search(r"(记下|写下|写完|落笔|搁在|合上|添了|画了|翻开|记完|抄下|抄完)", tail[-60:]):
+        return "落笔收束"  # ch3/18/26...
+    if re.search(r"(雪落|灯光|光还|灯还|影子|更鼓|天亮|月|雨)", tail[-50:]) and not re.search(
+        r"[：？」]\s*$", tail[-50:]
+    ):
+        return "景物余韵"  # ch5/16/19...（采样验证版正则：月/雨 在列＋句读/对白收尾不入此形）
     return None
 
 

@@ -341,3 +341,17 @@ def test_protagonist_name_absent_fails_presence_gate() -> None:
 
     issues = _check_protagonist_presence("他数着账。他合上册。他睡了。", ["那罕", "他"])
     assert any(i.startswith("G4.cd.protagonist_name_absent") for i in issues), issues
+
+
+def test_ending_four_new_forms_classified() -> None:
+    """Spec #118 T6：四新 archetype 各 ≥1 真实章样本归类（fixture=verbatim 真章拷贝）."""
+    from shenbi.gates.g4.chapter_drafting import ending_archetype_of
+
+    for name, form in (
+        ("chapter-10-ending-question.md", "未答问句"),
+        ("chapter-1-ending-evasion.md", "未答回避"),
+        ("chapter-3-ending-writing.md", "落笔收束"),
+        ("chapter-5-ending-scene.md", "景物余韵"),
+    ):
+        res = ending_archetype_of((FIX_DIR / name).read_text(encoding="utf-8"))
+        assert res == form, (name, res)
