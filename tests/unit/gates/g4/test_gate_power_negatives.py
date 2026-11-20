@@ -223,7 +223,7 @@ def test_hook_type_rotation_full_pipeline_fails_on_same_type() -> None:
 
 def test_content_duplicated_fails_content_overlap_gate() -> None:
     """从比对章（chapter-3.md 同目录）复制 13 段 append 章尾 → 指纹占比 >40%（I3 三条件齐）."""
-    res = _g4("project-output/chapters/chapter-1-duplicated.md")
+    res = _g4("chapters/chapter-1-duplicated.md")
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
 
@@ -355,3 +355,27 @@ def test_ending_four_new_forms_classified() -> None:
     ):
         res = ending_archetype_of((FIX_DIR / name).read_text(encoding="utf-8"))
         assert res == form, (name, res)
+
+
+def test_content_uniqueness_skip_rows_explicit(tmp_path: Path) -> None:
+    """Spec #118 T7：目录缺席/基数≤1 → 显式 SKIP 行（含原因）非静默（r2/M-1 复用 SKIP 先例）."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    # 分支①（章不落 chapters/ 下——目录缺席臂）
+    d = tmp_path / "proj"
+    d.mkdir()
+    ch = d / "chapter-1.md"
+    ch.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
+    res = _json.loads(g4_chapter_drafting([str(ch)], str(d), str(d), repo_root=None))
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    assert rows and rows[0]["s"] == "SKIP" and "比对目录缺席" in rows[0]["r"], rows
+    # 分支②：目录在但基数 ≤1——r 含「基数」
+    d2 = tmp_path / "proj2"
+    (d2 / "chapters").mkdir(parents=True)
+    ch2 = d2 / "chapters" / "chapter-1.md"
+    ch2.write_text("---\n---\n\n正文数段。\n", encoding="utf-8")
+    res2 = _json.loads(g4_chapter_drafting([str(ch2)], str(d2), str(d2), repo_root=None))
+    rows2 = [c for c in res2["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    assert rows2 and rows2[0]["s"] == "SKIP" and "基数" in rows2[0]["r"], rows2

@@ -38,7 +38,9 @@ def test_fails_when_content_overlap_above_40_percent(tmp_path: Path) -> None:
     chapter exists under project-output/chapters.
     """
     rd = tmp_path / "round"
-    chapters = rd / "project-output" / "chapters"
+    chapters = (
+        rd / "chapters"
+    )  # spec #118 T7：比对目录对齐真实布局（原 project-output/chapters 死路径）
     chapters.mkdir(parents=True)
     body = f"{_FP_PARA_A}\n\n{_FP_PARA_B}\n"
     ch1 = chapters / "chapter-001.md"

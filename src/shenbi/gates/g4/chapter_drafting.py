@@ -1127,34 +1127,57 @@ def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
     """F415-0815 memoized overlap vs other chapters."""
     # G4.cd.content_uniqueness: check this chapter against all other chapters
     if ctx.rd:
-        chapters_dir = Path(ctx.rd) / "project-output" / "chapters"
-        if chapters_dir.exists():
-            other_chapters = list(chapters_dir.glob("chapter-*.md"))
-            if len(other_chapters) > 1:
-                this_fingerprint = _text_fingerprint(strip_scene_markers(ctx.content))
-                max_overlap = 0.0
-                for other in other_chapters:
-                    if str(other) == str(ctx.pf):
-                        continue
-                    # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
-                    # size) — was a full re-read + re-hash of every other
-                    # chapter on each per-chapter invocation (O(N^2)).
-                    # Read failure yields an empty fingerprint (overlap 0),
-                    # matching the previous except-branch semantics.
-                    other_fp = _fingerprint_of(other)
-                    overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
-                    max_overlap = max(max_overlap, overlap)
-                if max_overlap > 0.40:
-                    mf.append(f"G4.cd.content_overlap:{ctx.fp}:{max_overlap:.0%}")
-                else:
-                    c.append(
-                        {
-                            "id": "G4.cd.content_uniqueness",
-                            "file": ctx.fp,
-                            "s": GateStatus.PASS,
-                            "max_overlap": f"{max_overlap:.0%}",
-                        }
-                    )
+        # spec #118 T7（裁定二 P1 修）：比对目录对齐真实布局 rd/chapters（原
+        # rd/project-output/chapters 在任何真实布局缺席——phase_runner 的
+        # project-output 亦无 chapters 子目录，git 考古=P-1.E PR-19 出生即
+        # 死路径「从未活过」，50 章回放 0 行发射＝#116 挖出的死门）；目录
+        # 缺席/基数 ≤1 显式 SKIP 行（先例 _check_protagonist SKIP 同构）。
+        chapters_dir = Path(ctx.rd) / "chapters"
+        if not chapters_dir.exists():
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.SKIP,
+                    "r": f"比对目录缺席: {chapters_dir}（spec #118 T7 显式 SKIP）",
+                }
+            )
+            return
+        other_chapters = list(chapters_dir.glob("chapter-*.md"))
+        if len(other_chapters) <= 1:
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.SKIP,
+                    "r": f"比对基数 ≤1（{len(other_chapters)}）——无跨章比对面（spec #118 T7）",
+                }
+            )
+            return
+        this_fingerprint = _text_fingerprint(strip_scene_markers(ctx.content))
+        max_overlap = 0.0
+        for other in other_chapters:
+            if str(other) == str(ctx.pf):
+                continue
+            # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
+            # size) — was a full re-read + re-hash of every other
+            # chapter on each per-chapter invocation (O(N^2)).
+            # Read failure yields an empty fingerprint (overlap 0),
+            # matching the previous except-branch semantics.
+            other_fp = _fingerprint_of(other)
+            overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+            max_overlap = max(max_overlap, overlap)
+        if max_overlap > 0.40:
+            mf.append(f"G4.cd.content_overlap:{ctx.fp}:{max_overlap:.0%}")
+        else:
+            c.append(
+                {
+                    "id": "G4.cd.content_uniqueness",
+                    "file": ctx.fp,
+                    "s": GateStatus.PASS,
+                    "max_overlap": f"{max_overlap:.0%}",
+                }
+            )
 
 
 def _check_scene_concreteness(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
