@@ -90,3 +90,5 @@ uv run python tools/gen_gate_power_fixtures.py novel-xinghuo-vol1/chapters/chapt
 ## 公开 repo 内容政策声明（M4/I7）
 
 本 repo 为 public；变异 fixture 为真实章（frontmatter＋被测窗或全章，逐 fixture 注明）的确定性变换，不脱敏——对齐 `tests/fixtures/` 既有 vol1 衍生先例（cross-chapter-regression、spec83 等）；若用户裁定需脱敏，后续批占位符替换非被测文本再生成（本 README 即该出口的登记位）。
+
+**裁定记录（2026-11-20）**：用户裁定接受不脱敏维持现状（对齐既有 vol1 衍生先例，零不可逆风险）；正式投稿/发布前 revisit 本节，届时按上述出口一次性占位符再生成。
