@@ -71,6 +71,7 @@ VALID_CLASSIFICATIONS = frozenset(
 EXPLICIT_SUPPLEMENT = frozenset(
     {
         "cd.protagonist_absent",  # helper 内 f-string（protagonist_issues 列表，mf.extend 收）
+        "cd.protagonist_name_absent",  # spec #118 T3 名字下限臂（同 helper-append 形）
         "cd.prop_handoff",  # check 行裸形（:776）＋ check_prop_handoffs 变量臂
         "cd.counter",  # check 行裸形（:806/:817）＋ check_counter_reconciliation 变量臂
         "cd.counter.plan_conflict",  # check_counter_reconciliation helper 内 f-string

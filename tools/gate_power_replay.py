@@ -91,6 +91,7 @@ STATE_FREE_IDS = frozenset(
 ARM_TO_CANONICAL: dict[str, str] = {
     "G4.cd.no_hook": "G4.cd.chapter_end_hook",
     "G4.cd.protagonist_absent": "G4.cd.protagonist_presence",
+    "G4.cd.protagonist_name_absent": "G4.cd.protagonist_presence",  # spec #118 T3 名字下限臂
     "G4.cd.no_visual_scene": "G4.cd.scene_concreteness",
     "G4.cd.content_overlap": "G4.cd.content_uniqueness",
     "G4.cd.prop_handoff": "cd.prop_handoff",

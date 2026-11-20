@@ -478,11 +478,20 @@ def _check_protagonist_presence(
         List of issue strings (empty if check passes).
     """
     total = sum(text.count(name) for name in protagonist_names)
+    # spec #118 T3 裁定 B：名字（非裸代词）单独 ≥1——堵「代词撑满门」面；
+    # POV 声明替代走实现取 ≥1 简单面（spec 声明）。
+    pronouns = {"他", "她", "它"}
+    name_roster = [n for n in protagonist_names if n not in pronouns]
+    issues: list[str] = []
     if total < threshold:
-        return [
+        issues.append(
             f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"
-        ]
-    return []
+        )
+    if name_roster and not any(text.count(n) for n in name_roster):
+        issues.append(
+            "G4.cd.protagonist_name_absent: 名字（非代词）0 次出现——代词不可撑门（spec #118 T3）"
+        )
+    return issues
 
 
 def _load_protagonist_names(project_dir: str) -> list[str]:
@@ -494,11 +503,10 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     protag = chars_dir / "protagonist.md"
     if protag.exists():
         text = protag.read_text(encoding="utf-8")
-        # Try frontmatter name first
-        match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
-        if match:
-            names.append(match.group(1).strip())
-        # Also try YAML frontmatter (boundary single-sourced, spec #85 T6)
+        # spec #118 T3 裁定 A：frontmatter regex 与 YAML 双解析同名双 append 修复
+        # ——YAML 单源优先（split_frontmatter 边界单源 #85 T6），regex 仅作
+        # YAML 失败时的回退（双源同名只入表一次）。
+        name: str | None = None
         fm_text, _body = split_frontmatter(text)
         if fm_text:
             try:
@@ -510,9 +518,15 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
                 )
                 fm = _yaml.safe_load(fm_core)
                 if isinstance(fm, dict) and "name" in fm:
-                    names.append(str(fm["name"]))
+                    name = str(fm["name"]).strip()
             except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
-                pass  # malformed YAML frontmatter → fall back to regex name match above
+                pass  # malformed YAML frontmatter → fall back to regex name match below
+        if name is None:
+            match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
+            if match:
+                name = match.group(1).strip()
+        if name:
+            names.append(name)
     if not names:
         return []
     # Always include common pronoun

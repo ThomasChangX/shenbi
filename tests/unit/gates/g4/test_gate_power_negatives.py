@@ -318,3 +318,24 @@ def test_hook_single_char_only_warns_not_fails() -> None:
     mf = res.get("must_fix", [])
     assert rows and rows[0]["s"] == "WARN" and "单字" in rows[0]["r"], rows
     assert not any(m.startswith("G4.cd.no_hook:") for m in mf), mf[:3]
+
+
+def test_protagonist_roster_no_duplicate_append(tmp_path: Path) -> None:
+    """Spec #118 T3 裁定 A：frontmatter＋YAML 双源同名只入表一次（:495/:508 双 append 修复）."""
+    from shenbi.gates.g4.chapter_drafting import _load_protagonist_names
+
+    d = tmp_path / "proj"
+    (d / "characters").mkdir(parents=True)
+    (d / "characters" / "protagonist.md").write_text(
+        "---\nname: 那罕\n---\n\n声口：账房腔。\n", encoding="utf-8"
+    )
+    names = _load_protagonist_names(str(d))
+    assert names.count("那罕") == 1, names  # 双 append 实弹形 ['那罕','那罕','他']
+
+
+def test_protagonist_name_absent_fails_presence_gate() -> None:
+    """Spec #118 T3 裁定 B：名字 0/代词 ≥3 → G4.cd.protagonist_name_absent."""
+    from shenbi.gates.g4.chapter_drafting import _check_protagonist_presence
+
+    issues = _check_protagonist_presence("他数着账。他合上册。他睡了。", ["那罕", "他"])
+    assert any(i.startswith("G4.cd.protagonist_name_absent") for i in issues), issues
