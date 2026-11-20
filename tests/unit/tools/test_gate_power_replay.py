@@ -113,9 +113,11 @@ class TestNarrativeWindow:
         if attr["window_cjk"] < 30:
             assert not hook_rows and not no_hook  # 窗口质量不足→两口径都不判
         else:
-            assert bool(hook_rows) != no_hook  # PASS 行与 no_hook mf 互斥
+            # spec #118 T2 起 hook_rows 含 WARN 行（三态）：行存在 ⟺ 非 no_hook；
+            # 旧「PASS⟺三臂任一」口径已由 TestHookMirrorGateEquivalence 接管
+            assert bool(hook_rows) != no_hook
             if hook_rows:
-                assert hit  # PASS ⟺ 三臂任一命中
+                assert hit
 
 
 class TestSummarise:
@@ -248,3 +250,24 @@ class TestHookMirrorGateEquivalence:
         assert attr["gate_class"] == "hard"
         assert attr["has_q"] or attr["multi"] or attr["has_ledger"]
         assert rows and rows[0]["s"] == "PASS"
+
+    def test_mirror_gate_wordlists_pinned(self) -> None:
+        """Spec #118 T2/audit-T3 I-1：镜像↔门词表逐字一致钉＋20 词无损拆分钉.
+
+        等价钉（三态映射）对词级漂移零执法——monkeypatch 实证丢词/清空仍绿；
+        本钉补词表面（pattern 逐字节相等）。
+        """
+        import tools.gate_power_replay as gpr
+        from shenbi.gates.g4.chapter_drafting import (
+            HOOK_MULTI_TENSION_RE,
+            HOOK_SINGLE_TENSION,
+        )
+
+        multi_alts = set(HOOK_MULTI_TENSION_RE.pattern.strip("()").split("|"))
+        mirror_all = set(gpr.HOOK_TENSION_RE.pattern.strip("()").split("|"))
+        single = set(HOOK_SINGLE_TENSION)
+        # 多字臂词表 = 退役 20 词表 − 单字集（无损拆分：无丢失、无重叠）
+        assert multi_alts == mirror_all - single
+        assert not multi_alts & single
+        # 镜像单字集与门单字集逐字一致
+        assert single == set(gpr.SINGLE_CHAR_TENSION)
