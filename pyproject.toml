@@ -143,6 +143,10 @@ convention = "google"
 # spec #109 r3 appendix A: starvation word families are Chinese data (the
 # measured corpus vocabulary), not prose drift.
 "tools/audit_starve_baseline.py" = ["RUF001", "RUF002", "RUF003"]
+# spec #110 T2: scan-layer corpora/assertions quote the Chinese finding
+# vocabulary (判定行/严重度原文) — fullwidth punctuation is the data, not drift.
+"tools/judge_reliability.py" = ["RUF001", "RUF002", "RUF003"]
+"tests/unit/tools/test_judge_reliability.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #99 ①⑤ 存在性 lint：断言串/注释含中文教学原文（须逐字匹配 SKILL/注入文案）
 "tools/lint_increment_teaching.py" = ["RUF001", "RUF002", "RUF003"]
 # spec #85 T9: AST walker is inherently branch-heavy (three scan positions ×

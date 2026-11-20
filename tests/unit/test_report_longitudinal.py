@@ -449,3 +449,31 @@ class TestEvaluate:
         report = evaluate(tmp_path)
         assert any("pending_checkpoint" in d for d in report["disclosures"])
         assert report["verdict"] == "pass"  # 披露不进判据
+
+
+def test_parse_resonance_trend_confidence_column(tmp_path) -> None:
+    from tools.report_longitudinal import parse_resonance_trend
+
+    trend = tmp_path / "truth" / "resonance_trend.md"
+    trend.parent.mkdir()
+    trend.write_text(
+        "---\ntype: truth\n---\n\n# 共鸣趋势\n\n"
+        "| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |\n"
+        "|---|---|---|---|---|---|---|---|---|\n"
+        "| 1 | 推进 | 23 | 20 | 20 | 15 | 78 | mid |  |\n"
+        "| 2 | 过渡 | 22 | 25 | 22 | 10 | 79 | high |  |\n"
+        "| 3 | 推进 | - | - | - | - | pending | low |  |\n",
+        encoding="utf-8",
+    )
+    rows = parse_resonance_trend(trend)
+    assert sorted(rows) == [1, 2]  # pending 行跳过（现有语义）
+    assert rows[1].confidence == "mid"
+    assert rows[2].confidence == "high"
+
+
+def test_resonance_row_confidence_default_backcompat() -> None:
+    """旧构造（无 confidence）与缺列文件仍工作——向后兼容钉死。"""
+    from tools.report_longitudinal import ResonanceRow
+
+    r = ResonanceRow(overall=78.0, excluded=False)
+    assert r.confidence == ""

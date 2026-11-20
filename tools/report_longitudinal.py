@@ -63,6 +63,7 @@ class ResonanceRow:
 
     overall: float
     excluded: bool
+    confidence: str = ""
 
 
 def parse_resonance_trend(path: Path) -> dict[int, ResonanceRow]:
@@ -111,7 +112,11 @@ def parse_resonance_trend(path: Path) -> dict[int, ResonanceRow]:
             if override_col is not None and override_col < len(cells)
             else False
         )
-        rows[ch] = ResonanceRow(overall=overall, excluded=excluded)
+        conf_col = col.get("confidence")
+        confidence = (
+            cells[conf_col].strip() if conf_col is not None and conf_col < len(cells) else ""
+        )
+        rows[ch] = ResonanceRow(overall=overall, excluded=excluded, confidence=confidence)
     if not rows:
         raise LongitudinalDataError(f"{path}: zero data rows")
     return rows
