@@ -1,6 +1,6 @@
 # Spec #110 · 评审信度测量 harness（judge-reliability-harness）：判官间一致性/分布形状离线报告工具 + #107/#103/#115 消费判据营养接线
 
-**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit）｜ **状态**：Design（r2.1 Revised 2026-11-21——阶段 3 设计审查 F1-F5/M1-M4 收口；r1 2026-11-15）｜ **优先级**：🟠 P1
+**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit）｜ **状态**：Design（r2.2 Revised 2026-11-21——plan 审查 C3 裁定：评级双口径+效度判据重校准；r2.1 阶段 3 收口同日；r1 2026-11-15）｜ **优先级**：🟠 P1
 **Depends on**：无硬依赖；数据卫生消费 #109 T4 口径（已落地 PR #361——判定单源 `check_audit_starve_verdict`（`llm_output_integrity.py`），词族单源 `audit_starve_family.py`）；T2/T3 与活跃 #115 T4 交叉对齐（分工见 §0 r2 修订背景）
 **动机证据**：vol1 全量离线统计（2026-11-15 审计，脚本判据可重放；r2 协调者+fresh-context 驳斥双重复核，数字逐字吻合）：跨审计技能两两 Cohen κ 除同派发自相关伪影（group-character 族 pov×dialogue×character κ=+1.0、craft 族 reader-pull×texture κ=+0.842——同一次派发的多产物）外全部 |κ|≤0.25、多数 ≈0；Cronbach α=**0.311**（10 个 always-on 审计文件为 items、25 个双净章为 subjects——审计族**不共享「章质量」潜因子**）；resonance overall × 其余审计 issue 总量 **r=+0.068**（n=28——共鸣分与其余全部判官正交）；`truth/resonance_trend.md`（overall=四维简单和 32/32；分布 sd=2.40、极差 74-86、模值 79 出现 12/32；「相对位置」计数 相当73/更差19/**更好0**——判官从不越锚上方；通胀 slope +0.073 分/章 r=0.435 t=2.65 df=30；confidence=high 占 24/32——**校准面存在但从未咬合**：vol1 `truth/resonance_anchors.md` 23 行全 `0|0`（total<`_MIN_ANCHOR_DENOMINATOR=3` 永远 fail-open），confidence 单元格无读者（`TREND_CONFIDENCE_IDX` 为写侧索引在用，死的是 confidence 列的读侧消费——resonance_policy.py:386 自述））；`skills/shenbi-review-resonance/SKILL.md:70-72 与 :196-218`（锚点先行铁律+Route A「比锚点更好/相当/更差」对照规则——锚定方向的协议根源；r1 误引 :103-116 实为 chapter_role 校准门，r2 修正）；`docs/superpowers/specs/archive/2026-11-15-spec106-resonance-floor-liveness.md`（**已归档**——r3 已把 shadow 毕业判据改为「毕业=用户裁定、触发率降级为观测记录非判据」，r1 引用的「触发率单指标预期带 5-20%」文本已不存在）；`2026-11-15-spec107-*.md` T2（A/B 判据=canary 捕获率差分——9 变异/臂两比例检验 power 0.10-0.25（30pp 效应）、0.10（15pp 效应）；**McNemar 配对**同数 27/臂 0.56-0.60、45/臂 0.78-0.81、63/臂 0.90+——现设计尺寸不足以支撑任何结论）；`2026-11-15-spec103-*.md` T1（选章判据消费 confidence=high——未校准自报）；`2026-11-15-spec115-*.md` T4（已预埋本件义务：报告须同时报分布形状与外部锚定效度、κ/α 不得单独作判官可用性结论+#103 消费面 ρ<0.3 回退闸）；`src/shenbi/gates/g7.py:246`（G7.15 同分向量/双评探针测的是**判官对自己的稳定性**，非判官之间的一致性——信度维度体系级缺席）。
 
@@ -26,16 +26,16 @@
 
 ### T1 · 离线信度报告工具（r2 薄壳形态，复用面钉死）
 - `just judge-reliability <dir>`（`tools/judge_reliability.py`，纯确定性统计，零 LLM）。**复用钉死（r2.1 修订）**：卫生判定=复用 `check_audit_starve_verdict`（`src/shenbi/pipeline/llm_output_integrity.py:405`——#109 T4 单源分类器，全判定行值段匹配+散文提及豁免；词族常量由该函数内部消费自 `audit_starve_family` 单源，禁自写词表/自写扫描循环）；issue 计数=复用 `extract_finding_units`（`src/shenbi/pipeline/audit_aggregate.py:114`）；trend 解析=复用 `parse_resonance_trend`（`tools/report_longitudinal.py:68`——tools 互引走仓内既有 sys.path+E402 noqa 先例（lint_decisions_sources 等 ≥6 处），无 lint 拦截）；**trend 的 confidence 列=扩展 `parse_resonance_trend`（`ResonanceRow` 加字段，向后兼容——现有调用方属性访问不受影响，plan 期核调用面）**；**相对位置计数（相当/更差/更好）=新增 Route A 锚点对照表解析（数据面在 `audits/chapter-N-resonance.md` 八列表——维度/得分/满分/置信度/对照锚点/相对位置/证据/裁判理由，按列名绑定；无既有原语——显式新建件）**；新建仅统计核心（κ/α/相关/形状）：
-  - 跨技能两两 κ + 原始 agreement rate（κ 对 prevalence 敏感，双指标并报；**同派发族产物按技能分组去伪**——group 族四文件/三文件各为一 item，分组键=group-character/craft SKILL writes 声明的单次派发产物族；**r2.1 口径钉死**：评级变量=「有无硬发现」二值（与 α 同源）+ 计数版并报；族级聚合=OR（族内任一成员有硬发现→该族 item 记阳性）；join 面=成对完整例（两技能公共有效章集）+报告逐对披露 n）；
-  - Cronbach α（always-on 审计族 items × 章 subjects；「有无硬发现」二值 + 计数两版并报；**r2.1 敏感性对照**：items 含 craft 族成员（texture/reader-pull/anti-ai 既是 always-on 又是 craft 单次派发产物——同派发非独立 items 机械抬高 α）→全 10 items 与剔除 craft 族成员两版并报）；
-  - resonance 效度相关（overall × 其余 issue 总量；overall × word count 长度偏差负对照）；
+  - 跨技能两两 κ + 原始 agreement rate（κ 对 prevalence 敏感，双指标并报；**同派发族产物按技能分组去伪**——group 族四文件/三文件各为一 item，分组键=group-character/craft SKILL writes 声明的单次派发产物族；**r2.2 口径钉死（plan 审查 C3 裁定）**：评级双口径并报——any-severity 二值（任一 severity finding 存在，**证据复现口径**：动机节 α=0.311/n=25 仅在此口径精确复现）+ hard 二值（BLOCKING/CRITICAL）+ hard 计数三列；族级聚合=OR（族内任一成员阳性→该族 item 记阳性；族 OR 合成 rater 参与两两 κ，注记「族 OR 合成」）；join 面=成对完整例（两技能公共有效章集）+报告逐对披露 n）；
+  - Cronbach α（always-on 审计族 items × 章 subjects；**r2.2 评级三版**：any 二值/hard 二值/hard 计数；**证据锚=「always-on 全 items × any 二值」列（α≈0.31、n=25 复现）**；items 集两版：全 items 与剔除 craft 族成员（texture/reader-pull/anti-ai 既是 always-on 又是 craft 单次派发产物——同派发非独立 items 敏感性对照））；
+  - resonance 效度相关（overall × 其余 issue 总量——**any 口径计数（证据字面「issue 总量」）**；overall × word count 长度偏差负对照；**r2.2 判据重校准**：验收=方向性判据 |r|<0.3（正交主张）+ n 披露——原值 +0.068/n=28 的统计脚本不在盘不可逐字复现，报告披露口径差）；
   - 分布形状：模值频率表、sd、极差、相当/更差/更好计数、通胀 slope（章号回归）、confidence 基率；
   - 前置数据卫生：剔除 #109 T4 口径的 invalid（饿死形态）审计（import 单源，见上）；
   - **冷启动披露（r2）**：实评行 <8 时分布形状节输出「样本不足」披露行，不输出误导值；
   - **#119 接缝注记（r2，不依赖）**：INDEX 已预告本工具取数口径潜在消费 #119 纯形谓词单源（pre-rev 污染过滤第二卫生面）——#119 落地后接线一行，本批不阻塞。
 - 报告落 `reports/judge-reliability-<ts>.md`（canary 报告同目录先例）；**报告须同时含「分布形状」与「外部锚定效度引用」两节**（#115 T4 对齐义务——后者在外部锚数据面未就绪时输出披露行「#115 T3 外部锚定未执行」，κ/α 不得单独作为判官可用性结论）。
 
-**判据**：对 vol1 回放产出基线报告，关键数字与动机证据节一致（α≈0.31、r≈0.07、更好=0、模值 79×12）；红测（同分输入→α=1；独立输入→α≈0；prevalence 极端 κ 警示行；饿死剔除计数；**group 族不分组直两两→伪影警示行（r2 新增）**；**冷启动不足窗→披露行（r2 新增）**）。
+**判据**：对 vol1 回放产出基线报告，**证据锚核对（r2.2）**：α（always-on 全 × any 二值）≈0.31 且 n=25、更好=0、模值 79×12、high 24/32 精确；效度 r 为方向性判据（|r|<0.3）+口径差披露行；hard 口径数字如实入报告作重派生基线；红测（同分输入→α=1；独立输入→α≈0；prevalence 极端 κ 警示行；饿死剔除计数；**group 族不分组直两两→伪影警示行（r2 新增）**；**冷启动不足窗→披露行（r2 新增）**）。
 
 ### T2 · 在飞 spec 判据营养接线（r2 重构）
 - #107 T2 预注册文档义务（保留）：A/B 判据改 **McNemar 配对设计**（同变异两臂同测）+ 功效核算表入文档（27/臂起步、45-63/臂达 0.8+；15pp 效应明示不可检）——#107 spec 文本加本件引用一行（其预注册文档落盘于其 T2 执行时引用本件核算）；
