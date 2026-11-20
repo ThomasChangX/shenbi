@@ -143,9 +143,15 @@ class GenreConfig(BaseModel):
         # - meme_quota.per_volume ∈ [1,20]
         # - quote_type_quota.burning_per_volume ∈ [0,10]（可选键；缺省代入
         #   属 lint 消费端——validator 保持无副作用）
+        # spec #118 T1 两级拆分：旧键检查改在场守卫（presence_min-only 新式
+        # config 不被缺省 -1 误拒）；在场臂新键 presence_min∈[1,5]——0 非法，
+        # 堵逐书清零 hard 臂面；旧键 min_per_chapter 语义=密度/WARN 臂。
         vdm = v.get("voice_density_min")
-        if vdm is not None and not 0 <= vdm.get("min_per_chapter", -1) <= 5:
+        if vdm is not None and "min_per_chapter" in vdm and not 0 <= vdm["min_per_chapter"] <= 5:
             raise ValueError(f"market_params.voice_density_min: min_per_chapter∈[0,5], got {vdm}")
+        vpm = vdm.get("presence_min") if isinstance(vdm, dict) else None
+        if vpm is not None and not 1 <= int(vpm) <= 5:
+            raise ValueError(f"market_params.voice_density_min.presence_min∈[1,5], got {vpm}")
         mq = v.get("meme_quota")
         if mq is not None and not 1 <= mq.get("per_volume", -1) <= 20:
             raise ValueError(f"market_params.meme_quota: per_volume∈[1,20], got {mq}")

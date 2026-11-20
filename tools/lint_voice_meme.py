@@ -120,6 +120,8 @@ def lint_chapter(project: Path, chapter: int) -> list[str]:
     if pcard.is_file():
         cps = catchphrases_from_card(pcard.read_text(encoding="utf-8"))
     signals = distinct_voice_signals(strip_narrative_body(body), cps)
+    # spec #118 T1 起 min_per_chapter 语义=密度/WARN 臂（本工具报告密度面——
+    # 取键口径不变；在场 hard 臂归门侧 presence_min，非本工具面）。
     vmin = int(
         _genre_params(project)
         .get("voice_density_min", {})

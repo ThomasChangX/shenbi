@@ -32,6 +32,14 @@ ACCOUNTING_VERBS: tuple[str, ...] = (
 #: 密度下限缺省（genre-config 缺席时消费端回退——validator 不代入，无副作用）。
 DEFAULT_VOICE_DENSITY_MIN = 2
 
+#: 声口在场性 hard 臂缺省（spec #118 T1 裁定 B 两级拆分：在场 ≥1 hard——三类
+#: 信号（口癖精确串/账房动词任一/自嘲反问）任一在场即过，absent＝三类全零才
+#: FAIL）。genre-config 覆盖键 voice_density_min.presence_min（validator 域
+#: [1,5]——0 非法，堵逐书清零 hard 臂面）；旧键 min_per_chapter 只填密度/WARN
+#: 臂（deprecate）。
+#: v1 (2026-11-20, spec #118): 1（vol1 定标，跨书重跑复核——B5）
+DEFAULT_VOICE_PRESENCE_MIN = 1
+
 #: 喻体域五类封闭词表（spec #77；v1 2026-10-26）。「其他」不入词表——
 #: >70% 其他降级 INFO「词表需扩」。字面记账动词（ACCOUNTING_VERBS）不入
 #: 喻体口径（#76 校准条款：字面用法 vs 比喻句喻体分账）。

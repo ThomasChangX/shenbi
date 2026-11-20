@@ -236,3 +236,72 @@ def test_payoff_stripped_warns_payoff_density() -> None:
     res = _g4("chapter-9-payoff-stripped.md")
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.payoff_density"]
     assert rows and rows[0]["s"] == "WARN" and "无轴登记" in rows[0]["r"], rows
+
+
+def test_voice_density_two_level_three_states(tmp_path: Path) -> None:
+    """Spec #118 T1 裁定 B 三态：0 FAIL / 1 类在场过＋密度 WARN / ≥2 纯 PASS.
+
+    构造性输入（G0.9 允许面——结构级样本基于真实 fixture）：复用重生成后的
+    voice-stripped fixture（signals=0）＋真实卡/plan 前置物，逐态注入。
+    """
+    import shutil
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    for label, inject, want_fail, want_warn in (
+        ("absent", "", True, False),  # signals=0 → FAIL（=旧测同 fixture 面）
+        ("presence-only", "他心想：这笔我先记下。", False, True),  # 真实卡口癖原串逐字在场 → 1 类
+        (
+            "dense",
+            "他心想：这笔我先记下。入账的时辰到了。",
+            False,
+            False,
+        ),  # 口癖＋账房动词「入账」→ 2 类
+    ):
+        d = tmp_path / label
+        d.mkdir()
+        for sub in ("characters", "plans"):
+            shutil.copytree(FIX_DIR / sub, d / sub, dirs_exist_ok=True)
+        base = (FIX_DIR / "chapter-1-voice-stripped.md").read_text(encoding="utf-8")
+        (d / "chapter-1.md").write_text(base.rstrip("\n") + f"\n\n{inject}\n", encoding="utf-8")
+        res = json.loads(
+            g4_chapter_drafting([str(d / "chapter-1.md")], str(d), str(d), repo_root=None)
+        )
+        mf = res.get("must_fix", [])
+        warn_rows = [
+            c for c in res["checks"] if c["id"] == "G4.cd.voice_density" and c["s"] == "WARN"
+        ]
+        assert any(m.startswith("G4.cd.voice_density:") for m in mf) == want_fail, (label, mf[:3])
+        assert bool(warn_rows) == want_warn, (label, warn_rows)
+
+
+def test_voice_old_key_maps_to_density_arm(tmp_path: Path) -> None:
+    """Spec #118 T1(a) 映射钉：genre-config 旧键 min_per_chapter=2 时 signals=1 的章不 FAIL（密度 WARN 在）.
+
+    旧键若映射进 hard 臂，两级化裁定在携带旧覆盖的项目（vol1 实况）上静默
+    不生效——本钉把「旧键→密度臂」语义锁进断言（风险 M-6 测试断言义务）。
+    """
+    import json as _json
+    import shutil
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    d = tmp_path / "proj"
+    d.mkdir()
+    for sub in ("characters", "plans"):
+        shutil.copytree(FIX_DIR / sub, d / sub, dirs_exist_ok=True)
+    (d / "genre-config.json").write_text(
+        json.dumps({"market_params": {"voice_density_min": {"min_per_chapter": 2}}}),
+        encoding="utf-8",
+    )
+    base = (FIX_DIR / "chapter-1-voice-stripped.md").read_text(encoding="utf-8")
+    (d / "chapter-1.md").write_text(
+        base.rstrip("\n") + "\n\n他心想：这笔我先记下。\n", encoding="utf-8"
+    )
+    res = _json.loads(
+        g4_chapter_drafting([str(d / "chapter-1.md")], str(d), str(d), repo_root=None)
+    )
+    mf = res.get("must_fix", [])
+    assert not any(m.startswith("G4.cd.voice_density:") for m in mf), mf[:3]
+    warn_rows = [c for c in res["checks"] if c["id"] == "G4.cd.voice_density" and c["s"] == "WARN"]
+    assert warn_rows and "1<2" in warn_rows[0]["r"], warn_rows

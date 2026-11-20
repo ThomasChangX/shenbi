@@ -11,6 +11,7 @@ from pathlib import Path
 from shenbi.text.voice_lexicon import (
     ACCOUNTING_VERBS,
     DEFAULT_VOICE_DENSITY_MIN,
+    DEFAULT_VOICE_PRESENCE_MIN,
     catchphrases_from_card,
     distinct_voice_signals,
 )
@@ -1389,7 +1390,14 @@ def _check_payoff_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[s
 
 
 def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:
-    """Spec #76 v2 声口密度."""
+    """Spec #76 v2 声口密度（spec #118 T1 裁定 B 两级拆分）.
+
+    hard 臂＝在场性（distinct_voice_signals ≥ presence_min，absent＝口癖/
+    账房动词/自嘲反问三类全零才 FAIL——r2/I-4 钉死操作数）；密度臂＝原 ≥2
+    语义降 WARN 报告行（劝谏面不拦章）。旧 config 键 min_per_chapter 只填
+    密度臂（T1(a)：映射进 hard 臂会使裁定在携带旧覆盖的项目——如 vol1=2
+    ——上静默不生效）；在场臂由 presence_min 治理（T1(b)：域 [1,5]，0 非法）。
+    """
     _body = ctx.narrative
     _cps: list[str] = []
     if ctx.project_dir:
@@ -1402,17 +1410,25 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
         .get("market_params", {})
         .get("voice_density_min", {})
     )
-    _vmin = (
-        int(_vdm.get("min_per_chapter", DEFAULT_VOICE_DENSITY_MIN))
+    _presence_min = (
+        int(_vdm.get("presence_min", DEFAULT_VOICE_PRESENCE_MIN))
         if _vdm
-        else DEFAULT_VOICE_DENSITY_MIN
+        else DEFAULT_VOICE_PRESENCE_MIN
     )
-    if ctx.memo_v2 and _signals < _vmin:
-        # 束6 逐字化：逐字内联未在场的卡口癖——束5 实弹面是卡形差一字
-        # （正文『行，先记账』vs 卡『行，先算账』），语义近似但计分是
-        # 精确子串，报文不引卡原串模型无从对照；另列其余两类可计分
-        # 信号的确定形态。卡口癖全在场时换措辞——缺的是其余信号类，
-        # 不再出现『未计分卡口癖：已全在场』的自相矛盾形（PR #295 审查）。
+    if _vdm and "min_per_chapter" in _vdm:
+        # T1(a): 旧键只填密度/WARN 臂——映射进 hard 臂会使两级化裁定在
+        # 携带旧覆盖的项目上静默不生效（vol1 genre-config 即此形）。
+        _density_min = int(_vdm["min_per_chapter"])
+        log.warning(
+            "genre_config voice_density_min.min_per_chapter deprecated: fills density(WARN) arm only; use presence_min for the hard arm (spec #118 T1)",
+            file=str(ctx.fp),
+            value=_density_min,
+        )
+    else:
+        _density_min = DEFAULT_VOICE_DENSITY_MIN
+    if ctx.memo_v2 and _signals < _presence_min:
+        # 束6 逐字化报文保留（缺席修复指引不变——三类全零时未在场卡癖
+        # 必列全部）；spec #118 起 hard 臂语义＝在场性非密度。
         _miss = [p for p in _cps if p not in _body]
         _cp_part = (
             f"未在场卡口癖（须逐字照抄、一字不可改）："
@@ -1421,21 +1437,31 @@ def _check_voice_density(ctx: CheckContext, c: list[dict[str, Any]], mf: list[st
             else "卡口癖已全在场——补其余信号；可计分："
         )
         mf.append(
-            f"G4.cd.voice_density:{ctx.fp}:{_signals}<{_vmin} "
-            f"(v2 章——备忘声口要求行未兑现；{_cp_part}"
+            f"G4.cd.voice_density:{ctx.fp}:{_signals}<{_presence_min} "
+            f"(v2 章——声口信号完全缺席；{_cp_part}"
             f"账房动词任一（如『{'』『'.join(ACCOUNTING_VERBS[:3])}』）"
             f"或自嘲反问收尾（『…吧？』『…呢？』句式）；修复者: drafting)"
         )
-    else:
+        return
+    if ctx.memo_v2 and _signals < _density_min:
         c.append(
             {
                 "id": "G4.cd.voice_density",
                 "file": ctx.fp,
-                "s": GateStatus.PASS if ctx.memo_v2 else GateStatus.WARN,
-                "r": f"signals={_signals}/{_vmin}"
-                + ("" if ctx.memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+                "s": GateStatus.WARN,
+                "r": f"声口密度 {_signals}<{_density_min}（劝谏面不拦章——spec #118 T1 两级拆分）",
             }
         )
+        return
+    c.append(
+        {
+            "id": "G4.cd.voice_density",
+            "file": ctx.fp,
+            "s": GateStatus.PASS if ctx.memo_v2 else GateStatus.WARN,
+            "r": f"signals={_signals}/presence≥{_presence_min}"
+            + ("" if ctx.memo_v2 else " (v1 章——dispatch 域外，WARN 口径)"),
+        }
+    )
 
 
 def _check_golden_slot(ctx: CheckContext, c: list[dict[str, Any]], mf: list[str]) -> None:

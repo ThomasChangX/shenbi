@@ -22,6 +22,7 @@ from shenbi.gates.g4.chapter_drafting import (
     _text_fingerprint,  # 门指纹单源复用（测量面=执法面，C3）
 )
 from shenbi.gates.shared import strip_scene_markers
+from shenbi.text.voice_lexicon import ACCOUNTING_VERBS  # voice_stripped 三类灭（spec #118 T1）
 from tools.gate_power_replay import (
     narrative_window,  # 同目录工具互引（E402 豁免 sys.path 修改）
 )
@@ -202,10 +203,18 @@ def pre_removed(text: str) -> str:
 
 
 def voice_stripped(text: str) -> str:
-    """口癖短语（真实卡 voice_profile.catchphrases 原串）→中性语 → voice_density<min."""
+    """口癖→中性语＋账房动词/自嘲反问中和 → signals=0（spec #118 T1 改钉）.
+
+    仅灭口癖留 signals=1（账房动词残存，如「利息」）——两级化后 1≥presence_min
+    不 FAIL；须三类全灭保 test_voice_stripped_fails_voice_density_gate 的
+    must_fix 断言（0<1，原 FAIL 方向保留 C1）。
+    """
     for phrase, neutral in _VOICE_NEUTRAL:
         text = text.replace(phrase, neutral)
-    return text
+    for verb in ACCOUNTING_VERBS:
+        text = text.replace(verb, "记下")
+    # 自嘲反问收尾中和（_SELF_MOCK_RE 的 吧？/呢？ 句式面）
+    return re.sub(r"(吧|呢)？(\s|$)", r"。\2", text)
 
 
 _PLAN_V3_FMT = re.compile(r"^plan_format[：:]\s*v3\s*$", re.M)
