@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-11-21（**#110 完结归档 PR #374**——评审信度 harness 六 task 全链（扫描层/统计核心/报告组装+recipe/两处接线）+证据锚 α=0.311/n=25 逐字复现+spec r2.1/r2.2 两轮修订；前次 #110 r2 改道重写（SDD 价值门驳斥判改道：T2 #106 bullet 死亡——已归档+r3 用户裁定→#115 T4 双报对齐替代；T3 两闸合一；T1 hardening 四件+薄壳复用面钉死；补④⑤预答栏）；前次 #118 三项回裁落地：FINDING① 零动作＝臂即修复／FINDING② 纯形池过滤批准→**#119 立项**（专家团四席推荐）／deviation #8 review 预算→#119）
-> **活跃 spec 数**：14
+> **最后更新**：2026-11-22（**#119 完结归档 PR #376**——post118 标定收尾两 task 全链：T1 uniqueness 纯形池过滤＋is_pure_chapter 谓词单源（replay↔门同引，重放 FAIL 32→0 聋门修复）／T2 review 预算单源派生（TRANSITION_CAP_PER_1000·max(wc,1) 护栏·≥语义钉死）＋SKILL/anti-ai-reference 措辞清偿；全链含 spec r1.1/plan r2 两轮审查修订；前次 2026-11-21（#110 完结归档 PR #374——评审信度 harness 六 task 全链＋spec r2.1/r2.2 修订；前次 #118 三项回裁落账→#119 立项 PR #372））
+> **活跃 spec 数**：13
 
 本页只追踪活跃（待执行）spec，**表行序即推荐执行顺序**（依据见「排序依据」节）；优先级标注（🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量）仅作 tie-breaker 与视觉分层。**spec 详情（动机证据/根因/任务分解/验收）以 spec 文件本体为唯一权威**，本页只留一句话范围与依赖——INDEX 不做 spec 的第二份拷贝（拷贝必漂移）。已完成/驳回的 spec 移至 `archive/`，编号 append-only 不重排不复用（系列/依赖按编号交叉引用）；归档历史查 `archive/` 与 `git log`。
 
@@ -15,7 +15,6 @@
 
 | 编号 | 优先级 | spec 文件 | 状态 | 一句话范围 | 依赖 |
 |------|--------|-----------|------|-----------|------|
-| #119 | 🟡 P2 | `2026-11-21-spec119-post118-calibration-cleanup.md` | Design r1 | post-118 标定收尾：uniqueness 纯章形池过滤（32 FAIL=100% pre-rev 污染，纯池 0/50 实证）＋review 预算单源派生＋SKILL 措辞清偿；**FINDING①（4 章纯代词）裁定零动作＝臂即修复** | #118 已完结（PR #370）；专家团四席推荐立项（2026-11-21 用户裁定） |
 | #117 | 🟠 P1 | `2026-11-15-spec117-audit-evidence-verifiability.md` | Design r1 | 审计证据可验证性：发现级 parser＋G4.av.evidence_* 逐字/行号/规则名对账＋消费三态（28.2% 引述无逐字来源实证） | #105 已核销；justfile #92→#116→#117 |
 | #107 | 🟡 P2 | `2026-11-15-spec107-reviewer-model-tier.md` | Design r1 | 评评分档：executor_config per-skill model 键单源接线＋量表 A/B 预注册（默认行为零变化差分钉死；第二模型随用户令） | #92 已完结（dispatch_helper 同文件无冲突）；A/B 随令 |
 | #111 | 🟠 P1 | `2026-11-15-spec111-extractor-shape-contract.md` | Design r1 | extractor 形状契约：两形状并认＋应用率哨兵＋truth 增长曲线＋全量读面收编（44 次生产 reads 全空转实证） | #92→#105/#107→#109→#111 链尾 |
