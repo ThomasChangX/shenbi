@@ -209,6 +209,19 @@ def chapter_no_raw(name_or_path: str | Path) -> str | None:
     return m.group(1) if m else None
 
 
+def is_pure_chapter(stem: str) -> bool:
+    """True for the canonical live-chapter stem ``chapter-NN`` (digits-exact).
+
+    Whitelist form (spec #119 T1): historical-layer variants (``-pre-rev``
+    backups, future suffixes) fall outside the pool by shape, not by
+    enumeration. Single source for both the measurement face (replay) and
+    the enforcement face (G4.cd) — spec #116 C3. Reuses CHAPTER_NUM_RE under
+    fullmatch (capture group does not affect the boolean) — chapter-number
+    regex single-source discipline (z11 F1301 / lint_chapter_num_single_source).
+    """
+    return CHAPTER_NUM_RE.fullmatch(stem) is not None
+
+
 def load_facts_oracle(project_dir: str | Path, dim: "FactsDim") -> "FactsFile | None":
     """Load a facts oracle, collapsing absent/empty to None (spec #89 T3).
 
