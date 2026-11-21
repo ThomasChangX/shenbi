@@ -46,7 +46,7 @@
 - Consumes: `CHAPTER_NUM_RE`（shared.py 既有单源章号正则，fullmatch 语义）；`CheckContext`/`ctx.rd`/`ctx.pf`（:1126 既有）
 - Produces: `def is_pure_chapter(stem: str) -> bool`（`src/shenbi/gates/shared.py`；语义=现 replay `_pure_chapter` 逐字——`re.fullmatch(r"chapter-\d+", stem) is not None`；T2 与后续回放共用此单源）
 
-- [ ] **Step 1: 谓词失败测试（红）**
+- [x] **Step 1: 谓词失败测试（红）**
 
 新建 `tests/unit/gates/test_shared_is_pure_chapter.py`：
 
@@ -79,7 +79,7 @@ def test_is_pure_chapter_whitelist_form(stem: str, want: bool) -> None:
 Run: `uv run pytest tests/unit/gates/test_shared_is_pure_chapter.py -q`
 Expected: FAIL with `ImportError: cannot import name 'is_pure_chapter'`
 
-- [ ] **Step 2: 场景①失败测试（红）——pre-rev 不入池**
+- [x] **Step 2: 场景①失败测试（红）——pre-rev 不入池**
 
 `tests/unit/gates/g4/test_gate_power_negatives.py` 新增（放在 `test_content_duplicated_fails_content_overlap_gate` 改写体旁）：
 
@@ -113,7 +113,7 @@ def test_content_uniqueness_excludes_pre_rev_from_pool(tmp_path: Path) -> None:
 Run: `uv run pytest "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_uniqueness_excludes_pre_rev_from_pool" -q`
 Expected: FAIL —— 过滤前池含 `chapter-1-pre-rev.md`，重叠 1.0 > 0.40 → must_fix 含 `G4.cd.content_overlap:`（断言 `not any` 失败＝红）
 
-- [ ] **Step 3: 场景②改写（红性保持——纯形双侧仍红的回归哨）**
+- [x] **Step 3: 场景②改写（红性保持——纯形双侧仍红的回归哨）**
 
 改写 `test_content_duplicated_fails_content_overlap_gate`（:224-229）：fixture 文件名形态不复用（其池过滤后塌缩→SKIP），tmp_path 组装纯形双侧（内容=真实产物，语义=「13 段 append」构造法）：
 
@@ -140,7 +140,7 @@ def test_content_duplicated_fails_content_overlap_gate(tmp_path: Path) -> None:
 Run: `uv run pytest "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_duplicated_fails_content_overlap_gate" -q`
 Expected: PASS（双侧纯形在过滤前后都在池内——本测是防过度过滤的回归哨：将来有人把过滤器拧过头（池被清空/塌缩→门判定变绿 SKIP）时，本测因 FAIL 不再发射而变红报警；注意原 `_g4` fixture 直读形态被本改写替换，docstring 语义不变）
 
-- [ ] **Step 4: 实现——谓词单源＋池过滤＋replay 改引**
+- [x] **Step 4: 实现——谓词单源＋池过滤＋replay 改引**
 
 `src/shenbi/gates/shared.py`（`chapter_no_raw` 函数后、`load_facts_oracle` 前插入）：
 
@@ -169,22 +169,22 @@ def is_pure_chapter(stem: str) -> bool:
 - `:24-30` 既有 `from shenbi.gates.shared import (...)` 括号列表插入 `is_pure_chapter,`（`count_transition_words,` 之后——**不另起 import 行**，同模块双 from-import 触发 I001）；
 - `:171`/`:254` 两处 `if _pure_chapter(p.stem)` → `if is_pure_chapter(p.stem)`（全调用方 grep 已清：仅此两处＋tests 无私有名 import）
 
-- [ ] **Step 5: 红转绿**
+- [x] **Step 5: 红转绿**
 
 Run: `uv run pytest tests/unit/gates/test_shared_is_pure_chapter.py "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_uniqueness_excludes_pre_rev_from_pool" "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_duplicated_fails_content_overlap_gate" "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_uniqueness_skip_rows_explicit" tests/unit/tools/test_gate_power_replay.py -q`
 Expected: 全 PASS（含 SKIP 双分支既有测＋replay collect 跳非纯形既有行为测——谓词换源行为不变）
 
-- [ ] **Step 6: 邻域回归**
+- [x] **Step 6: 邻域回归**
 
 Run: `uv run pytest tests/unit/gates/ tests/unit/tools/ -q`
 Expected: 全 PASS（gates 树＋tools 树零连带红）
 
-- [ ] **Step 7: 50 章重跑（批级一次）＋报告核对**
+- [x] **Step 7: 50 章重跑（批级一次）＋报告核对**
 
 Run: `uv run python tools/gate_power_replay.py novel-xinghuo-vol1 --out reports/2026-11-22-gate-power-vol1-post119.md`
 Expected: 报告生成；`G4.cd.content_uniqueness` 行 = `50 | 0 | 0 | 0 | 0.00`（现语料纯池零跨章重复——audit-T8 预证 0/50）；**其余行与 `reports/2026-11-20-gate-power-vol1-post118.md` 逐行一致**（报告为确定性渲染无时间戳——diff 应恰好只有 uniqueness 一行含 firing 列变化；T1 不触其他门）
 
-- [ ] **Step 8: baseline 整表重指＋uniqueness 行更新**
+- [x] **Step 8: baseline 整表重指＋uniqueness 行更新**
 
 `docs/framework/gate-power-baseline.md`：
 - 33 处 `reports/2026-11-20-gate-power-vol1-post118.md` → `reports/2026-11-22-gate-power-vol1-post119.md`（sed 整表替换；`＝#118 后权威态` 标签改 `＝#119 后权威态`）；
@@ -194,7 +194,7 @@ Expected: 报告生成；`G4.cd.content_uniqueness` 行 = `50 | 0 | 0 | 0 | 0.00
 Run: `uv run python tools/lint_gate_power_baseline.py`（justfile :36 同构）
 Expected: PASS（baseline 表结构 lint 绿）
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/shenbi/gates/shared.py src/shenbi/gates/g4/chapter_drafting.py tools/gate_power_replay.py tests/unit/gates/test_shared_is_pure_chapter.py tests/unit/gates/g4/test_gate_power_negatives.py reports/2026-11-22-gate-power-vol1-post119.md docs/framework/gate-power-baseline.md
@@ -217,7 +217,7 @@ git commit -m "feat: spec #119 T1 uniqueness 纯形池过滤＋is_pure_chapter �
 - Consumes: `TRANSITION_CAP_PER_1000 = 1.0`（`src/shenbi/gates/g4/chapter_drafting.py:969`，T1 同文件已 import shared——函数级 import 无环：g4 chapter_drafting 模块闭包零 pipeline 引用）
 - Produces: `transition_budget: int`（`ReviewChecklist` dataclass 既有字段——语义改为「首个失败计数」：转折计数 ≥ 预算即 ERROR；注入面 `"transition_budget"` dict 键不变，SKILL 消费方措辞同步）
 
-- [ ] **Step 1: re-pin :25-29 失败（红）——分母测改派生锁**
+- [x] **Step 1: re-pin :25-29 失败（红）——分母测改派生锁**
 
 ```python
 def test_transition_budget_uses_word_count_md_denominator(tmp_path: Path) -> None:
@@ -234,7 +234,7 @@ def test_transition_budget_uses_word_count_md_denominator(tmp_path: Path) -> Non
 Run: `uv run pytest "tests/unit/pipeline/test_review_checklist_precompute.py::test_transition_budget_uses_word_count_md_denominator" -q`
 Expected: FAIL —— fixture 章 wc≈3354：旧公式 5 vs 派生 ceil(3.354)=4
 
-- [ ] **Step 2: re-pin :71-83 失败（红）——边界测改硬编码逐例**
+- [x] **Step 2: re-pin :71-83 失败（红）——边界测改硬编码逐例**
 
 整测替换（测名＋docstring 同步改派生口径）：
 
@@ -260,7 +260,7 @@ def test_transition_budget_derived_from_cap_constant(tmp_path: Path) -> None:
 Run: `uv run pytest "tests/unit/pipeline/test_review_checklist_precompute.py::test_transition_budget_derived_from_cap_constant" -q`
 Expected: FAIL —— 旧公式 wc=999/1000 得 5（max 下限）vs 新期望 1（`:82`/`:83` 断言形态已被本改写替换，红来自公式本身）
 
-- [ ] **Step 3: 实现——公式派生**
+- [x] **Step 3: 实现——公式派生**
 
 `src/shenbi/pipeline/review_checklist.py`：
 - `:59` `import json` 后插 `import math`（顶层，json/math/re 字母序）；
@@ -278,12 +278,12 @@ Expected: FAIL —— 旧公式 wc=999/1000 得 5（max 下限）vs 新期望 1�
 
 （`max(wc, 1)` 镜像门侧 `chapter_drafting.py:998` `tc / max(ctx.wc, 1) * 1000` 护栏。）
 
-- [ ] **Step 4: 红转绿＋文件级回归**
+- [x] **Step 4: 红转绿＋文件级回归**
 
 Run: `uv run pytest tests/unit/pipeline/test_review_checklist_precompute.py tests/unit/pipeline/test_review_checklist.py -q`
 Expected: 全 PASS（`test_review_checklist.py` 的 :105/:117/:123/:143 为注入值构造测不触公式；:339 `> 0` 断言在新公式 wc=0 时 ceil(1×1/1000)=1 仍过）
 
-- [ ] **Step 5: SKILL 措辞清偿（两处）**
+- [x] **Step 5: SKILL 措辞清偿（两处）**
 
 `skills/shenbi-review-group-craft/SKILL.md:237` 整行替换：
 
@@ -297,12 +297,12 @@ Expected: 全 PASS（`test_review_checklist.py` 的 :105/:117/:123/:143 为注�
 转折词预算与 G4 同源（spec #119 T2 派生口径）：`ceil(TRANSITION_CAP_PER_1000 × max(章字数, 1) / 1000)`（word_count_md 计数；常量自 G4 单源派生，预算=首个失败计数），以下词合计 ≥ 预算即 ERROR，合法区为 < 预算：
 ```
 
-- [ ] **Step 6: 契约面核验（纯散文预期零变更）**
+- [x] **Step 6: 契约面核验（纯散文预期零变更）**
 
 Run: `uv run just lint-contracts`
 Expected: PASS——两处改动均纯散文（无 reads/writes/decisions 变更；若报契约变更则回查——spec §3 风险预答面）
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/shenbi/pipeline/review_checklist.py skills/shenbi-review-group-craft/SKILL.md skills/shenbi-chapter-drafting/anti-ai-reference.md tests/unit/pipeline/test_review_checklist_precompute.py
