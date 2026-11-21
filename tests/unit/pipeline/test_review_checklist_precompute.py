@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from shenbi.gates.shared import word_count_md
@@ -25,7 +26,10 @@ def _project(tmp_path: Path) -> Path:
 def test_transition_budget_uses_word_count_md_denominator(tmp_path: Path) -> None:
     _project(tmp_path)
     cl = generate_review_checklist(tmp_path, 2)
-    expected = max(5, word_count_md(tmp_path / "chapters" / "chapter-2.md") // 1000)
+    wc = word_count_md(tmp_path / "chapters" / "chapter-2.md")
+    from shenbi.gates.g4.chapter_drafting import TRANSITION_CAP_PER_1000
+
+    expected = math.ceil(TRANSITION_CAP_PER_1000 * max(wc, 1) / 1000)
     assert cl.transition_budget == expected
 
 
@@ -68,19 +72,24 @@ def test_injection_json_carries_precompute(tmp_path: Path) -> None:
     assert "PROMPT" in prompt
 
 
-def test_transition_budget_g4_boundary_alignment(tmp_path: Path) -> None:
-    """Acceptance 3: budget equals G4's max(5, wc//1000) at 1000-boundaries."""
+def test_transition_budget_derived_from_cap_constant(tmp_path: Path) -> None:
+    """Spec #119 T2: budget = ceil(CAP*max(wc,1)/1000), first-failing-count semantics.
+
+    Derived from TRANSITION_CAP_PER_1000 single source (G4 chapter_drafting) --
+    the retired absolute threshold max(5, wc//1000) lost sync with the gate's
+    density cap after #118 T4. Conservative-by-one at exact-1000 boundaries:
+    wc=6000 -> budget 6, tc=6 -> review ERROR while G4 PASSes (density == cap
+    does not cross `>`) -- conservative direction: gate-FAIL chapters never
+    slip past review.
+    """
     chapters = tmp_path / "chapters"
     chapters.mkdir(exist_ok=True)
-    from shenbi.gates.shared import word_count_md
 
     for n, chars in [(1, 999), (2, 1000), (3, 4999), (4, 6000), (5, 9000)]:
         (chapters / f"chapter-{n}.md").write_text("字" * chars, encoding="utf-8")
-    for n in range(1, 6):
+    for n, budget in [(1, 1), (2, 1), (3, 5), (4, 6), (5, 9)]:
         cl = generate_review_checklist(tmp_path, n)
-        wc = word_count_md(chapters / f"chapter-{n}.md")
-        assert cl.transition_budget == max(5, wc // 1000)
-        assert cl.transition_budget >= 5
+        assert cl.transition_budget == budget
 
 
 def test_precompute_strips_meta_blocks_before_counting(tmp_path: Path) -> None:
