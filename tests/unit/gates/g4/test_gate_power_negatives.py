@@ -242,7 +242,8 @@ def test_content_uniqueness_excludes_pre_rev_from_pool(tmp_path: Path) -> None:
     mf = res.get("must_fix", [])
     assert not any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
     rows = [c for c in res["checks"] if c["id"] == "G4.cd.content_uniqueness"]
-    assert rows and rows[0]["s"] != "FAIL", rows
+    # == PASS 直钉「比对真跑」（SKIP 不许静默过——池被过度过滤塌缩时此处变红）
+    assert rows and rows[0]["s"] == "PASS", rows
 
 
 def test_content_duplicated_fails_content_overlap_gate(tmp_path: Path) -> None:
