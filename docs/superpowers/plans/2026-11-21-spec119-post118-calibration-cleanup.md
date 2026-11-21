@@ -36,14 +36,14 @@
 
 **Files:**
 - Modify: `src/shenbi/gates/shared.py`（`chapter_no_raw` 后、`load_facts_oracle` 前新增谓词）
-- Modify: `src/shenbi/gates/g4/chapter_drafting.py:19-32`（shared import 列表加 `is_pure_chapter`）＋ `:1148`（池过滤，一函数内一处）
+- Modify: `src/shenbi/gates/g4/chapter_drafting.py:19-43`（shared import 列表加 `is_pure_chapter`）＋ `:1148`（池过滤，一函数内一处）
 - Modify: `tools/gate_power_replay.py`（删 :162-163 本地 `_pure_chapter`，改引 shared，改 :171/:254 两调用点）
 - Test: `tests/unit/gates/g4/test_gate_power_negatives.py`（改写 :224 测＋新增场景①测）
 - Test: `tests/unit/gates/test_shared_is_pure_chapter.py`（新建，谓词直测）
 - 产出工件: `reports/2026-11-22-gate-power-vol1-post119.md`（回放重跑）＋ `docs/framework/gate-power-baseline.md`（整表重指＋uniqueness 行数字）
 
 **Interfaces:**
-- Consumes: `re`（shared.py 已有顶层 import）；`CheckContext`/`ctx.rd`/`ctx.pf`（:1126 既有）
+- Consumes: `CHAPTER_NUM_RE`（shared.py 既有单源章号正则，fullmatch 语义）；`CheckContext`/`ctx.rd`/`ctx.pf`（:1126 既有）
 - Produces: `def is_pure_chapter(stem: str) -> bool`（`src/shenbi/gates/shared.py`；语义=现 replay `_pure_chapter` 逐字——`re.fullmatch(r"chapter-\d+", stem) is not None`；T2 与后续回放共用此单源）
 
 - [ ] **Step 1: 谓词失败测试（红）**
@@ -87,11 +87,12 @@ Expected: FAIL with `ImportError: cannot import name 'is_pure_chapter'`
 def test_content_uniqueness_excludes_pre_rev_from_pool(tmp_path: Path) -> None:
     """spec #119 T1: pre-rev 备份不入比对池——近全同稿不触发 FAIL（比对真跑非 SKIP）."""
     import json as _json
-    import shutil
 
     from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 
-    base = next(Path("tests/fixtures").glob("chapter-*-draft.md")).read_text(encoding="utf-8")
+    base = next(sorted(Path("tests/fixtures").glob("chapter-*-draft.md"))).read_text(
+        encoding="utf-8"
+    )
     ch3 = (FIX_DIR / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
     d = tmp_path / "proj"
     (d / "chapters").mkdir(parents=True)
@@ -137,34 +138,35 @@ def test_content_duplicated_fails_content_overlap_gate(tmp_path: Path) -> None:
 ```
 
 Run: `uv run pytest "tests/unit/gates/g4/test_gate_power_negatives.py::test_content_duplicated_fails_content_overlap_gate" -q`
-Expected: PASS（双侧纯形在过滤前后都在池内——本测是防过度过滤的回归哨，红性=将来有人把过滤器拧过头时此测变绿报警；注意原 `_g4` fixture 直读形态被本改写替换，docstring 语义不变）
+Expected: PASS（双侧纯形在过滤前后都在池内——本测是防过度过滤的回归哨：将来有人把过滤器拧过头（池被清空/塌缩→门判定变绿 SKIP）时，本测因 FAIL 不再发射而变红报警；注意原 `_g4` fixture 直读形态被本改写替换，docstring 语义不变）
 
 - [ ] **Step 4: 实现——谓词单源＋池过滤＋replay 改引**
 
 `src/shenbi/gates/shared.py`（`chapter_no_raw` 函数后、`load_facts_oracle` 前插入）：
 
 ```python
-PURE_CHAPTER_RE = re.compile(r"chapter-\d+")
-
-
 def is_pure_chapter(stem: str) -> bool:
     """True for the canonical live-chapter stem ``chapter-NN`` (digits-exact).
 
     Whitelist form (spec #119 T1): historical-layer variants (``-pre-rev``
     backups, future suffixes) fall outside the pool by shape, not by
     enumeration. Single source for both the measurement face (replay) and
-    the enforcement face (G4.cd) — spec #116 C3.
+    the enforcement face (G4.cd) — spec #116 C3. Reuses CHAPTER_NUM_RE under
+    fullmatch (capture group does not affect the boolean) — chapter-number
+    regex single-source discipline (z11 F1301 / lint_chapter_num_single_source).
     """
-    return PURE_CHAPTER_RE.fullmatch(stem) is not None
+    return CHAPTER_NUM_RE.fullmatch(stem) is not None
 ```
 
+（不新建 `PURE_CHAPTER_RE`——plan 审查 I-3：第二份章号正则以字形差绕过 `lint_chapter_num_single_source` 单源执法；`CHAPTER_NUM_RE.fullmatch` 与 replay 旧 `_pure_chapter` 对所有输入逐位等价。）
+
 `src/shenbi/gates/g4/chapter_drafting.py`：
-- `:19-32` 既有 `from shenbi.gates.shared import (...)` 列表加一行 `is_pure_chapter,`（`chapter_word_floor,` 之后）；
+- `:19-43` 既有 `from shenbi.gates.shared import (...)` 列表加一行 `is_pure_chapter,`（`chapter_word_floor,` 之后）；
 - `:1148` `other_chapters = list(chapters_dir.glob("chapter-*.md"))` → `other_chapters = [p for p in chapters_dir.glob("chapter-*.md") if is_pure_chapter(p.stem)]`（`:1149` 基数 SKIP 消费同一变量，口径自动同变——不另改）
 
 `tools/gate_power_replay.py`：
-- 删 `:162-163` `def _pure_chapter(...)` 两行；
-- 文件既有 shenbi import 块加 `from shenbi.gates.shared import is_pure_chapter`；
+- 删 `:162-163` `def _pure_chapter(...)` 及其前后多余空行（净删后保持标准 2 空行分隔——残留 4 连空行会被 `ruff format --check` 打红）；
+- `:24-30` 既有 `from shenbi.gates.shared import (...)` 括号列表插入 `is_pure_chapter,`（`count_transition_words,` 之后——**不另起 import 行**，同模块双 from-import 触发 I001）；
 - `:171`/`:254` 两处 `if _pure_chapter(p.stem)` → `if is_pure_chapter(p.stem)`（全调用方 grep 已清：仅此两处＋tests 无私有名 import）
 
 - [ ] **Step 5: 红转绿**
@@ -180,14 +182,14 @@ Expected: 全 PASS（gates 树＋tools 树零连带红）
 - [ ] **Step 7: 50 章重跑（批级一次）＋报告核对**
 
 Run: `uv run python tools/gate_power_replay.py novel-xinghuo-vol1 --out reports/2026-11-22-gate-power-vol1-post119.md`
-Expected: 报告生成；`G4.cd.content_uniqueness` 行 = `50 | 0 | 0 | 0 | 0.00`（现语料纯池零跨章重复——audit-T8 预证 0/50）；**其余行数字与 `reports/2026-11-20-gate-power-vol1-post118.md` 逐行一致**（diff 两报告除 uniqueness 行与日期头外零差异——T1 不触其他门）
+Expected: 报告生成；`G4.cd.content_uniqueness` 行 = `50 | 0 | 0 | 0 | 0.00`（现语料纯池零跨章重复——audit-T8 预证 0/50）；**其余行与 `reports/2026-11-20-gate-power-vol1-post118.md` 逐行一致**（报告为确定性渲染无时间戳——diff 应恰好只有 uniqueness 一行含 firing 列变化；T1 不触其他门）
 
 - [ ] **Step 8: baseline 整表重指＋uniqueness 行更新**
 
 `docs/framework/gate-power-baseline.md`：
 - 33 处 `reports/2026-11-20-gate-power-vol1-post118.md` → `reports/2026-11-22-gate-power-vol1-post119.md`（sed 整表替换；`＝#118 后权威态` 标签改 `＝#119 后权威态`）；
 - `:40` 登记表头注「权威回放」句追加：`2026-11-22 spec #119 落地后权威回放=reports/2026-11-22-gate-power-vol1-post119.md（uniqueness 纯形池过滤——FAIL 32→0，聋门修复）`；
-- `:59` uniqueness 行证据列数字改 `50 章 @ 2026-11-22（post119 报告）`、依据列追加 `**spec #119 T1 已执行**：纯形白名单池（is_pure_chapter 单源）——重放 50 PASS/0 FAIL（firing 0.00＝纯池零跨章重复，audit-T8 预证兑现）`。
+- `:59` uniqueness 行**最近回放数列**（`50 章 @ …`）改 `50 章 @ 2026-11-22（post119 报告＝#119 后权威态）`、依据列追加 `**spec #119 T1 已执行**：纯形白名单池（is_pure_chapter 单源）——重放 50 PASS/0 FAIL（firing 0.00＝纯池零跨章重复，audit-T8 预证兑现）`。
 
 Run: `uv run python tools/lint_gate_power_baseline.py`（justfile :36 同构）
 Expected: PASS（baseline 表结构 lint 绿）
