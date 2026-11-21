@@ -57,6 +57,7 @@ def is_review_skill(skill: str) -> bool:
 
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -358,6 +359,7 @@ def _deterministic_precompute(
     is ``word_count_md`` (same as G4, gates/shared) — NOT the legacy
     all-characters estimate.
     """
+    from shenbi.gates.g4.chapter_drafting import TRANSITION_CAP_PER_1000
     from shenbi.gates.shared import (
         count_transition_words,
         strip_narrative_body,
@@ -383,7 +385,10 @@ def _deterministic_precompute(
     # in the META block). word_count_md_text already strips internally;
     # wc stays on its own helper for the G4-aligned denominator.
     body = strip_narrative_body(content) if content else ""
-    transition_budget = max(5, wc // 1000)
+    # spec #119 T2: 预算=首个失败计数，自 G4 TRANSITION_CAP_PER_1000 单源派生
+    # （#118 T4 后旧绝对阈 max(5, wc//1000) 与门密度口径失同步）；max(wc,1)
+    # 镜像门侧护栏——wc=0 退化态不产「零转折也 ERROR」假阳。
+    transition_budget = math.ceil(TRANSITION_CAP_PER_1000 * max(wc, 1) / 1000)
     transition_count = count_transition_words(body) if body else 0
     blacklist = _extract_ai_blacklist(genre_config)
     # Per-word counts: the per-chapter rule is ≤1 occurrence per word, so a

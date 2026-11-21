@@ -25,6 +25,7 @@ from shenbi.gates.shared import (
     META_BLOCK_RE,
     count_similes,
     count_transition_words,
+    is_pure_chapter,
     strip_narrative_body,
     strip_scene_markers,
 )
@@ -159,16 +160,14 @@ def hook_window_attribution(content: str) -> dict[str, Any]:
     }
 
 
-def _pure_chapter(stem: str) -> bool:
-    return re.fullmatch(r"chapter-\d+", stem) is not None
-
-
 def collect(project_dir: Path, pattern: str = "chapter-*.md") -> list[dict]:
     """Run g4_chapter_drafting per pure chapter (chapter-NN.md) and keep raw rows."""
     # I1 顺手修：project_dir 一并 resolve——门内 truth/particle_ledger.md 等
     # 相对拼接面与章路径同坑（相对 project_dir 会漏读 truth 前置物）
     project_root = project_dir.resolve()
-    chapters = sorted(p for p in (project_root / "chapters").glob(pattern) if _pure_chapter(p.stem))
+    chapters = sorted(
+        p for p in (project_root / "chapters").glob(pattern) if is_pure_chapter(p.stem)
+    )
     rows: list[dict] = []
     for p in chapters:
         # 绝对路径直入 resolve_input_path（相对 fp 会被 rd 再拼一次 → file_not_found）
@@ -251,7 +250,9 @@ def render_report(
     """Deterministic markdown report (no timestamp — same input, same output)."""
     rows = collect(project_dir, pattern)
     summary = summarise(rows)
-    chapters = sorted(p for p in (project_dir / "chapters").glob(pattern) if _pure_chapter(p.stem))
+    chapters = sorted(
+        p for p in (project_dir / "chapters").glob(pattern) if is_pure_chapter(p.stem)
+    )
     contents = [p.read_text(encoding="utf-8") for p in chapters]
 
     lines = [

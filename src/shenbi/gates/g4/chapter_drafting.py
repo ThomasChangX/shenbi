@@ -27,6 +27,7 @@ from shenbi.gates.shared import (
     count_transition_words,
     degrade,
     fail,
+    is_pure_chapter,
     load_facts_oracle,
     passed,
     read_genre_config,
@@ -1145,7 +1146,9 @@ def _check_content_uniqueness(ctx: CheckContext, c: list[dict[str, Any]], mf: li
                 }
             )
             return
-        other_chapters = list(chapters_dir.glob("chapter-*.md"))
+        # spec #119 T1: 纯形白名单池——历史层变体（pre-rev 备份等）按形态落池外，
+        # 谓词与回放测量面同引（is_pure_chapter 单源，测量面=执法面）。
+        other_chapters = [p for p in chapters_dir.glob("chapter-*.md") if is_pure_chapter(p.stem)]
         if len(other_chapters) <= 1:
             c.append(
                 {

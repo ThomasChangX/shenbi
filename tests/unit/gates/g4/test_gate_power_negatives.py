@@ -221,9 +221,46 @@ def test_hook_type_rotation_full_pipeline_fails_on_same_type() -> None:
     assert any(m.startswith("G4.cd.hook_type_rotation:ch1:") for m in mf), mf[:3]
 
 
-def test_content_duplicated_fails_content_overlap_gate() -> None:
-    """从比对章（chapter-3.md 同目录）复制 13 段 append 章尾 → 指纹占比 >40%（I3 三条件齐）."""
-    res = _g4("chapters/chapter-1-duplicated.md")
+def test_content_uniqueness_excludes_pre_rev_from_pool(tmp_path: Path) -> None:
+    """Spec #119 T1: pre-rev 备份不入比对池——近全同稿不触发 FAIL（比对真跑非 SKIP）."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    base = sorted(Path("tests/fixtures").glob("chapter-*-draft.md"))[0].read_text(encoding="utf-8")
+    ch3 = (FIX_DIR / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
+    d = tmp_path / "proj"
+    (d / "chapters").mkdir(parents=True)
+    (d / "chapters" / "chapter-1.md").write_text(base, encoding="utf-8")
+    # pre-rev 备份=修订前原稿的逐字拷贝（chapter_loop 写入，重叠 1.0）
+    (d / "chapters" / "chapter-1-pre-rev.md").write_text(base, encoding="utf-8")
+    # 第二纯形章（真实产物、内容互异）——池基数 ≥2 使比对真跑
+    (d / "chapters" / "chapter-3.md").write_text(ch3, encoding="utf-8")
+    res = _json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], str(d), str(d), repo_root=None)
+    )
+    mf = res.get("must_fix", [])
+    assert not any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
+    rows = [c for c in res["checks"] if c["id"] == "G4.cd.content_uniqueness"]
+    # == PASS 直钉「比对真跑」（SKIP 不许静默过——池被过度过滤塌缩时此处变红）
+    assert rows and rows[0]["s"] == "PASS", rows
+
+
+def test_content_duplicated_fails_content_overlap_gate(tmp_path: Path) -> None:
+    """纯形双侧仍红（spec #119 T1 哨兵）：duplicated 章对 chapter-3 复制 13 段 append → 指纹占比 >40%."""
+    import json as _json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    dup = (FIX_DIR / "chapters" / "chapter-1-duplicated.md").read_text(encoding="utf-8")
+    ch3 = (FIX_DIR / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
+    d = tmp_path / "proj"
+    (d / "chapters").mkdir(parents=True)
+    (d / "chapters" / "chapter-1.md").write_text(dup, encoding="utf-8")
+    (d / "chapters" / "chapter-3.md").write_text(ch3, encoding="utf-8")
+    res = _json.loads(
+        g4_chapter_drafting([str(d / "chapters" / "chapter-1.md")], str(d), str(d), repo_root=None)
+    )
     mf = res.get("must_fix", [])
     assert any(m.startswith("G4.cd.content_overlap:") for m in mf), mf[:3]
 
