@@ -1,10 +1,12 @@
 # /sdd-next 引导协议（权威版 · v7.1）
 
-> **权威与版本**：本文件是 `/sdd-next` 命令内容的唯一权威（2026-11-15 起入库，受 docs CI 门禁与 git 考古约束；`.zcode/commands/sdd-next.md` 仅为本机瘦指针，不入库）。流程细节以 `docs/superpowers/single-model-sdd-prompt.md`（**v8.0 自治版·核心区与 a-stock 同源**）为权威；本文件管启动面：第零步参数分诊、第一步起点判定、全程纪律、完成报告。
+> **权威与版本**：本文件是 `/sdd-next` 命令内容的唯一权威（2026-11-15 起入库，受 docs CI 门禁与 git 考古约束；`.zcode/commands/sdd-next.md` 仅为本机瘦指针，不入库）。流程细节以 `docs/superpowers/single-model-sdd-prompt.md`（**v8.1 自治版·核心区与 a-stock 同源**）为权威；本文件管启动面：第零步参数分诊、第一步起点判定、全程纪律、完成报告。
 >
 > **v7.1 变更**（2026-11-15 · /sdd-next 多专家深审 14 findings 全修）：①「已完成未归档」预检＋ARCHIVE-AS-DONE 清偿路线（实证：spec #97 完结后归档欠账半月、靠 PR #349 人工清偿）；②末块机械提取命令钉死；③完成报告增审查成本行；④入口本体入库（原 `.zcode/` 零版本控制为该轮审计唯一 C 级发现）。审计底账：GLM-5.3 六专家面板（评测科学／异模型执行者／红队 Goodhart／状态机形式化／Token·提示／人因），负结果显式——防劫持分诊、Iron Law 措辞限界、rubric 锚点存活率经逐项机械核验为通过。
+>
+> **元审层（2026-11-22）**：跨 spec 横切面评审与异血统第三方席位（DeepSeek／MiniMax·事件触发·双席独立·产出全回 GLM 亲验）走 `docs/superpowers/meta-review-protocol.md`——独立于本执行环路（2026-11-15 裁定⑥维持：异血统不入 SDD 环路）。
 
-按 `docs/superpowers/single-model-sdd-prompt.md`（v8.0 自治版）执行 SDD。本协议只做启动引导，流程细节以该文件为权威。
+按 `docs/superpowers/single-model-sdd-prompt.md`（v8.1 自治版）执行 SDD。本协议只做启动引导，流程细节以该文件为权威。
 
 ## 第零步 · 参数分诊（先于一切状态检查）
 

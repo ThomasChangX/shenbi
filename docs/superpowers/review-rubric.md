@@ -1,8 +1,8 @@
-# SDD 审查 rubric（项目补充 · 单源 · v7.1）
+# SDD 审查 rubric（项目补充 · 单源 · v8.1）
 
 > **单源声明**：本文件是 `requesting-code-review` 子 agent 注入用「项目补充 rubric」的唯一权威（2026-11-15 自 `single-model-sdd-prompt.md` 抽出——此前「三源复制进子 agent prompt」义务造成派发副本不可审计、rubric 改版后历史副本漂移无察）。**编辑审查维度只改本文件**；prompt 侧只保留注入协议（路径注入＋回执）。
 >
-> **子 agent 须知（回执义务）**：读完本文件后，你的审查报告**开头**须回执节标题清单（「设计级维度 1-8 ／ 文件级检查表」各一行）——无回执 = 未注入，该轮审查无效。skill 通用 rubric（plan alignment / code quality / architecture / testing / production readiness + Critical/Important/Minor 三级）由 `requesting-code-review` skill 自带，与本文件叠加适用。
+> **子 agent 须知（回执义务）**：读完本文件后，你的审查报告**开头**须回执节标题清单（「设计级维度 1-9 ／ 文件级检查表」各一行）——无回执 = 未注入，该轮审查无效。skill 通用 rubric（plan alignment / code quality / architecture / testing / production readiness + Critical/Important/Minor 三级）由 `requesting-code-review` skill 自带，与本文件叠加适用。
 >
 > **设计审查（阶段 3 spec / 阶段 5 plan）无代码 diff**：BASE_SHA 取空树或 spec/plan 首次 commit、HEAD_SHA 取 spec/plan 文件当前 SHA，scope 由文件清单定义（非 diff）。子 agent 读 spec/plan/AGENTS.md 全文 + 本文件维度。
 >
@@ -22,6 +22,7 @@
 | 6 | 依赖图 | task 顺序与 import 依赖、契约依赖（A 写 B 读）一致 |
 | 7 | 合规 | 不违反 AGENTS.md（structlog 非 print、pathlib、gate 检查器纯函数幂等、conventional commits、G0.9 fixture 真实性、G3.4 独立评分） |
 | 8 | **解法最小性（v7）** | 每个新建机制：能否由既有机制参数化/升格替代？删掉哪个 task 验收仍成立（**审出可删 task = 合格审查，不是找茬**）？spec 自诊断的根因 ↔ 修法因果闭环吗（对抗回放：relabel/重派/绕过路径推演）？**排序可判定检查**：spec 同时含建门类与修复类 task 且门保护该修复 → 门 task 必须排前（修复应被门保护，先门后修），违反 = Important |
+| 9 | **测量语义（v8.1 · scope 触及指标/阈值/门/评分/统计量时必查）** | **L1 构念与口径**：数的量与决策的单位一致吗（在 A 层级测的量用于 B 层级决策=生态谬误）；分位≠绝对水平（趋势序列上的分位下限只是跟踪趋势）；「单源」覆盖谓词与输入了吗（不只常量——门与消费方各写一套比较式=漂移入口）；作为真值的量自身有无独立核验。**L2 闭环与污染**：选材信号=评价信号（打分→高分选材→生成→同一打分者）；参照标准被流水线自己制造；top-k 赢家诅咒；修订稿与原件同表=标签泄漏。**L3 活性与负荷去路**：真实分布点火率（阈值 vs 中位/众数距离；clamp/cap 触顶后永久熄火路径）；点火后负载落到的预算与余量。**L4 可判别性**：判据分支互斥且穷尽；给定 n 每档可达（最小可测效应算术，非直觉）；证伪与确认不对称。**L5 时点保真**：离线回放信息集=在线决策信息集（walk-forward，无未来行）。分工：「规则→主张」推导归一致性/验收维度，分布行为归 L3；博弈回路归既有对抗检查，L2 只管测量回路 |
 
 ## 文件级检查（每个 scope 文件必查 · 补充 skill 的 code quality 维度）
 
