@@ -1,0 +1,97 @@
+name: CI on a bot pull request
+on:
+  # Called by pre-commit-autoupdate.yml on the PR it just opened; runnable by
+  # hand for any branch to do the same again.
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        required: true
+      head_sha:
+        type: string
+        required: false
+        default: ""
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch of the pull request
+        type: string
+        required: true
+      head_sha:
+        description: Head commit (defaults to the branch head)
+        type: string
+        required: false
+        default: ""
+
+# workflow_dispatch needs actions: write. The runs it starts are not attached
+# to the pull request, so their outcome is reported as a commit status on its
+# head commit instead; that does show up among the PR's checks.
+permissions:
+  actions: write
+  statuses: write
+
+jobs:
+  run-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve the head commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.branch }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+        run: |
+          if [ -z "$HEAD_SHA" ]; then
+            HEAD_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$BRANCH" --jq .object.sha)
+          fi
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_ENV"
+      - name: Dispatch CI, Docs and Security on the branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.branch }}
+        run: |
+          # A pull_request run on a PR opened with GITHUB_TOKEN waits in
+          # action_required for an approval nobody is notified about (#385
+          # sat a day with no check reported). A workflow_dispatch is the one
+          # trigger that token may fire.
+          echo "started=$(date -u -d '-1 minute' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          for workflow in ci.yml docs.yml security.yml; do
+            gh workflow run "$workflow" --ref "$BRANCH"
+          done
+      - name: Report each run on the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.branch }}
+          HEAD_SHA: ${{ env.head_sha }}
+          STARTED: ${{ env.started }}
+        run: |
+          for workflow in ci.yml docs.yml security.yml; do
+            run_id=""
+            # A new run takes a few seconds to be listed; only count runs
+            # created since the dispatch, never an older one for the same sha.
+            for _ in $(seq 1 12); do
+              listed=$(gh run list --workflow "$workflow" --branch "$BRANCH" \
+                --event workflow_dispatch --limit 5 --json headSha,databaseId,createdAt)
+              run_id=$(echo "$listed" | jq -r --arg sha "$HEAD_SHA" --arg since "$STARTED" \
+                '.[] | select(.headSha == $sha and .createdAt >= $since) | .databaseId' \
+                | head -n 1)
+              if [ -n "$run_id" ]; then
+                break
+              fi
+              sleep 5
+            done
+            if [ -z "$run_id" ]; then
+              gh api "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+                -f state=failure -f context="$workflow (dispatched)" \
+                -f description="no workflow_dispatch run appeared on $BRANCH"
+              continue
+            fi
+            if gh run watch "$run_id" --exit-status > /dev/null; then
+              state=success
+            else
+              state=failure
+            fi
+            url=$(gh run view "$run_id" --json url --jq .url)
+            gh api "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+              -f state="$state" -f context="$workflow (dispatched)" \
+              -f target_url="$url" -f description="workflow_dispatch run $run_id"
+          done

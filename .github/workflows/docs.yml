@@ -1,5 +1,7 @@
 name: Docs
 on:
+  # Driven by pre-commit-autoupdate.yml on its own PR; see ci.yml.
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:

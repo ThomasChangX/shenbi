@@ -10,6 +10,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # For bot-pr-ci.yml, called on the PR just created: it dispatches the CI
+      # workflows and reports their outcome as commit statuses.
+      actions: write
+      statuses: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -26,6 +30,12 @@ jobs:
       - run: uv python install 3.13
       - run: uv sync --frozen --group dev
       - run: pre-commit autoupdate
+      - name: "Align uv.lock with the bumped hooks (spec #97 dual alignment)"
+        # autoupdate rewrites only .pre-commit-config.yaml while the lint and
+        # type faces run the lockfile's ruff/mypy: ruff 0.17.6 went in as a
+        # split (#385) and needed the manual follow-up #388. The tool fails the
+        # job when a moved hook cannot be pinned, instead of shipping a split.
+        run: python3 tools/align_precommit_lock.py
       - name: Verify updated hooks work (two-pass idempotent, block on real failure)
         run: |
           set +e
@@ -65,6 +75,7 @@ jobs:
             exit 1
           fi
       - name: Create PR if changes
+        id: create-pr
         uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore: pre-commit autoupdate"
@@ -72,3 +83,12 @@ jobs:
           branch: pre-commit-autoupdate
           delete-branch: true
           labels: dependencies, pre-commit
+      - name: Run CI on the pull request
+        # The pull_request runs this PR triggers sit in action_required: a PR
+        # opened with GITHUB_TOKEN needs an approval nobody is notified about,
+        # and #385 sat untouched for a day with no check reported.
+        if: steps.create-pr.outputs.pull-request-number != ''
+        uses: ./.github/workflows/bot-pr-ci.yml
+        with:
+          branch: pre-commit-autoupdate
+          head_sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
