@@ -52,10 +52,11 @@ jobs:
           # A pull_request run on a PR opened with GITHUB_TOKEN waits in
           # action_required for an approval nobody is notified about (#385
           # sat a day with no check reported). A workflow_dispatch is the one
-          # trigger that token may fire.
+          # trigger that token may fire. There is no checkout in this job, so
+          # every gh call names the repository instead of asking git for it.
           echo "started=$(date -u -d '-1 minute' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           for workflow in ci.yml docs.yml security.yml; do
-            gh workflow run "$workflow" --ref "$BRANCH"
+            gh workflow run "$workflow" --ref "$BRANCH" -R "$GITHUB_REPOSITORY"
           done
       - name: Report each run on the pull request
         env:
@@ -69,8 +70,9 @@ jobs:
             # A new run takes a few seconds to be listed; only count runs
             # created since the dispatch, never an older one for the same sha.
             for _ in $(seq 1 12); do
-              listed=$(gh run list --workflow "$workflow" --branch "$BRANCH" \
-                --event workflow_dispatch --limit 5 --json headSha,databaseId,createdAt)
+              listed=$(gh run list -R "$GITHUB_REPOSITORY" --workflow "$workflow" \
+                --branch "$BRANCH" --event workflow_dispatch --limit 5 \
+                --json headSha,databaseId,createdAt)
               run_id=$(echo "$listed" | jq -r --arg sha "$HEAD_SHA" --arg since "$STARTED" \
                 '.[] | select(.headSha == $sha and .createdAt >= $since) | .databaseId' \
                 | head -n 1)
@@ -85,12 +87,12 @@ jobs:
                 -f description="no workflow_dispatch run appeared on $BRANCH"
               continue
             fi
-            if gh run watch "$run_id" --exit-status > /dev/null; then
+            if gh run watch "$run_id" --exit-status -R "$GITHUB_REPOSITORY" > /dev/null; then
               state=success
             else
               state=failure
             fi
-            url=$(gh run view "$run_id" --json url --jq .url)
+            url=$(gh run view "$run_id" -R "$GITHUB_REPOSITORY" --json url --jq .url)
             gh api "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
               -f state="$state" -f context="$workflow (dispatched)" \
               -f target_url="$url" -f description="workflow_dispatch run $run_id"
