@@ -16,7 +16,7 @@ dependencies = [
     # 注：sentence-transformers 与 numpy 移至 [project.optional-dependencies].embeddings
     #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
     "openai>=3.45.0",
-    "tenacity>=8.0.0",
+    "tenacity>=9.2.1",
 ]
 [project.optional-dependencies]
 # numpy 封顶 <2.5：2.5.0 面向 python>=3.12 且其 stubs 用 PEP 695 语法，
