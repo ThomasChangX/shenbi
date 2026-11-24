@@ -1,9 +1,13 @@
 # Spec #104 · 力量体系卷界扩容（power-system-expansion）：power_system.md 双区化（演进台账 keyed append）、TRIGGER_STEPS 卷界插步、G4 expand 四检查（前层不可变/单调性/编年锚定/钩子可达）
 
-**日期**：2026-11-15｜ **系列**：写作工艺批（authoring-craft）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟠 P1
+**日期**：2026-11-15｜ **系列**：写作工艺批（authoring-craft）｜ **状态**：Design（r1.1，2026-11-24 Revised）｜ **优先级**：🟠 P1
 **动机证据**：`skills/shenbi-power-system/SKILL.md:15-17`（updates `mode: create_or_overwrite`——**整文件覆写**：扩容=全量重写历史层=一次幻觉即 retcon 全书设定）；`src/shenbi/pipeline/triggers.py:277-309`（卷界扩容群五技能 character/faction/location/relationship/plot-thread + genre-config 更新——**无 power-system/worldbuilding**：力量天花板 genesis 写死后无合法升级通道，group-factual D2 只审计「不超天花板」却无正向步骤「升天花板」）；`skills/shenbi-review-group-factual/SKILL.md:12-17`（字段级读 4 节锚点：力量天花板/代价机制/跨级战斗参考/能力边界——**双区化必须保此 4 节结构不变**，消费面零扰动）；`skills/shenbi-power-system/SKILL.md:64`（铁律 6 编年锚定 volume_map 对照——P3 检查的程序化基础现成）；G1.4 `.bak` 快照（`derive_backup_skills`）+G2.11 truth-diff 对账先例——P1 检查机制复用；outline 账本 keyed 写同构（`dispatch_helper.py` `_KEYED_OUTLINE_TARGETS` + `check_new_volume_anchor` 落盘前拒收）；`docs/framework/invariants.md` 13 维普查表**无世界规则/力量行**——「改表即改 lint」：新 check id 族须同批登记（挂靠行或新行，plan 期定）。
 
 **触及的不变量维度**：无现有维度行（世界规则/力量面现无普查行——T3 含 invariants.md 登记义务：新 check id 族 G4.ps.* 同批入表，形态 plan 期定）
+
+**r1.1 修订（2026-11-24 · spec 组合席透镜复核＋技能契约席锚点核对，协调者核）**：
+- **L3 活性与负荷去路**：T3 的 P1「前层不可变：现行生效区 vs 派发前快照逐字节一致」——若 expand 按 T1 的 keyed append／upsert 由框架侧落盘，P1 按构造恒真（框架本来不改前层）。P1 仍保留作廉价不变量，但不得计入「有判别力」的门（#116 的 gate-power 登记里标为按构造成立）；只有写模式最终是「LLM 整档输出、框架校验」时 P1 才有判别力。plan 期定写模式时同步标注。
+- **措辞更正**：`skills/shenbi-power-system/SKILL.md:14-17` 的键是 `updates:`（`writes: []`），非动机行所说的写模式键；`mode: create_or_overwrite` 现行号 `:17`，实质未变。
 
 ---
 

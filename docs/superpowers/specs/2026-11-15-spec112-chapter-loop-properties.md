@@ -1,9 +1,23 @@
 # Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编
 
-**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟠 P1
+**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit）｜ **状态**：Design（r2，2026-11-24 Revised）｜ **优先级**：🟠 P1
 **动机证据**（2026-11-15 状态机审计，标注〔亲验〕/〔代理枚举待性质测试钉死〕）：`chapter_loop.py:3996-4004`〔亲验〕（core wave savepoint `_wave_savepoint(state, project_dir, chapter)(core_wave)` **漏传 wave_chapters**——genre 波 `:4040-4042` 传了；core 波 savepoint 只落 leader 章 ChapterState，与 `:539-540` docstring 的 cluster 契约相悖）；`error_handler.py:126`〔亲验，grep 全仓〕（`cs.status = SETTLING_FAILED` 唯一写者、**全仓无复位者**——「已修复待重跑」与「仍坏」不可区分，操作面盲）；`chapter_loop.py:4728-4749`〔亲验〕（`--auto` 模式 G4 硬失败 `count<=1` 重试、`>1` `reset_retry` 后**直落成功路径放行**；per_chapter_review 模式同点走 `_handle_failure`——同因异果，语义未文档化未裁定）；`cli.py:563/:584`〔亲验〕（trigger 后 `cl.step_index = 1` 防再触发——若 step 0 为 pipeline-volume-align，新章跳过对齐面）；`chapter_loop.py:3107`〔代理〕（revision_count wave/serial 双路径调用面——resume 重放 wave 可再 +1，cap 检查 `:3119` 可被虚假触发）；`chapter_loop.py:587-615`〔代理〕（`_clamp_resume_cursor` 只回卷「零 steps_done」游标章——wave 已批量标 done 的 runaway 章拒绝回卷）；`machine.py:131-139`〔代理〕（escalation resolve `cp.chapter is None` → **全清所有章 retry budget**——跨章 durable 史一键抹平）；`chapter_loop.py:1951-1970`〔代理〕（scene-split 熔断预算记 drafting 键 vs checkpoint 挂当前章——前缀清理错键风险）；`state_heal.py:36-64`〔代理〕（revision_count heal 0/1 floor 与重放双计交互）；`cli.py:507+`〔代理〕（`_cleanup_residual_staging` 与 `_mark_staged_for_checkpoint` 的时序窗——CHAPTER_MEMO auto-commit 失败分支后崩溃可清掉待审 staged 计划）；历史反例在册（spec #91 归档：re-settle 死锁 P0/两锁窗口；probe20 恢复路径死亡；fixcheck ch2 整维消失——`:4083-4085` 注释自认）。
 
 **触及的不变量维度**：无（状态机基建——约束的是管线自身状态一致性）
+
+**r2 修订（2026-11-24 · 实现审计回写；证据＝八席实现审计之状态机席，协调者逐条亲验）**：
+- **主张复核**（原动机 10 条代理枚举，逐条在 HEAD 重开文件核对）：
+  - **仍成立**：E-3（核心波存档点漏传 `wave_chapters`——现 `chapter_loop.py:4317`；genre 波 `:4356` 传了）；E-9（`SETTLING_FAILED` 唯一写者 `error_handler.py:126`、无复位者；`_complete_chapter` 仍会把状态改写为 COMPLETE〔`:2462/:2474`〕，影响面待性质测试钉死）；E-11（`--auto` 第二次硬失败放行——现 `:5040-5051`）；E-26（trigger 后 `step_index = 1`——`cli.py:563/:584` 行号未漂；影响很小，`CHAPTER_STEPS[0]`〔pipeline-volume-align〕在 `chapter_loop.py` 只有定义〔`:165`〕没有处理分支）；E-24（`chapter=None` 全清预算——`machine.py:131-139` 行号未漂）。
+  - **不成立，从 T3 清单删除**：E-10「scene-split 熔断预算键与检查点章号不一致」——三处用的是同一个 `chapter`（`chapter_loop.py:4696/:4717/:4728`）。
+  - **改定性**：E-16「备忘自动提交失败后崩溃会清掉待审计划」在人审模式下字面不成立——先 `set_checkpoint` 再打标记（`:2735-2742`），resume 清理保留已标记产物（`:3879`）；真缺陷在 `--auto` 的提交失败分支（`:2677-2682` 与 `:2726-2727`：缺文件只告警 → `clear_staging` → 步骤照常前进）。T3 改为收编此形态。
+  - **未证实，悬置**：E-18（`revision_count` 的非幂等 `+= 1` 存在〔`:3368`〕，但没找到重放路径）。
+- **I6 须先对账再立**：原拟不变量 I6「escalation resolve 只清其章」与 `src/shenbi/pipeline/machine.py:93-95` 文档化的既有设计（C33／spec #47 R3：升级裁决后**故意**清全部重试计数——有事故背景，「只清一部分会让预算在第一次新失败时就误报耗尽」）方向相反；且 `:124-126` 对三个 `retry_counts` 表的清理本就不看章号。I6 不是修 bug，是改一条有事故背景的规则——**执行前须用户裁定**以哪个为准；若保留 C33，I6 改写为「显式登记的设计内行为」，并以性质测试钉住「清全部之后不会立即误报耗尽」。
+- **E-11 的现实范围**：vol1 运行配置为 `per_chapter_review_enabled: true`——auto 放行分支在真实项目上不走，T4 裁定件优先级最低；它与 #114 T1（同门三振分诊）改的是同一段代码的两个分支，两件须一起裁（#114 原文未知会本件）。
+- **性质测试必须绑真代码**：T2 原文「复用 `state.py` 真实类」——但反例所在全是 `chapter_loop.py`／`cli.py` 的函数（`_wave_savepoint` `:547`、`_clamp_resume_cursor` `:605`、`_handle_failure` `:1985`、`_escalate_step_failure` `:2063`）。增补判据：I1–I12 每条在测试里点名它所约束的真实函数；mutation 演示从「至少 3 条」提到「每条现状成立的不变量各一次」；绑不到真实函数的不变量标「仅模型层」，不计入覆盖。
+- **新增不变量 I13 · FAILED 相位可达性**：`src/shenbi/pipeline/transitions.py:76`（`transition_to_failed`，FAILED 相位的唯一写者）全仓零调用，`cli.py:518/:873` 的 FAILED 分支恒不可达（架构席发现，协调者复核）——归 T3：接线或删相位，与 #122 T3 的零引用清偿同批。
+- **I14 候选（仅核代码、未实跑）· 收尾异常后的游标卡死**：步骤全部跑完后若 `_complete_chapter` 抛异常（`chapter_loop.py:2456` 的 `ProductContractError`），此时 `step_index` 已被 `_advance` 推到末尾（`:2649`、`:2745`）；退出钩子把内存态原样存盘（`src/shenbi/pipeline/crash_recovery.py:174-185`，注释自述「内存态权威于磁盘」），此后每次恢复在 `chapter_loop.py:4077` 直接返回，不再补跑收尾——游标永不前进、无检查点。plan 期先写一条能红的复现（确认 `cmd_next`／`cmd_resume` 的异常处理不会先行存盘），再决定归入 I 清单与 T3。
+- **行号重锚**：`:3996-4004`→`:4317`；`:4040-4042`→`:4356`；`:4728-4749`→`:5034-5051`；`:587-615`→`:605-633`；其余 plan 首步 re-anchor。
+- **依赖**：#109 已归档——原「#109 后链尾」解除；现排 #121／#101／#122 之后（三者先改 `chapter_loop.py`／`cli.py` 的重派、bundle、修订路由面）。
 
 ---
 

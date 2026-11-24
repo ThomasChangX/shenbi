@@ -1,10 +1,17 @@
 # Spec #94 · 接口诚实批（interface-honesty）：modes 清障、cli 引擎出鞘、scoring 子命令化、dispatch 上下文收拢
 
-**日期**：2026-11-01（r2 修订 2026-11-02：接收 #87 移出的 DispatchContext；T5 范围校准——`_record_gate_manifest` 三拷与 `now_iso` 双拷只收敛后者为共享 helper，前者仅登记；**r2.2 2026-11-02 全量对抗式审计修订**——T2 收益核算须含 cmd_review（原范围不可达 <900）、T1 错误移 dispatch() 非 detect_mode、T3 补调用方迁移、T4 参数是 legacy 载荷非无用、T5 计数 6 非 12、T6 依赖 #85）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.2） ｜ **优先级**：🟡 P2
+**日期**：2026-11-01（r2 修订 2026-11-02：接收 #87 移出的 DispatchContext；T5 范围校准——`_record_gate_manifest` 三拷与 `now_iso` 双拷只收敛后者为共享 helper，前者仅登记；**r2.2 2026-11-02 全量对抗式审计修订**——T2 收益核算须含 cmd_review（原范围不可达 <900）、T1 错误移 dispatch() 非 detect_mode、T3 补调用方迁移、T4 参数是 legacy 载荷非无用、T5 计数 6 非 12、T6 依赖 #85）｜ **系列**：架构复审批次 A ｜ **状态**：Design（r2.3，2026-11-24 Revised） ｜ **优先级**：🟡 P2
 **依赖**：T4（dispatch 累积器/上下文）须 #87 后施工；其余独立可先行
 **动机证据**：architecture-review-20261101 #13/#19/#23/#25/#26 卡；亲验：`codex_api.py:1-8` 自declared "Safe to delete entirely"；`detect_mode()` 只返回 codex/internal；cli.py 测试进口 5 个私有名；`dispatch_skill` 11 参数（`test_type`/`round_dir` 零 src 传参）
 
 **触及的不变量维度**：无（接口/文档诚实层）
+
+**r2.3 修订（2026-11-24 · 实现审计回写；证据＝八席实现审计之架构席，协调者重跑三条复现）**——本件是活跃 spec 里唯一一份 2026-11-02 之后没再动过的，锚点大面积失效：
+- **重锚**：`_dispatch_via_api` 已改名为公开的 `dispatch_via_api`（`src/shenbi/pipeline/dispatch_helper.py:3596`，至 `:4069`）；`dispatch_skill` 现 `:4368`（原 `:4301`）；`_dispatch_via_ide` `:4093`；`cli.py` 现 1,879 行（原 1,809）——T2「<900 行」的收益核算须在 plan 期按现重算。
+- **T1 增补·第三条路由必败**：`dispatch_helper.py:4443`（`if _find_ide_cli():`）→ `:4461`（「Legacy CLI subprocess path」）。父进程只在找不到 codex／zcode 命令行时才走这条路由，而子进程用同一条 PATH，`src/shenbi/dispatcher/executor.py:145-147` 只会落到 internal 并抛 `DispatcherError`。复现（本机即无 codex 环境）：`_find_ide_cli() -> None`、`detect_mode() -> 'internal'`、`dispatch()` 抛错。T1 增补：删除这条路由及三个 legacy 专属参数（或显式拒绝并给可执行提示）；`docs/framework/dispatcher.md` 的「真三路由」改写为两路由。
+- **T5 增补·写审计自身故障的放行语义**：`dispatch_helper.py:4343-4344`（`except Exception: log.error("write_audit_infra_error", …)`）——生产包装在审计基础设施出错时只打日志并返回成功，遗留包装（`executor.py:327-330`）则置 rc=2 并抛出；测试 `tests/unit/pipeline/test_dispatch_skill_write_audit.py:289` 钉住了这一有意设计。不改放行语义，但须让它可见：落 `audit_skipped` 标记或计数，并在文档写明这是「no gate can be skipped」的哪一类例外。
+- **E5 重复面复核**：`now_iso` 现为 3 份（`src/shenbi/phase_runner.py:87`、`src/shenbi/pipeline/machine.py:26`、`dispatch_helper.py:2049`，第三份格式不同）；用量算术、trace 发射块与章节号推导的处数为架构席清点（协调者未逐处复核），plan 期重数。
+- **移交**：G3.2 的 NaN／缺维放行与 kill switch 无自动路径（评分面）移交 #124；T3 保留「scoring 子命令化＋归一化单源」，并排在 #124 之前（同文件 `scoring.py`／`codex.py`）。
 
 ---
 

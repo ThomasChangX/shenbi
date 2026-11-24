@@ -1,9 +1,17 @@
 # Spec #108 · 审核灵敏度探针（audit-recall-canary）：确定性变异器目录 + 派发探针 harness + 召回矩阵报告（审计召回=体系缺失的第一元指标）
 
-**日期**：2026-11-15｜ **系列**：评审工艺批（review-craft）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟡 P2
+**日期**：2026-11-15｜ **系列**：评审工艺批（review-craft）｜ **状态**：Design（r1.1，2026-11-24 Revised）｜ **优先级**：🟡 P2
 **动机证据**：`src/shenbi/gates/g7.py`（G7 全文不读 `audits/*.md`——grep 零命中；G7.13 复核的是门不是 LLM 审计）——**审者假阴性无任何测量面**；`tests/tiers/t1-skill/_template/rubric.md:19-30`（kill switch 三分：bug-hunt「漏检植入缺陷→0」/clean「幻觉缺陷→0」/**generative 仅 HARD-GATE violation→0**——审者漏检在生成侧评分零成本）；`src/shenbi/pipeline/chapter_loop.py:686-709`（cascade skip：3 连净章跳审计 + CASCADE_REVERIFY_GAP=5——被跳过的审计技能无抽样验证机制）；覆盖面盘点（2026-11-15 审核体系审计）：**>5 章跨章语义一致性无审核面**（LLM 审窗普遍 3-5 章；long-span 每 24 章且只查统计形态；arc-payoff 卷尾摘要粒度）——伤害无数据；`docs/framework/invariants.md` mutant 义务列（spec #80 rev4 R3-I1——**mutant 先例**：义务谓词挂门检维度；本件把 mutant 思想从「门」推广到「审计技能」）；`tests/fixtures/`（G0.9 真产物基座现成）；`novel-xinghuo-vol1/cost/report.md`（一束 canary ≈ 6 技能×10 变异 ≈ 60 派发 ≈ $0.35——束8 探针同量级）。
 
 **触及的不变量维度**：恒等 identity、时间、持有与经手 props、枚举计数 counters、叙事纪律（POV/声口）、情绪节奏（均只读消费——测既有门检/审计的召回率，不改载体/声明/门检任何槽）
+
+**r1.1 修订（2026-11-24 · 实现审计回写；spec 组合席透镜复核＋评测科学席实测，协调者核）**：
+- **重复次数（L4 可判别性）**：原文「逐 mutator 生成变异副本 → 派发」即每格 1 份、无重复数。评审派发有随机性，单次读数的召回估计噪声不可控。改为：每个 mutator × 每个基座章重复 k≥3（或 ≥3 个基座章），报告按 mutator 给 Wilson 区间，并预注册「最小可检效应」。
+- **缺未变异对照臂**：#107 T2 以本件为测量器并要求「audits 误报率不升」——本件原设计没有对照臂，测不出误报率。T2 增补：每个基座章同时跑一次**未变异**派发作对照臂（成本约 +1/9），「对照臂上的 finding 数」即基线误报率。
+- **验收由「召回>0」改为可判**：结构面 mutator 1–8 的判据改为「召回点估计 ≥ 预注册下限且区间下界 >0」；mutator 9 仍预期 0 检出（缺口数据）。
+- **T3 的 before 底座不可复现**：#105 已于 2026-11-16 归档，本件实弹尚未跑过——「为 #105 改动提供 before/after 底座」的 before 补不回。T3 改为「为其后的审计面改动（#107／#117／#123）提供 before/after 底座」，#105 的对照登记为不可得。
+- **期望检出面须逐项可 FAIL（评测科学席实测，协调者复核一例）**：`G4.cd.simile_band` 两臂都只出 PASS（`src/shenbi/gates/g4/chapter_drafting.py:1397/:1406` 一带，注释「报告行非 WARN——spec #118 T5 裁定 A」）却登记为有判别力；首批 mutator 的「期望检出面」须核对目标门在真数据上确能 FAIL，按构造不可 FAIL 的门不作期望面。
+- **顺序**：独立 dry-run 可随时；实弹随令。
 
 ---
 

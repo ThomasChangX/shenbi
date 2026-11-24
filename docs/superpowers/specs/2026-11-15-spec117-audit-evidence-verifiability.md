@@ -1,9 +1,20 @@
 # Spec #117 · 审计证据可验证性（audit-evidence-verifiability）：发现级四要素校验、引述逐字/行号指称/规则名对账、消费三态
 
-**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit · B 异模型元审）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟠 P1
+**日期**：2026-11-15｜ **系列**：多专家审计批（expert-audit · B 异模型元审）｜ **状态**：Design（r2，2026-11-24 Revised）｜ **优先级**：🟠 P1
 **动机证据**：契约面 `skills/shenbi-review-group-craft/SKILL.md:267-276`（四要素：位置 `文件路径 L行号-行号`／原文引述 `>` ≥20 字／违反规则逐字／严重度；「缺失任一要素的缺陷报告视为不合格」）；门禁实现 `src/shenbi/gates/g4/generic.py:125-126`（仅 `re.search(r"(?:L\d+|line\s+\d+|:\d+|`[^`]+\.[a-z]+`)")`——**报告级、四选一、不验指称**）、`:129-137`（`has_rule` 只匹配「铁律/SKILL.md…」词形，不验规则名逐字存在）、`src/shenbi/pipeline/llm_output_integrity.py:173-192`（`check_audit_line_refs` 只验 `end <= max_line`，不验该行内容是否支持结论）、`src/shenbi/pipeline/audit_layer.py:253/:256`（`"BLOCKING" in content` / `"CRITICAL" in content` 消费严重度）；覆盖 `src/shenbi/gates/g4/review_resonance.py:36` 与 `src/shenbi/gates/g4/review_arc_payoff.py:50` 是仅有的两个专用 review 结构校验器——**12 个 active review 技能中 10 个**走 `g4_generic_generative`（存在/非空/≥50 字），bug-hunt 四要素形态检查仅在 `test_type=bug-hunt` 时生效；实测（vol1 **588 份章审计**全量只读回放，脚本附录 A）：四要素**形态**完备 64/588=**10.9%**（非饥饿子集 9.3%）、`>` 引述块 31.8%、规则名要素 23.6%、行号 94.0%；提取 ≥10 字引述 **2883** 条，在「全项目 md + 全部 SKILL.md」中逐字命中 2070 条（71.8%），**813 条（28.2%）在任何项目/技能文本中找不到逐字来源**；28 份报告的全部引述均不可解析；按 kind：group-craft 三产物四要素 5.3-11.4%、引述不可解析 21.8-33.7%；对照组 `audits/chapter-13-resonance.md`（有专用校验器）行号+引述+锚点+相对位置齐备而四要素启发式 0%——**四要素指标是契约形态率，不是证据缺失率**，这正说明契约与生产形态脱节、且门禁两端都不校验；历史前科 #109（96 份本轮 STARVED 词族口径的饥饿产物，另 49 份编造通过）证明「无正文也能出具判定」，本件处理**有正文但证据不可验证**的另一半；可用原语 `src/shenbi/gates/g4/quote_verbatim.py:21-25`（quote in prose + 空白归一）、`g4/verdict_fence.py`（围栏作用域，#113 同侧）。
 
 **触及的不变量维度**：无（审计产物有效性基建——新 check id 族 `G4.av.evidence_*`，不挂叙事维度）
+
+**r2 修订（2026-11-24 · 实现审计回写；证据＝八席实现审计之注入红队席／评测科学席／技能契约席，协调者逐条重跑）**：
+- **锚点更正**：动机所引 `audit_layer.py:253/:256` 的 `"BLOCKING" in content` 已被 #105 换成读单源词表——现 `src/shenbi/pipeline/audit_layer.py:259-266`（`_blocking_tier in content`／`_critical_tier in content`，词表出自 `contracts/severity.py`，注释自认「非锚定子串传感是本层的既定语义」）。实质不变：报告里出现该词即路由修订。
+- **证据加厚（两处新实测）**：(a) **行号 83% 引错**——`src/shenbi/pipeline/llm_output_integrity.py:186` 只查 `end > max_line`；按派发归档复核（模型当时看到的章＋它交回的报告），42 个带行号的证据格里引述落在所引行上的只有 7 个（17%），其余错位中位数 20 行、p90 61 行；(b) **饿死门漏判 62%**——`src/shenbi/pipeline/audit_starve_family.py:26`（`PRODUCTION_FAMILY` 只有 11 个短语）与 `llm_output_integrity.py:421`（`if token in value:`）：vol1 602 份评审里没读到正文的 134 份，守门只认出 51 份，另 83 份被当成有效判定（61 份静默，其中 4 份写「通过」）。
+- **新增 T0 · 饿死判定改白名单**（先于 T1——parser 复用同一判定行提取）：判定值必须以「通过／有瑕疵／不通过」之一开头，否则判无效（黑名单枚举换白名单）。红测用那 83 份的真副本（G0.9）；回放报告给出修后 83/83 命中、对已判有效的 468 份零误伤。
+- **T2 增补规则（由 (a) 推出）**：引述在章内别处逐字存在而行号不符＝`line_mismatch`（WARN＋框架按引述反查行号），**不得判 invalid**——否则按现规则约 83% 的位置证据会被判 unvalidated。行号校验的修法二选一：框架按引述反查（零派发成本，优先）／给审稿技能提供带行号的正文视图——plan 期定。
+- **语义澄清（L1 构念与口径）**：「validated」只表示**引述逐字存在、位置可解析**，不表示结论成立。`review-summary`、聚合审计与消费三态的文案一律写「证据已核对」，不写「已核实／成立」。
+- **armed 须有毕业数字（L4 可判别性）**：现状四要素形态完备率 10.9%（附录 A）——直接 armed 等于让约九成 BLOCKING 不再路由修订。预注册毕业条件：shadow 一轮后 BLOCKING 发现的 validated 率 ≥60%，且 unvalidated 集人工抽检 30 条的编造率 <10%；未达标时改 producer 的格式要求（见下），不放宽校验。
+- **约束已变，替代方案重估（价值门 ⑤）**：原文「不改 review SKILL 文本」的理由是与 #109 T1 同文件——#109 已于 2026-11-18 归档。新增候选：**新跑批要求审稿技能输出结构化 findings**（fenced finding 块或 sidecar，契约层既有的 Layer A 模式）＋G4 格式门，解析器只服务存量回放与容错读取；代价＝12 个 active review 技能的输出格式变更（现仅 2 个评审技能用了 verdict 围栏）。plan 期与「纯解析器」方案对照后二选一。
+- **单源与分工**：#122 T1（聚合带证据）先行做块级保留，本件 T1 的发现级 parser 落地时吸收其为单源；#123 管审稿**输入**侧（判官看得到它要判的段），本件管**产出**侧。
+- **顺序**：由原队头调整为 #121／#101／#122／#112／#111 之后——先解堵实跑与修订证据面，再建校验器；原「justfile #92→#116→#117」的两项均已归档，解除。
 
 ---
 
