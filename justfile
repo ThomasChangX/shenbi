@@ -80,11 +80,11 @@ type:
 
 # CI-shaped test face: both pytest legs + module coverage (spec #92 T4).
 # Coverage threshold lives in pyproject [tool.coverage.report] fail_under (single source).
-# --max-worker-restart=0: a timed-out test must fail once, visibly. With restarts
-# on, pytest-xdist 3.8.0 --dist loadscope deadlocks when the last active worker
-# dies (the replacement is handed one already-completed work unit and nothing
-# triggers the next reschedule), and a persistently-timing-out test is re-run up
-# to 4 x workers before xdist gives up.
+# --max-worker-restart=0: a timed-out test must fail once, visibly. It is the
+# second of two guards. tests/support/xdist_scheduler_fix.py repairs pytest-xdist
+# 3.8.0's crash-replacement path in the scheduler itself; this flag keeps a crash
+# from starting a replacement at all in the CI-shaped run, so no scheduler bug
+# can turn a timeout into a hang.
 test-ci:
     uv run pytest -n auto --dist loadscope --max-worker-restart=0 -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
     uv run python tools/check_module_coverage.py coverage.json
@@ -96,10 +96,11 @@ module-coverage:
 
 # Run the fast test suite (all not-last tests; spec #92 T3 merged test/test-all;
 # -p no:randomly pins order until the pytest-randomly flake root-fix spec lands).
-# NOTE: no --dist loadscope here — macOS xdist's loadscope scheduler hits a
-# probabilistic INTERNALERROR (WorkerController KeyError) under just-nesting;
-# default load grouping completes reliably (known 束7 flake family, root-fix
-# specced separately).
+# Default load grouping on purpose: --dist loadscope used to end in
+# INTERNALERROR (KeyError on a still-collecting replacement worker, pytest-xdist
+# #1425) whenever a worker died — the "束7 flake family". That path is now
+# patched in tests/support/xdist_scheduler_fix.py; default load stays because
+# it never needed the patch.
 test *args:
     uv run pytest -n auto -m "not last" --no-cov -p no:randomly "$@"
 
