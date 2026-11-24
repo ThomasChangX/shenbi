@@ -1,5 +1,9 @@
 name: CI
 on:
+  # workflow_dispatch: pre-commit-autoupdate.yml drives this workflow on its
+  # own pull request. A pull_request run on a PR opened by GITHUB_TOKEN waits
+  # in action_required for an approval nobody is notified about (#385).
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
