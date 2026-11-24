@@ -13,6 +13,15 @@ settings.register_profile("dev", max_examples=100, deadline=200)
 settings.register_profile("debug", max_examples=10, deadline=None)
 settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE", "dev"))
 
+# Test-environment guard: the suite must never reach a real LLM. ``just``
+# exports SHENBI_LLM_API_KEY from .env (justfile ``set dotenv-load``), which
+# routes dispatch_skill() to the live API — one unpatched test billed real
+# tokens, ran 70-140s, crossed the pytest-timeout limit and killed its xdist
+# worker (2026-11-24 root cause of the "xdist probabilistic hang"). Strip the
+# key before any shenbi module import so the test env matches CI; tests that
+# exercise the API route set it explicitly via monkeypatch.setenv.
+os.environ.pop("SHENBI_LLM_API_KEY", None)
+
 # Session-start default: route ALL framework logs to stderr. structlog's
 # library-default state is PrintLogger -> stdout with logger caching, so a
 # module-level lazy proxy that first fires before any configure_logging()
