@@ -10,7 +10,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      actions: write  # workflow_dispatch for the CI run on the bot's own PR
+      # For bot-pr-ci.yml, called on the PR just created: it dispatches the CI
+      # workflows and reports their outcome as commit statuses.
+      actions: write
+      statuses: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -83,13 +86,9 @@ jobs:
       - name: Run CI on the pull request
         # The pull_request runs this PR triggers sit in action_required: a PR
         # opened with GITHUB_TOKEN needs an approval nobody is notified about,
-        # and #385 sat untouched for a day with no check ever reported. A
-        # workflow_dispatch is the one trigger that token is allowed to fire,
-        # so the CI workflows are driven from here on the branch just created.
+        # and #385 sat untouched for a day with no check reported.
         if: steps.create-pr.outputs.pull-request-number != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for workflow in ci.yml docs.yml security.yml; do
-            gh workflow run "$workflow" --ref pre-commit-autoupdate
-          done
+        uses: ./.github/workflows/bot-pr-ci.yml
+        with:
+          branch: pre-commit-autoupdate
+          head_sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
