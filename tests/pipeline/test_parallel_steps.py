@@ -90,7 +90,8 @@ class TestParallelPostDraft:
         assert lifecycle_result.success
         assert not settling_result.success
 
-    def test_state_merged_on_main_thread_single_writer(self):
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_state_merged_on_main_thread_single_writer(self, mock_dispatch):
         """Workers return dict results; the main thread merges to PipelineState.
 
         No _state_lock should exist -- this is the actor-model pattern.
@@ -127,6 +128,9 @@ class TestParallelPostDraft:
         assert merge_thread_ids and all(tid == main_id for tid in merge_thread_ids), (
             "state merges must happen on the calling thread only (single-writer)"
         )
+        # dispatch_skill stays patched like the sibling tests: unpatched, this
+        # ran two real LLM dispatches whenever SHENBI_LLM_API_KEY was exported.
+        assert mock_dispatch.call_count == 2
 
 
 class TestConsolidateAttribution:

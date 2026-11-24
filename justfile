@@ -80,8 +80,13 @@ type:
 
 # CI-shaped test face: both pytest legs + module coverage (spec #92 T4).
 # Coverage threshold lives in pyproject [tool.coverage.report] fail_under (single source).
+# --max-worker-restart=0: a timed-out test must fail once, visibly. With restarts
+# on, pytest-xdist 3.8.0 --dist loadscope deadlocks when the last active worker
+# dies (the replacement is handed one already-completed work unit and nothing
+# triggers the next reschedule), and a persistently-timing-out test is re-run up
+# to 4 x workers before xdist gives up.
 test-ci:
-    uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
+    uv run pytest -n auto --dist loadscope --max-worker-restart=0 -m "not last" --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
     uv run python tools/check_module_coverage.py coverage.json
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci --timeout=60
 
