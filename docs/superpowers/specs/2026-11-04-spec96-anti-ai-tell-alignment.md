@@ -1,10 +1,17 @@
 # Spec #96 · 反 AI 检测体系方法论对齐（anti-ai-tell-alignment）：机制解释、证据分级、结构 tell、人味保留
 
-**日期**：2026-11-04 ｜ **系列**：文笔面强化批（humanizer 对标） ｜ **状态**：Active（**r2** 2026-11-04——吸收第二源 op7418/Humanizer-zh（中文改编版）；其 F 组中文 tell 候选经实弹测频过滤后**四剔除/两弱化/一撤销**，吸收体例三件套+改写安全框架，不跟随其三项宽松化） ｜ **优先级**：🟡 P2
+**日期**：2026-11-04 ｜ **系列**：文笔面强化批（humanizer 对标） ｜ **状态**：Active（**r2.1** 2026-11-24 Revised——回写见下方修订块；**r2** 2026-11-04——吸收第二源 op7418/Humanizer-zh（中文改编版）；其 F 组中文 tell 候选经实弹测频过滤后**四剔除/两弱化/一撤销**，吸收体例三件套+改写安全框架，不跟随其三项宽松化） ｜ **优先级**：🟡 P2
 **依赖**：**#95 T1（gate 词表⇄prompt 契约同步器——显式枚举常量单源）落地后施工**（T1/T2 若先动词表面=双源复发，#95 R1 同型事故；#85 已完结归档 PR #281，序列中仅剩 #95 起）；**批次时序：批次 A（#95→束4 验收→#86-#94）清偿后启动**——本 spec 主战场=SKILL.md×3＋`pipeline/review_checklist.py` 预计算，不抢 `chapter_loop.py` 最热文件（r2.2 共享文件表无需增行）；验收搭卷二实弹后续章，不开新探针。
 **动机证据**（r2 双源）：①blader/humanizer v3.1.0（64.3k stars，MIT，源流 Wikipedia "Signs of AI writing"）全量调研落盘 `docs/research/2026-11-04-humanizer-skill-analysis.md`（26 tell 逐条英文原文+来源 URL）；②op7418/Humanizer-zh（21.9k stars，MIT，中文改编重写版——前 25 条对齐英文 v3.0.0＋F 组 6 条中文专属；**面向非虚构通用写作，网文零适配**）全量调研落盘 `docs/research/2026-11-04-humanizer-zh-skill-analysis.md`；③**实弹测频（r2 核心）**：运行项目 novel-xinghuo-vol1 正典 42 章/15.8 万字（`strip_narrative_body` 剥 META 口径，2026-11-04）——候选 tell 逐项测频裁定见 §0.4。对标基面=现行三面实现：D3 检查清单（`skills/shenbi-review-group-craft/SKILL.md` L213-265，10 项中 3 项机器预计算注入）＋anti-detect 9 手法（`skills/shenbi-anti-detect/SKILL.md`）＋确定性预计算（`pipeline/review_checklist.py` paragraph_cv/transition_count+budget/ai_marker_hits 每词 ≤1）。
 
 **触及的不变量维度**：叙事纪律（POV/声口）（弱关联——T3 人味/声口保留面防改写磨平，不新增判定判据）；其余为审计检查项与改写工艺层，不动 13 维门检判据与 truth 结构。
+
+**r2.1 修订（2026-11-24 · 实现审计回写；证据＝八席实现审计之技能契约席，协调者重跑）**：
+- **依赖解除**：原文「#95 T1 落地后＋批次 A 清偿后启动」——#95 已归档（2026-11-05），批次 A 只剩 #94（接口诚实，与本件主战场只在 `src/shenbi/pipeline/review_checklist.py` 有小面积重叠）。本件现实质独立，不必再等 #94；共享文件面按规约 plan 首步 re-anchor。
+- **T1 增补·预计算项与注入键的缺口**（主战场本就含 `review_checklist.py` 预计算）：①`paragraph_cv` 在 SKILL 里只有名字没有数值判据（`skills/shenbi-review-group-craft/SKILL.md:60/:63/:232/:234` 均无阈值，`docs/framework/` 亦无）——真实 ch49 报告里的阈值是判官自己编的（「<0.30 视为等长信号」）；②`ai_marker_hits` 的「每词 ≤1」只存在于代码注释（`review_checklist.py:394`）；③`voice_constraints` 找的键名是 `voice_fingerprint`（`review_checklist.py:494`），而角色卡模板写的是 `voice_profile`（`skills/shenbi-character-design/SKILL.md:80`）——恒为空；④`ending_constraints` 没先剥 META，把 POST 自检清单行当成章尾分类；另有 6 个注入键没有任何技能引用（`voice_constraints`／`pov_mode`／`hook_deliverables`／`ending_constraints`／`world_rules_brief`／`sensitivity_flags`）。T1 判据增补：每个保留的预计算项在 SKILL 里有数值判据或明示「参考值」；键名与 producer 对齐；无引用键删除或接线。
+- **与 #123 的分工**：评审技能引用的幻影配置键（`maxConsecutiveQuest` 等）归 #123 T2，不在本件。
+- **登记·门检计量面（评测科学席实测，协调者重跑）**：`G4.fatigue` 在原始全文上计数（`src/shenbi/gates/g4/chapter_drafting.py:1040`）——vol1 真实 29 次命中全在 PRE_WRITE_CHECK 自检清单、正文 0 次（转折词门早已改到叙事面，疲劳词门没跟）；`G4.cd.content_uniqueness` 的指纹按原始文件的空行分块（`:449`、`:461`），vol1 的 565 个指纹块里 126 块（22%）是自检／META 文本，ch50 的指纹里叙事块为 0。T1 增补：两门的计数面统一为 `strip_narrative_body` 之后的正文，并以 vol1 真章回放给出修前／修后命中对照。
+- **登记·单书专名写进通用层**：`src/shenbi/pipeline/chapter_loop.py:3606` 与 `:3632`（漂移纠偏指令含示例大纲里的人名「冷」）——通用框架代码里写死了一本书的专名。T3 改写时一并去书名化（改占位符或读配置）；该处代码归 #112 所在文件，施工时两件 re-anchor。
 
 ---
 

@@ -1,9 +1,15 @@
 # Spec #107 · 审评分档（reviewer-model-tier）：executor_config per-skill model 键 + dispatch 单源接线 + 评计量表 A/B 预注册（thinking 解禁/第二模型）
 
-**日期**：2026-11-15｜ **系列**：评审工艺批（review-craft）｜ **状态**：Design（r1，2026-11-15）｜ **优先级**：🟡 P2（机制先行，采用门槛=用户配置第二模型端点）
+**日期**：2026-11-15｜ **系列**：评审工艺批（review-craft）｜ **状态**：Design（r1.1，2026-11-24 Revised）｜ **优先级**：🟡 P2（机制先行，采用门槛=用户配置第二模型端点）
 **动机证据**：`src/shenbi/pipeline/dispatch_helper.py:3713`（model 单全局：`os.environ.get(SHENBI_LLM_MODEL, "deepseek-v4-flash")`，:93-97 定义）——executor_config.toml 全文无 model 键，**审与写同模型同端点**；`executor_config.toml:120-186`（评审计族全员 `thinking="disabled"`）+ `:188-195`（根因注释：思考与内容共享 completion 预算，曾 152 empties 烧 ~18% 成本——**权宜非设计**，自注 "revisit with post-rollout data"）+ `:132-135`（"Evaluative queue… deferred to P1 pilot" 欠账自认）；`dispatch_helper.py:251-296`（三键消费面 `_get_skill_temperature/_get_skill_max_tokens/_get_skill_thinking`——第四键 model 的结构平行位现成）+ `:3720`（api_dispatch_start 已 log model——**观测面免费**）；`src/shenbi/gates/g3_independence.py:18-28`（G3.4 fail-closed 校验的是路由号≠生成者——**会话隔离 ≠ 认知隔离**：同模型审写=训练分布盲点共享，写作者的概率惯性审者同样看不见）；`novel-xinghuo-vol1/cost/report.md`（评审族 160/593≈27% 调用、$0.92≈16.7% 成本——分档的成本面基线）。
 
 **触及的不变量维度**：无（执行器配置面）
+
+**r1.1 修订（2026-11-24 · 实现审计回写；证据＝技能契约席，协调者核 `executor_config.toml`）**：
+- **T2 的「audits 误报率不升」原不可测**：#108 原设计没有未变异对照臂（#108 r1.1 已补）。本件判据改为引用 #108 的对照臂读数；#108 实弹先于本件 A/B。
+- **A 臂「现状」须按实际生效值定义（T1 增补披露，默认行为零变化不变）**：`executor_config.toml:211-219`——group-craft／group-factual／group-plan 三个 override 只设 `thinking = "disabled"`、**没有 temperature 键**（走 provider 缺省）；`shenbi-escalation-review` 没有 override 段（温度与思考都走 provider 缺省）；`chapter-planning` 的 override（`:205`）只有 `max_tokens`——`:192-193` 的旧注释说 planning 关思考，而 `:198-200` 的 #98 预注册注释与 override 说明写的是「不设 thinking 键（启用口径）」，两段注释并存、以后者为准。T1 增补：把这些事实写进配置注释与 A 臂描述；是否补键留待 A/B 数据后裁定。
+- **与 #124 的分工**：G3.4「评分员≠生成者」门在 T1 评分路径恒 PASS（比较的标签按构造永不相等）——本件动机里的「会话隔离≠认知隔离」在评分侧的兑现归 #124；本件只管流水线评审技能的模型档位。
+- **顺序**：#92 已归档——原依赖解除；C 臂随第二模型端点配置（用户令）。
 
 ---
 
