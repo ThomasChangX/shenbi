@@ -1,0 +1,1951 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec109-audit-bundle-coverage/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #109 audit-bundle-coverage Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #109 audit-bundle-coverage Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec109-audit-bundle-coverage.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec109-audit-bundle-coverage/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #109 audit-bundle-coverage Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec109-audit-bundle-coverage.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-109-audit-bundle-coverage-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #109 audit-bundle-coverage Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 项目级约束逐字）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints（spec 项目级约束逐字）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-reads-offsetwave-spec-t1infra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 契约 reads 对称化 + 预检 offset/wave 条件语义（spec T1，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-bundle-shared-context-checklistspec-t2infra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 派发组装双章化——bundle shared context + 双章 checklist（spec T2，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-per-n-spec-t3infra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 收口/路由 per-n 消费面 + 传感器换装（spec T3，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-src-starve_verdict-spec-t4ainfra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 词族家=src + starve_verdict 校验器 + 写路径接线（spec T4a，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-invalid-wave-entry-valid-cascadedone-summary-spec-t4binfra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: invalid 第三态消费——wave entry valid 维度/cascade/done 面/summary 披露（spec T4b，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-resume-invalid-spec-t5infra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: resume invalid 感知补跑（spec T5，infra）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-ac-spec-234" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 差分回放离线仲裁 + AC 证据汇总（spec 验收#2/#3/#4，执行面）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-109-audit-bundle-coverage-implementation-plan">Spec #109 audit-bundle-coverage Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 修复双章批（bundle）审计的 follower 章系统性饿死——契约 reads 对称化、派发组装双章化、收口/路由 per-n 消费面、占位/失败判定 invalid 第三态、resume invalid 感知补跑。</p>
+<p><strong>Architecture:</strong> 五个生产面改造全部走「升格既有」路线：预检（<code>missing_audit_reads</code>）学 offset 解析＋wave 条件语义；shared context/checklist 以 bundle 参数化（drafting 侧 per-n 先例）；wave 收口复活 serial per-n 环的等价物并换装单源传感器；invalid 第三态仿 <code>resonance_pending</code> entry 先例、词族常量落 src 单源（工具反向 import）；resume 闭合存在性过滤与 done 面的 invalid 盲区。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / re / structlog；测试 pytest（tmp_path 构造结构性 fixture——G0.9 豁免：结构性输入非冒充真实产物）；门禁 <code>just check</code>。</p>
+<h2 id="global-constraintsspec">Global Constraints（spec 项目级约束逐字）</h2>
+<ul>
+<li><strong>域约束</strong>：真实 LLM dispatch（<code>shenbi-dispatch</code> / <code>pipeline init|resume|review</code>）付费且写状态——SDD 全流程禁为「验证」目的触发（<code>shenbi-validate G0</code> 允许：无副作用）。</li>
+<li><strong>F947</strong>：验收若依赖真实 LLM dispatch 或手写 mock，plan 期必须改写为可离线复验形式（fixtures 回放/结构断言）——不改写即该 task BLOCKED。<strong>适用裁定</strong>：spec 验收 5（T2 生成测试 ≥94，G3.4 独立评分）依赖付费实弹 → <strong>随用户令挂账</strong>（#106 AC4 先例），本 plan 以离线结构断言替代交付（Task 2/Task 7）。</li>
+<li><strong>deps.json 等生成物禁手改</strong>：改契约源头（SKILL.md）+ <code>just generate</code>（幂等 diff 会打回）。</li>
+<li><strong>src/shenbi/ 禁 <code>print()</code></strong>（ruff T20 零豁免）：用户可见文本走 <code>shenbi.cli_utils.echo</code>，机器可读走 <code>sys.stdout.write</code>，日志走 structlog。</li>
+<li><strong>gate 检查函数幂等</strong>：纯验证无输出文件副作用。</li>
+<li><strong>G0.9</strong>：scenario 输入只能引用 <code>tests/fixtures/</code> 真实产物；结构性输入（本文全部 tmp_path 构造）可 inline。</li>
+<li><strong>词族/锚定单源</strong>（spec 附录 A）：常量家=<code>src/shenbi/pipeline/audit_starve_family.py</code>（Task 4 建），<code>tools/audit_starve_baseline.py</code> import 自 src（tools→src 方向；值不变 manifest 不变），<strong>禁散文词表/禁 src→tools import</strong>。双锚定：基线/回放=首锚定行、生产门=全部判定行值段，共用同一 <code>VERDICT_LINE_RE</code>。</li>
+<li><strong>offset reads wave 条件语义</strong>（spec C1）：<code>{N+1}</code> 类 offset reads 当且仅当 n+1 ∈ wave_chapters 时必需；singleton 波合法缺席。</li>
+<li><strong>测试层级声明</strong>：本 plan 全部 task 为 T1 层（per-skill/unit+integration）；无 T2/T3 实弹（付费面挂账）。</li>
+<li><strong>commit pathspec 纪律</strong>：所有 commit 显式列文件路径，禁 <code>git add -A</code>。</li>
+</ul>
+<hr />
+<h3 id="task-1-reads-offsetwave-spec-t1infra">Task 1: 契约 reads 对称化 + 预检 offset/wave 条件语义（spec T1，infra）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_layer.py:299-354</code>（<code>missing_audit_reads</code>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:4114</code>（预检调用点传 <code>bundle=wave_chapters</code>——I4 归属本 task）
+- Modify: <code>skills/shenbi-review-group-craft/SKILL.md:7-11</code>、<code>skills/shenbi-review-group-plan/SKILL.md</code>、<code>skills/shenbi-review-group-factual/SKILL.md</code>、<code>skills/shenbi-review-group-character/SKILL.md</code>、<code>skills/shenbi-review-resonance/SKILL.md</code>、<code>skills/shenbi-review-sensitivity/SKILL.md</code>（contract reads 区）
+- Test: <code>tests/unit/pipeline/test_audit_readiness.py</code>（扩展）
+- Test: <code>tests/pipeline/test_audit_cluster.py</code>（契约断言扩展）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.contracts.loader.load_contract(skill) -&gt; dict</code>；<code>shenbi.contracts.paths.resolve_chapter_path(path: str, chapter: int | None) -&gt; str</code>（<code>_offset_sub</code> 解析 <code>{N+1}</code>）。
+- Produces: <code>missing_audit_reads(project_dir: Path | str, skill: str, chapter: int | None, *, bundle: list[int] | None = None) -&gt; list[str]</code>（新增仅限关键字参数 <code>bundle</code>；Task 3 的 wave 调用点将传入）。六技能契约 reads 含 <code>chapters/chapter-{N+1}.md</code>（group-craft/-plan/resonance 另含 <code>plans/chapter-{N+1}-plan.md</code>）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试——offset 解析与 wave 条件语义</strong></li>
+</ul>
+<p>在 <code>tests/unit/pipeline/test_audit_readiness.py</code> 追加。<strong>契约注入用该文件既有手法</strong>（<code>:26-31</code> 先例）：<code>monkeypatch.setattr(loader, "load_contract", lambda skill: {...})</code> 直接喂 dict 契约——<strong>不写物理 SKILL.md</strong>（loader 无 <code>SKILLS_DIR</code> 常量，物理文件路线死码）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_offset_contract</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;report&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapters/chapter-{N+1}.md&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_audit_reads_resolves_offset_braces</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a1: literal ``chapter-{N+1}`` reads resolve to the follower chapter.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">loader</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_layer</span><span class="w"> </span><span class="kn">import</span> <span class="n">missing_audit_reads</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="s2">&quot;load_contract&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">skill</span><span class="p">:</span> <span class="n">_offset_contract</span><span class="p">())</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-25.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;正文25&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-26.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;正文26&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># bundle 双章：follower 在波内且在盘 → 零缺失（r1 事故形态：字面花括号 probe 必缺失）</span>
+    <span class="k">assert</span> <span class="n">missing_audit_reads</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;fake-skill&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="n">bundle</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">])</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_audit_reads_offset_required_only_inside_bundle</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C1: singleton 波（无 volume_map/卷尾）offset reads 合法缺席，不停摆。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">loader</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_layer</span><span class="w"> </span><span class="kn">import</span> <span class="n">missing_audit_reads</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="s2">&quot;load_contract&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">skill</span><span class="p">:</span> <span class="n">_offset_contract</span><span class="p">())</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-49.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;正文49&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># singleton 波：50 ∉ [49] → offset read 不探测（下一章未起草是常态）</span>
+    <span class="k">assert</span> <span class="n">missing_audit_reads</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;fake-skill&quot;</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="n">bundle</span><span class="o">=</span><span class="p">[</span><span class="mi">49</span><span class="p">])</span> <span class="o">==</span> <span class="p">[]</span>
+    <span class="c1"># bundle=[49,50] 且 50 缺盘 → 报缺失（follower 在波内必须真实在盘）</span>
+    <span class="k">assert</span> <span class="n">missing_audit_reads</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;fake-skill&quot;</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="n">bundle</span><span class="o">=</span><span class="p">[</span><span class="mi">49</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="s2">&quot;chapters/chapter-50.md&quot;</span>
+    <span class="p">]</span>
+</code></pre></div>
+<p>另加 <strong>wave 级红测</strong>（I4——<code>:4114</code> 预检调用面，非单元直调）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_wave_precheck_escalates_on_bundle_follower_missing</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bundle 波 follower 正文缺盘 → 预检 ESCALATION（M2 预检硬门主场景）。&quot;&quot;&quot;</span>
+    <span class="c1"># 构造 tmp 项目：chapters/chapter-25.md 在盘、chapter-26.md 缺、volume_map 跨 25-26</span>
+    <span class="c1"># 直调 _run_audit_wave_step 的预检段（或以 monkeypatch 截 dispatch 层断言不派发、</span>
+    <span class="c1"># state 进 ESCALATION checkpoint）——实现形态以该文件既有 wave 预检测试为准沿用</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_audit_readiness.py -k "offset or bundle_follower" -v</code>
+Expected: FAIL——<code>missing_audit_reads() got an unexpected keyword argument 'bundle'</code>（TypeError 先于断言：现行签名无 <code>bundle</code>）；wave 级用例失败于预检不报缺失（现行 <code>_resolve</code> 不识别 offset，字面花括号 probe 反而误报——两条合证语义缺口）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>_resolve</code> offset 解析 + <code>bundle</code> 条件语义</strong></li>
+</ul>
+<p><code>audit_layer.py</code> <code>missing_audit_reads</code> 改造（保留其余分支不动）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">missing_audit_reads</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">bundle</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required contract reads that do not exist for an audit dispatch (spec #105 T3).</span>
+
+<span class="sd">    spec #109 a1/C1: ``chapter-{N+1}`` offset reads resolve via</span>
+<span class="sd">    ``resolve_chapter_path`` (the naive ``str.replace`` never matched the</span>
+<span class="sd">    brace form — the probe fell on a literal path that never exists, so every</span>
+<span class="sd">    bundle wave would ESCALATION). Offset reads are REQUIRED only when the</span>
+<span class="sd">    resolved chapter is inside ``bundle`` (singleton waves legally lack the</span>
+<span class="sd">    follower: no volume_map / span end / uncovered span).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+<p>内联 <code>_resolve</code> 替换为（<strong>None 分支保留旧语义</strong>——<code>resolve_chapter_path(path, None)</code> 对占位路径 raise <code>UnresolvedPathError</code>，会炸既有 <code>test_chapter_none_keeps_literal_placeholder</code>（test_audit_readiness.py:211-221 断言 <code>["chapters/N.md"]</code>）——I1）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve</span><span class="p">(</span><span class="n">rel</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">_entry_file</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">rel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;chapter-N&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_chapter_path</span>
+
+        <span class="k">return</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p>（dict-entry 归一沿用 <code>_entry_file</code>；<code>produces</code> 集合同样受益。）循环内、<code>probe.exists()</code> 判定之前加 wave 条件语义：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">offset_ch</span> <span class="o">=</span> <span class="n">_resolved_offset_chapter</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># {N+1} → n+1；非 offset 形 → None</span>
+    <span class="k">if</span> <span class="n">offset_ch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bundle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">offset_ch</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bundle</span><span class="p">):</span>
+        <span class="k">continue</span>  <span class="c1"># spec #109 C1: offset read 在波外（singleton/卷尾）不探测</span>
+</code></pre></div>
+<p><code>_resolved_offset_chapter</code> 为模块级小助手：<code>_OFFSET_READ_RE = re.compile(r"chapter-\{N\+(\d+)\}")</code>，命中时返回 <code>chapter + int(m.group(1))</code>，否则 <code>None</code>（对 <code>chapter-N</code> 平文返回 <code>chapter</code> 会使语义退化——平文 read 永远必需，不进条件分支；<code>{N-k}</code> 负偏移今日零声明者，暂不展开——理论项记录在案）。</p>
+<p><strong>同批接线 <code>:4114</code> 预检调用点</strong>（I4——Task 1 自己产的门自己开，不留 Task 1→3 合入窗口的 fail-open）：<code>chapter_loop.py</code> 预检循环改 <code>_gaps = {gap for n in wave_chapters for gap in missing_audit_reads(project_dir, _skill, n, bundle=wave_chapters)}</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_audit_readiness.py -v</code>
+Expected: PASS（新旧全绿——旧 #105 用例不受影响：它们不含 offset reads）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 写失败测试——六技能契约 reads 断言（load_contract 形态，非裸 grep）</strong></li>
+</ul>
+<p><code>tests/pipeline/test_audit_cluster.py</code> 追加：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_audit_skills_declare_next_chapter_reads</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #109 T1: bundle auditors must DECLARE the follower chapter read.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span>
+
+    <span class="n">six</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-review-group-plan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-review-group-factual&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-review-group-character&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-review-sensitivity&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">six</span><span class="p">:</span>
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;chapter-{N+1}.md&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">),</span> <span class="n">s</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-group-plan&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">):</span>
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;chapter-{N+1}-plan.md&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">),</span> <span class="n">s</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py::test_audit_skills_declare_next_chapter_reads -v</code>
+Expected: FAIL（六技能 reads 现均单章）。</p>
+<ul>
+<li>[ ] <strong>Step 6: 编辑六技能契约 reads（plain-path 全文形，禁 dict-form fields）</strong></li>
+</ul>
+<p>每个 SKILL.md 的 frontmatter <code>reads:</code> 列表、<code>chapters/chapter-N.md</code> 行后加 <code>- chapters/chapter-{N+1}.md</code>；group-craft/-plan/resonance 在 <code>plans/chapter-N-plan.md</code> 行后加 <code>- plans/chapter-{N+1}-plan.md</code>（factual/character/sensitivity 不加 plans——spec：按真实消费面，不虚增）。auto-generated「数据契约」块不动（<code>just generate</code> 再生）。</p>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py::test_audit_skills_declare_next_chapter_reads -v</code>
+Expected: PASS。</p>
+<ul>
+<li>[ ] <strong>Step 7: 生成物再生 + 契约对账门禁</strong></li>
+</ul>
+<p>Run: <code>just generate &amp;&amp; just check</code>
+Expected: 全绿（deps.json 幂等 diff 吸收契约改动；lint_registry_reconcile/lint_decisions_sources/lint-contracts 自动纳入六技能新 reads）。</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_layer.py<span class="w"> </span>skills/shenbi-review-group-craft/SKILL.md<span class="w"> </span>skills/shenbi-review-group-plan/SKILL.md<span class="w"> </span>skills/shenbi-review-group-factual/SKILL.md<span class="w"> </span>skills/shenbi-review-group-character/SKILL.md<span class="w"> </span>skills/shenbi-review-resonance/SKILL.md<span class="w"> </span>skills/shenbi-review-sensitivity/SKILL.md<span class="w"> </span>tests/unit/pipeline/test_audit_readiness.py<span class="w"> </span>tests/pipeline/test_audit_cluster.py<span class="w"> </span>&lt;just<span class="w"> </span>generate<span class="w"> </span>触发的生成物文件——按<span class="w"> </span><span class="sb">`</span>git<span class="w"> </span>status<span class="sb">`</span><span class="w"> </span>实列&gt;
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T1 契约 reads 对称化+预检 offset/wave 条件语义&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-bundle-shared-context-checklistspec-t2infra">Task 2: 派发组装双章化——bundle shared context + 双章 checklist（spec T2，infra）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_context_cache.py:60-138</code>（<code>build_shared_audit_context</code> 参数化）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:4067</code>（wave 调用点传 bundle）
+- Modify: <code>src/shenbi/pipeline/review_checklist.py</code>（<code>generate_review_checklist</code> bundle 形 + <code>inject_checklist_into_prompt</code> 多块）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:1347-1367</code>（checklist 注入点 bundle 化）
+- Test: <code>tests/unit/pipeline/test_review_checklist.py</code>（扩展）
+- Test: <code>tests/unit/pipeline/test_audit_context_cache.py</code>（新建或扩展——以现有该文件名为准，<code>ls tests/unit/pipeline/ | grep context</code> 先查）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的契约改动（reads 含 <code>{N+1}</code>）——<code>build_skill_prompt</code> 的 reads 循环（<code>dispatch_helper.py:857-868</code> <code>resolve_or_skip_ctx</code> 原生解析 <code>{N+1}</code>）自动把 follower 正文载入 prompt 与 reads manifest。
+- Produces:
+  - <code>build_bundle_audit_context(project_dir: Path, chapters: list[int]) -&gt; SharedAuditContext</code>（raw_files 键=各章 <code>chapters/chapter-&lt;n&gt;.md</code> 项目相对 POSIX 路径；<code>chapter_text</code>=首章；ending_history 合并去重）；<code>build_shared_audit_context(project_dir, chapter)</code> 变为 <code>build_bundle_audit_context(project_dir, [chapter])</code> 的薄包装（签名不变，既有调用方零改动）。
+  - <code>generate_bundle_checklist(project_dir: Path | str, chapters: list[int]) -&gt; list[ReviewChecklist]</code>
+  - <code>inject_checklist_into_prompt(prompt: str, checklists: ReviewChecklist | list[ReviewChecklist]) -&gt; str</code>（单复数兼容；每章一块「## 审查参考数据」）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试——bundle context 与双章 checklist</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_bundle_audit_context_covers_follower_raw_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_context_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_bundle_audit_context</span>
+
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-25.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;锚章正文&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-26.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;随章正文&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">build_bundle_audit_context</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="s2">&quot;chapters/chapter-25.md&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;锚章正文&quot;</span>
+    <span class="k">assert</span> <span class="n">ctx</span><span class="o">.</span><span class="n">raw_files</span><span class="p">[</span><span class="s2">&quot;chapters/chapter-26.md&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;随章正文&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_inject_checklist_two_blocks</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.review_checklist</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReviewChecklist</span><span class="p">,</span> <span class="n">inject_checklist_into_prompt</span>
+
+    <span class="n">c25</span> <span class="o">=</span> <span class="n">ReviewChecklist</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>  <span class="c1"># 其余字段取默认——以 dataclass 实际必填字段为准补齐</span>
+    <span class="n">c26</span> <span class="o">=</span> <span class="n">ReviewChecklist</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">26</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">inject_checklist_into_prompt</span><span class="p">(</span><span class="s2">&quot;## Input Files</span><span class="se">\n</span><span class="s2">- x&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">c25</span><span class="p">,</span> <span class="n">c26</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;## 审查参考数据&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="s1">&#39;&quot;chapter&quot;: 25&#39;</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">and</span> <span class="s1">&#39;&quot;chapter&quot;: 26&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+</code></pre></div>
+<p>（<code>ReviewChecklist</code> 必填字段以 <code>review_checklist.py</code> dataclass 实际定义为准——写 step 时打开补齐，禁凭空猜签名。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/ -k "bundle_audit_context or inject_checklist_two" -v</code>
+Expected: FAIL — <code>build_bundle_audit_context</code> 不存在（ImportError）；<code>inject_checklist_into_prompt</code> 只接受单个 checklist（TypeError/单块）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现两函数</strong></li>
+</ul>
+<p><code>audit_context_cache.py</code>：新增 <code>build_bundle_audit_context(project_dir, chapters)</code>——现函数体整体移入、per-chapter 段（chapter_file 读取）改循环 <code>for n in chapters</code>，<code>chapter_text</code> 取 <code>chapters[0]</code>；world/character/style/hooks 各取一次（项目级）；<code>volume_context</code> 经 <code>_extract_volume_chapter(raw, chapters[0])</code> 取锚章节点（该提取是章参数化的——M5 定性修正；volume_context 零消费者，行为保持）；<code>ending_history</code> 循环范围 <code>min(chapters)-9 … max(chapters)</code>，其中 <code>k == chapter: text = ctx.chapter_text</code> 快捷分支改 <code>k == chapters[0]</code>（bundle 形下 chapter 变量已不存在——M7）。原 <code>build_shared_audit_context</code> 改为 <code>return build_bundle_audit_context(project_dir, [chapter])</code>。</p>
+<p><code>review_checklist.py</code>：<code>generate_review_checklist(project_dir, chapter, chapter_content=None)</code> 保持（单章缓存路径复用）；新增 <code>generate_bundle_checklist(project_dir, chapters)</code> = <code>[generate_review_checklist(project_dir, n) for n in chapters]</code>（各自走缓存）；<code>inject_checklist_into_prompt(prompt, checklists)</code> 归一 <code>checklists = [checklists] if isinstance(checklists, ReviewChecklist) else list(checklists)</code>，逐块在 <code>## Input Files</code> 前插入（多块时按章序连续插入，块序=chapters 序）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/ -k "bundle_audit_context or inject_checklist_two or review_checklist" -v</code>
+Expected: PASS（新旧全绿）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 写失败测试——prompt 级 blob 断言（主防线）</strong></li>
+</ul>
+<p>并入 <code>tests/pipeline/</code>（既有 build_skill_prompt 测试所在层——<code>grep -rl "build_skill_prompt" tests/pipeline/ | head</code> 先查，M4 防碎片化）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_wave_prompt_contains_follower_text_and_dual_checklist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #109 T2 判据：prompt 内 follower 正文与两章预计算块均在（blob 级）。&quot;&quot;&quot;</span>
+    <span class="c1"># 构造 tmp 项目：genre-config.json + chapters/25+26 + plans/25+26 + truth/ 基本件</span>
+    <span class="c1"># + outline/volume_map.md（bundle 跨 25-26）；随章正文含中文唯一锚串「随章正文独有锚串」</span>
+    <span class="o">...</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_skill_prompt</span>
+
+    <span class="n">built</span> <span class="o">=</span> <span class="n">build_skill_prompt</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;Execute for chapters 25,26&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">25</span>
+    <span class="p">)</span>
+    <span class="n">manifest_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">built</span><span class="o">.</span><span class="n">reads_manifest</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">&quot;chapters/chapter-26.md&quot;</span> <span class="ow">in</span> <span class="n">manifest_paths</span>
+    <span class="k">assert</span> <span class="s2">&quot;随章正文独有锚串&quot;</span> <span class="ow">in</span> <span class="n">built</span><span class="o">.</span><span class="n">user</span>  <span class="c1"># follower 正文 blob 进 prompt（I2：字段名=user）</span>
+    <span class="k">assert</span> <span class="n">built</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;## 审查参考数据&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>  <span class="c1"># 双章预计算块</span>
+</code></pre></div>
+<p>（fixture 细节——<code>truth/pending_hooks.md</code> 空文件、<code>style/</code>、<code>world/rules.md</code> 按需补齐使组装不告警；正文串用中文唯一锚防撞。）</p>
+<ul>
+<li>[ ] <strong>Step 6: 实现注入点与调用点改造</strong></li>
+</ul>
+<p><code>dispatch_helper.py:1347-1367</code>：<code>if is_review_skill(skill) and chapter is not None:</code> 内改 <code>checklists = generate_bundle_checklist(project_dir, bundle_chapters(project_dir, chapter))</code>（<code>from shenbi.pipeline.chapter_loop import bundle_chapters</code> 置函数内防环——以现有 import 风格为准，若已有既有局部导入先例则循它）；<code>chapter_content</code> 优化路径按 <code>raw_files.get(f"chapters/chapter-{n}.md")</code> 逐章传入（<code>generate_review_checklist</code> 支持则传，不支持则 None——不为本任务扩签名）。<code>inject_checklist_into_prompt(user_prompt, checklists)</code>。</p>
+<p><code>chapter_loop.py:4067</code>：<code>shared_ctx = build_bundle_audit_context(project_dir, wave_chapters)</code>（<code>wave_chapters</code> 已在 <code>:4092</code> 定义——把 shared_ctx 构造移到其后，或先算 <code>wave_chapters = bundle_chapters(project_dir, chapter)</code> 再构造）。</p>
+<p>Run: <code>uv run pytest tests/pipeline/ -k "wave_prompt or built_prompt" -v &amp;&amp; uv run pytest tests/pipeline/test_audit_cluster.py -v</code>
+Expected: PASS。</p>
+<ul>
+<li>[ ] <strong>Step 7: just check + Commit</strong></li>
+</ul>
+<p>Run: <code>just check</code> → 全绿。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_context_cache.py<span class="w"> </span>src/shenbi/pipeline/review_checklist.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T2 派发组装双章化——bundle shared context+双章 checklist+manifest 主防线断言&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-per-n-spec-t3infra">Task 3: 收口/路由 per-n 消费面 + 传感器换装（spec T3，infra）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:4216-4330</code>（wave 收口段——抽 <code>_wave_close_for_n</code>；<strong>保留清单</strong>：<code>_reset_retries</code> :4323、<code>_advance</code> :4324-4330、step_index 推进 :4254-4255、<code>_charge_wave_retries</code> :4282、<code>_failed_audit_skills</code>/step-done 环 :4241-4252——leader 位块原位保留，只替换 consolidation/summary/blocking_found/audit_reports/route 单章块为 per-n 循环；<code>_parse_and_persist_resonance</code> 移入循环 per-n 跑）
+- Test: <code>tests/pipeline/test_audit_cluster.py</code>（扩展）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>build_consolidator_sensors() -&gt; tuple[re.Pattern, re.Pattern]</code>（parallel_dispatch.py:305）；<code>consolidate_review_results(results, chapter, skills, project_dir, cascade_skipped)</code>；<code>route_revision_after_resonance(state, project_dir, chapter)</code>（chapter_loop.py:3167）。
+- Produces: <code>_wave_close_for_n(state: PipelineState, project_dir: Path, n: int, results: list[DispatchResult], skills: list[str], cascade_skipped: list[str]) -&gt; None</code>——per-n summary 写盘（<code>audits/chapter-{n}-review-summary.md</code>）、<code>cs_n.audit_results["blocking_found"]</code> 用传感器扫 <code>chapter-{n}-*.md</code>（排除 review-summary 自身）判定、<code>route_revision_after_resonance(state, project_dir, n)</code> 调用。Task 5 在本函数产出的 <code>blocking_found</code> 基础上叠加 invalid 面。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试——follower BLOCKING 触发路由与状态写入</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cl</span>  <span class="c1"># 模块顶部（M9）</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wave_close_routes_follower_blocking</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #109 T3 判据：follower 章 BLOCKING → 该 n blocking_found=True 且路由触发。&quot;&quot;&quot;</span>
+    <span class="c1"># tmp 项目：chapters/25+26、volume_map bundle、audits/chapter-26-texture.md</span>
+    <span class="c1"># 内容含 &#39;**BLOCKING** 未核实：随章正文缺位&#39; 维度报告锚定形</span>
+    <span class="n">routed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="s2">&quot;route_revision_after_resonance&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">routed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">cl</span><span class="o">.</span><span class="n">_wave_close_for_n</span><span class="p">(</span>
+        <span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">[],</span> <span class="n">skills</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">],</span> <span class="n">cascade_skipped</span><span class="o">=</span><span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="n">cs26</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;26&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">cs26</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;blocking_found&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="mi">26</span> <span class="ow">in</span> <span class="n">routed</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-26-review-summary.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div>
+<p>（<code>results=[]</code> 合法——空派发集时 summary 走文件扫描面。M8 行为变更注记：per-n <code>audit_reports</code> 从「声明全集」变为「在盘 glob 集」——唯一消费面 <code>collect_audit_issues</code> 自行 glob 不读该键，无回归面。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py::test_wave_close_routes_follower_blocking -v</code>
+Expected: FAIL — <code>_wave_close_for_n</code> 未定义（ImportError/AttributeError）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>_wave_close_for_n</code> 并改 wave 收口段</strong></li>
+</ul>
+<p><code>chapter_loop.py</code> 在 <code>_run_audit_wave_step</code> 内（或其旁）新增：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_wave_close_for_n</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">skills</span><span class="p">,</span> <span class="n">cascade_skipped</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-n audit close for the wave path (spec #109 T3).</span>
+
+<span class="sd">    The serial loop&#39;s ``_run_audit_close_for_chapter`` is unreachable under</span>
+<span class="sd">    the wave interception (:3995-3996); this is its wave equivalent minus the</span>
+<span class="sd">    genre re-dispatch (run_audit_layer would re-dispatch wave-2 skills —</span>
+<span class="sd">    d1/d2: reuse the wave task surface instead).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">build_consolidator_sensors</span><span class="p">,</span>
+        <span class="n">consolidate_review_results</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">consolidated</span> <span class="o">=</span> <span class="n">consolidate_review_results</span><span class="p">(</span>
+        <span class="n">results</span><span class="p">,</span>
+        <span class="n">n</span><span class="p">,</span>
+        <span class="n">skills</span><span class="o">=</span><span class="n">skills</span><span class="p">,</span>
+        <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">,</span>
+        <span class="n">cascade_skipped</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cascade_skipped</span><span class="p">))</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">-review-summary.md&quot;</span><span class="p">,</span> <span class="n">consolidated</span><span class="p">)</span>
+    <span class="n">blocking_re</span><span class="p">,</span> <span class="n">_critical_re</span> <span class="o">=</span> <span class="n">build_consolidator_sensors</span><span class="p">()</span>
+    <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">p</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">-*.md&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;review-summary&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+    <span class="p">]</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">_get_chapter_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;blocking_found&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;## BLOCKING Issues&quot;</span> <span class="ow">in</span> <span class="n">consolidated</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">blocking_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">reports</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;audit_reports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;audits/</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">reports</span><span class="p">]</span>
+    <span class="n">route_revision_after_resonance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</code></pre></div>
+<p>wave 收口段（现 <code>:4216-4274</code>）改为：leader 侧 G3 记录与 <code>_wave_audit_entry</code> 循环保留；consolidation/summary/<code>blocking_found</code>/<code>audit_reports</code>/<code>_parse_and_persist_resonance</code>/<code>route</code> 原单章块替换为 <code>for n in wave_chapters: _wave_close_for_n(...)</code>（<code>_parse_and_persist_resonance(state, project_dir, n, source="parallel_wave")</code> 移入循环内 per-n 跑——resonance 报告两章各有，trend 行 per-n）。<code>:4266-4271</code> 字面 H2 传感器块整删（传感器换装 f 项）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 既有 wave 测试回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py tests/unit/pipeline/test_chapter_loop.py -v</code>
+Expected: PASS 全绿（既有 anchor 收口行为迁移为 per-n 后，anchor 章结果不变）。</p>
+<ul>
+<li>[ ] <strong>Step 5: anchor 等价性回归测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_wave_close_anchor_equivalence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;per-n 化后 anchor 章收口行为不变（blocking/路由/summary 仍写）。&quot;&quot;&quot;</span>
+    <span class="c1"># 同上 fixture，BLOCKING 写在 chapter-25-texture.md；断言 25 路由、26 不路由</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: just check + Commit</strong></li>
+</ul>
+<p>Run: <code>just check</code> → 全绿。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/test_audit_cluster.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T3 收口/路由 per-n 消费面+传感器换装（wave 等价物复活 serial per-n 环）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-src-starve_verdict-spec-t4ainfra">Task 4: 词族家=src + starve_verdict 校验器 + 写路径接线（spec T4a，infra）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/audit_starve_family.py</code>
+- Modify: <code>tools/audit_starve_baseline.py</code>（常量改 import 自 src）
+- Modify: <code>src/shenbi/pipeline/llm_output_integrity.py</code>（新增 <code>check_audit_starve_verdict</code>）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:2982-2992</code>（写路径 <code>if is_audit:</code> 块加第五查器）
+- Modify: <code>src/shenbi/gates/g4/generic.py:257</code>（<code>_revalidate_finding</code> 加 <code>G4.av.starve_verdict → check_audit_starve_verdict(target)</code> 复验路由——<strong>不改 <code>_POST_WRITE_FAIL_PREFIXES</code></strong>：<code>"G4.av."</code> 广前缀已覆盖 FAIL 分类（generic.py:205-210），追加条目是 no-op（I3）；路由分支消除未识别 <code>G4.av.*</code> 的保守放行 WARN 噪音，#105 dispatch_integrity 路由先例 ：257 同位）
+- Test: <code>tests/unit/pipeline/test_llm_output_integrity.py</code>（扩展）
+- Test: <code>tests/unit/tools/test_audit_starve_baseline.py</code>（常量单源断言——M3：删 manifest 骨架测试，真 manifest 证=Step 5 实弹复验）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>check_audit_dispatch_integrity(path) -&gt; list[str]</code> 的发射格式（<code>f"G4.av.dispatch_integrity:{path.name} — L{ln}:…"</code>）与写路径接线先例；<code>_revalidate_finding</code> 的 per-id 复验路由（generic.py:257，#105 dispatch_integrity 路由先例同位——<strong>不动 <code>_POST_WRITE_FAIL_PREFIXES</code></strong>，<code>"G4.av."</code> 广前缀已覆盖 FAIL 分类）。
+- Produces:
+  - <code>audit_starve_family.NARROW6: tuple[str, ...]</code> / <code>WIDE12: tuple[str, ...]</code> / <code>T4_VARIANTS: tuple[str, ...]</code> / <code>PRODUCTION_FAMILY: tuple[str, ...]</code>（= NARROW6+T4_VARIANTS）/ <code>VERDICT_LINE_RE: re.Pattern[str]</code>（<code>^\s*(?:[-*&gt;|#]+\s*)?\*\*判定\*\*\s*[：:]\s*(.*)$</code>，MULTILINE）
+  - <code>check_audit_starve_verdict(path: Path) -&gt; list[str]</code>——<strong>全部判定行值段</strong>锚定（<code>VERDICT_LINE_RE.finditer</code>，非首行——生产门语义；基线/回放的首行语义由工具侧消费形态区分）×<code>PRODUCTION_FAMILY</code>；finding 形如 <code>f"G4.av.starve_verdict:{path.name} — L{ln}:判定行饿死形态「{token}」（输入缺口——不得出具判定）——按输入缺口重派"</code>（M2：以 Step 3 代码版为准，本行与代码逐字一致）。
+  - 工具侧：<code>tools/audit_starve_baseline.py</code> 删本地 NARROW6/WIDE12/T4_VARIANTS/VERDICT_LINE 定义，改 <code>sys.path.insert(0, str(REPO / "src"))</code> + <code>from shenbi.pipeline.audit_starve_family import ...</code>（lint_decisions_sources.py 先例）；<strong>manifest 值不变</strong>（Task 7 以 <code>--verify-manifest d9a1b5f0…f5c2</code> 复验）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试——常量单源 + 校验器三形态</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_llm_output_integrity.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_starve_verdict_catches_placeholder_pass</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-48-memo-compliance.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 审</span><span class="se">\n\n</span><span class="s2">**判定**: 通过（附条件）</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;starve_verdict&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="ow">and</span> <span class="s2">&quot;附条件&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_starve_verdict_catches_section_starvation_not_first_line</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ch45 形：首判定行通过、第 N 判定行饿死——全判定行锚定必须检出（I1）。&quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-45-reader-pull.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;# 审</span><span class="se">\n\n</span><span class="s2">**判定**: 通过</span><span class="se">\n\n</span><span class="s2">## 节</span><span class="se">\n\n</span><span class="s2">- **判定**: 无法评估（数据未注入），不判缺陷。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;starve_verdict&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_starve_verdict_clean_pass_and_prose_mention_untouched</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;6 假阳类：值段干净 + 散文提及豁免。&quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-pacing.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;# 审</span><span class="se">\n\n</span><span class="s2">**判定**: 通过（有 MINOR 瑕疵，不阻断）</span><span class="se">\n\n</span><span class="s2">散文：本条规则不适用（单章，多章窗口）。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="c1"># tests/unit/tools/test_audit_starve_baseline.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tool_families_single_source_with_src</span><span class="p">():</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tools.audit_starve_baseline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tool</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_starve_family</span><span class="w"> </span><span class="kn">import</span> <span class="n">NARROW6</span><span class="p">,</span> <span class="n">T4_VARIANTS</span><span class="p">,</span> <span class="n">VERDICT_LINE_RE</span>
+
+    <span class="k">assert</span> <span class="n">tool</span><span class="o">.</span><span class="n">NARROW6</span> <span class="o">==</span> <span class="n">NARROW6</span>
+    <span class="k">assert</span> <span class="n">tool</span><span class="o">.</span><span class="n">T4_VARIANTS</span> <span class="o">==</span> <span class="n">T4_VARIANTS</span>
+    <span class="k">assert</span> <span class="n">tool</span><span class="o">.</span><span class="n">VERDICT_LINE</span><span class="o">.</span><span class="n">pattern</span> <span class="o">==</span> <span class="n">VERDICT_LINE_RE</span><span class="o">.</span><span class="n">pattern</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tool_family_regexes_built_from_imported_constants</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FAMILY 正则由 import 常量构造（防工具侧再起词表双源）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tools.audit_starve_baseline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tool</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_starve_family</span><span class="w"> </span><span class="kn">import</span> <span class="n">NARROW6</span><span class="p">,</span> <span class="n">WIDE12</span>
+
+    <span class="k">assert</span> <span class="n">tool</span><span class="o">.</span><span class="n">FAMILY</span><span class="p">[</span><span class="s2">&quot;narrow6&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pattern</span> <span class="o">==</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">NARROW6</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tool</span><span class="o">.</span><span class="n">FAMILY</span><span class="p">[</span><span class="s2">&quot;wide12&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pattern</span> <span class="o">==</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">WIDE12</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_llm_output_integrity.py -k starve -v &amp;&amp; uv run pytest tests/unit/tools/test_audit_starve_baseline.py -v</code>
+Expected: FAIL — 模块/函数不存在（ImportError）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>audit_starve_family.py</code> + 校验器 + 接线</strong></li>
+</ul>
+<p><code>audit_starve_family.py</code>（常量逐字从现 <code>tools/audit_starve_baseline.py</code> 搬移——值即单源）：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Starvation-marker word families and the verdict-line anchor (spec #109).</span>
+
+<span class="sd">Single source for the T4 production gate and the replay/baseline tool —</span>
+<span class="sd">the spec&#39;s prose is a gloss, never authoritative (spec appendix A; erratum).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="n">NARROW6</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;待补&quot;</span><span class="p">,</span> <span class="s2">&quot;不适用&quot;</span><span class="p">,</span> <span class="s2">&quot;无法核对&quot;</span><span class="p">,</span> <span class="s2">&quot;附条件&quot;</span><span class="p">,</span> <span class="s2">&quot;待正文核验&quot;</span><span class="p">,</span> <span class="s2">&quot;正文未提供&quot;</span><span class="p">)</span>
+<span class="n">WIDE12</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="o">*</span><span class="n">NARROW6</span><span class="p">,</span>
+    <span class="s2">&quot;待核验&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;无法验证&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;无法评估&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;正文缺失&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;未能提供&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;未提供正文&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">T4_VARIANTS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;待核&quot;</span><span class="p">,</span> <span class="s2">&quot;暂记&quot;</span><span class="p">,</span> <span class="s2">&quot;留待后续核验&quot;</span><span class="p">,</span> <span class="s2">&quot;建议复核&quot;</span><span class="p">,</span> <span class="s2">&quot;数据未注入&quot;</span><span class="p">)</span>
+<span class="n">PRODUCTION_FAMILY</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">NARROW6</span><span class="p">,</span> <span class="o">*</span><span class="n">T4_VARIANTS</span><span class="p">)</span>
+<span class="n">VERDICT_LINE_RE</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^\s*(?:[-*&gt;|#]+\s*)?\*\*判定\*\*\s*[：:]\s*(.*)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>llm_output_integrity.py</code> 加：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_audit_starve_verdict</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Invalidate reports whose verdict lines carry starvation markers (spec #109 T4).</span>
+
+<span class="sd">    Production anchor = ALL verdict lines&#39; value segments (spec I1: ch45-form</span>
+<span class="sd">    markers sit on the 8th verdict line — a first-line anchor never sees</span>
+<span class="sd">    them). Prose mentions never count (ch9 form); baseline/replay&#39;s</span>
+<span class="sd">    first-line semantics are the TOOL&#39;s consumption mode, same regex.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_starve_family</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRODUCTION_FAMILY</span><span class="p">,</span> <span class="n">VERDICT_LINE_RE</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">VERDICT_LINE_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">PRODUCTION_FAMILY</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">ln</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G4.av.starve_verdict:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — L</span><span class="si">{</span><span class="n">ln</span><span class="si">}</span><span class="s2">:判定行饿死形态「</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">」&quot;</span>
+                    <span class="s2">&quot;（输入缺口——不得出具判定）——按输入缺口重派&quot;</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<p><code>dispatch_helper.py</code> <code>if is_audit:</code> 块（<code>check_audit_dispatch_integrity</code> 行后）加 <code>issues += check_audit_starve_verdict(full_path)</code>（import 随该块现有局部 import 风格）。<code>generic.py</code> <code>_revalidate_finding</code> 加路由分支 <code>G4.av.starve_verdict → check_audit_starve_verdict(target)</code>（:257 #105 dispatch_integrity 路由同位——消除未识别 <code>G4.av.*</code> 的保守放行 WARN 噪音；<strong>FAIL 分类零改动</strong>：<code>"G4.av."</code> 广前缀天然覆盖）。工具侧迁移（Interfaces 所述）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_llm_output_integrity.py tests/unit/tools/test_audit_starve_baseline.py -v</code>
+Expected: PASS。</p>
+<ul>
+<li>[ ] <strong>Step 5: manifest 复验（I2 迁移值不变的实弹证）</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/audit_starve_baseline.py novel-xinghuo-vol1/audits --verify-manifest d9a1b5f011127306bd38d2cdfe17c4571fc09c9fb402d1a7056f6ef9ae20f5c2</code>
+Expected: exit 0（报告打印，无 mismatch 报错）。</p>
+<ul>
+<li>[ ] <strong>Step 6: just check + Commit</strong></li>
+</ul>
+<p>Run: <code>just check</code> → 全绿。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_starve_family.py<span class="w"> </span>src/shenbi/pipeline/llm_output_integrity.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/gates/g4/generic.py<span class="w"> </span>tools/audit_starve_baseline.py<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T4a 词族家=src 单源+starve_verdict 校验器（全判定行锚定）+写路径接线+G4 复验路由&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-invalid-wave-entry-valid-cascadedone-summary-spec-t4binfra">Task 5: invalid 第三态消费——wave entry valid 维度/cascade/done 面/summary 披露（spec T4b，infra）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:3075-3091</code>（<code>_wave_audit_entry</code>）、<code>:4241-4252</code>（done 面）、<code>:691-749</code>（<code>should_skip_audit</code>）、<code>:765-790</code>（<code>_get_audit_history</code> 写入侧形状）
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py:336-459</code>（<code>consolidate_review_results</code> 披露行）
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code>（扩展——<code>should_skip_audit</code> invalid 断言）
+- Test: <code>tests/pipeline/test_audit_cluster.py</code>（扩展——entry valid/summary 披露）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 4 的期刊 finding 前缀 <code>G4.av.starve_verdict</code>（+ 既有 <code>G4.av.dispatch_integrity</code>）；<code>.integrity-findings-{n}.jsonl</code> 行形 <code>{"file": rel, "finding": str}</code>——<strong>期刊按被写文件自身章号分卷</strong>（<code>_append_integrity_findings</code> :1955-1976，grouped 技能的 follower finding 落 <code>.integrity-findings-26.jsonl</code> 而非 leader 卷）；FAIL 分类单源复用 <code>gates/g4/generic.py</code> 的 <code>_POST_WRITE_FAIL_PREFIXES</code>（含 <code>fence_imbalance</code> WARN 例外——<code>G4.av.*</code> 全 FAIL 类）；<code>_wave_savepoint</code> 形状（不动——write-only 取证）。
+- Produces:
+  - <code>_wave_audit_entry(task_success: bool, hard: int, report_paths: list[str], project_dir: Path) -&gt; dict</code>——返回 dict 增键 <code>"valid": bool</code>（默认 True；<strong>对 report_paths 中每个文件按其自身章号查对应期刊卷</strong>（C1：首路径提取只读 leader 卷，follower invalid 恒漏），任一文件命中 FAIL 类 finding → False）与既有 <code>passed</code>（语义=派发成功∧hard==0，<strong>不含</strong> valid——三态正交）。
+  - <code>should_skip_audit(...)</code>——streak 判定加第五关：<code>recent</code> 任一 <code>r.get("valid") is False</code> → <code>return False</code>（invalid 不进 streak）。
+  - wave done 面：<code>_failed_audit_skills</code> 旁增 <code>_invalid_audit_skills</code>（<code>cs.audit_results[short].get("valid") is False</code> 的技能集）；<code>:4250-4252</code> 排除条件改为 <code>not in _failed_audit_skills and not in _invalid_audit_skills</code>。
+  - <code>consolidate_review_results(..., invalid_reports: list[str] | None = None)</code>——<code>failed_count &gt; 0 or invalid_reports</code> 时禁净结论句，改渲染披露行：<code>- **输入缺口（invalid 产物）**: {len(invalid_reports)} 份（{names}）——不计通过、不构成净结论</code>；净结论句条件改 <code>if not blocking_lines and not critical_lines and failed_count == 0 and not invalid_reports</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试（spec T4 判据三条）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># test_chapter_loop.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_should_skip_audit_rejects_invalid_streak</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;invalid 不进 cascade streak——含 invalid 的三连胜不跳。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">should_skip_audit</span>
+
+    <span class="n">hist_ok</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">should_skip_audit</span><span class="p">(</span><span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="n">hist_ok</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="n">hist_bad</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">hist_ok</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">should_skip_audit</span><span class="p">(</span><span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="n">hist_bad</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="c1"># test_audit_cluster.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wave_audit_entry_invalid_from_journal</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">rep</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-26-texture.md&quot;</span>
+    <span class="n">rep</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;**判定**: 待补（正文未提供）</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;.integrity-findings-26.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;audits/chapter-26-texture.md&quot;</span><span class="p">,</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.av.starve_verdict:…&quot;</span><span class="p">},</span>
+            <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">_wave_audit_entry</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-26-texture.md&quot;</span><span class="p">],</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;passed&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>  <span class="c1"># 三态正交</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wave_audit_entry_grouped_follower_journal</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C1：grouped 技能产物集跨 25/26 两章——follower 卷的 FAIL 必须命中 valid=False。&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-25-texture.md&quot;</span><span class="p">,</span> <span class="s2">&quot;audits/chapter-26-texture.md&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;**判定**: 通过</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;.integrity-findings-26.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;audits/chapter-26-texture.md&quot;</span><span class="p">,</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.av.starve_verdict:…&quot;</span><span class="p">},</span>
+            <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">_wave_audit_entry</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>  <span class="c1"># 首路径=25 卷无 finding——按文件逐卷查才不漏</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_consolidate_disclosure_when_failed_or_invalid</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">consolidate_review_results</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">consolidate_review_results</span><span class="p">([],</span> <span class="mi">26</span><span class="p">,</span> <span class="n">invalid_reports</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chapter-26-texture.md&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="s2">&quot;No BLOCKING or CRITICAL issues found&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span>
+    <span class="k">assert</span> <span class="s2">&quot;输入缺口&quot;</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">and</span> <span class="s2">&quot;chapter-26-texture.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_done_face_excludes_invalid_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;re-review 轮 2 Minor#1：当波 invalid 技能不当 done（done 面在 entry 循环前——</span>
+<span class="sd">    _invalid_audit_skills 必须与 _failed_audit_skills 同段内联计算，不依赖 entry 循环产物）。&quot;&quot;&quot;</span>
+    <span class="c1"># tmp 项目 + wave 预检/派发桩（沿用该文件既有 wave 桩手法）；构造 group-craft</span>
+    <span class="c1"># 全部产物在盘、chapter-26-texture.md 饿死形 + 期刊 FAIL 记录；</span>
+    <span class="c1"># 跑 _run_audit_wave_step 后断言 state 中 anchor/follower 的 audit step-done</span>
+    <span class="c1"># 不含 shenbi-review-group-craft（invalid 排除），而 cascade 其它面照常。</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_loop.py -k invalid_streak -v &amp;&amp; uv run pytest tests/pipeline/test_audit_cluster.py -k "invalid_from_journal or grouped_follower or disclosure or done_face" -v</code>
+Expected: FAIL（<code>valid</code> 键不存在/streak 不看 valid/披露行不存在/done 面 invalid 排除无断言——四红）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现四处</strong></li>
+</ul>
+<p><code>_wave_audit_entry</code> valid 判定（C1 逐文件逐卷查期刊——期刊即时计算路线，I7 落码；<strong>返回命中 rel-path 列表</strong>而非 bool——re-review 新破坏#1：按 <code>audit_suffix</code> 重构的名字对 grouped 技能是 phantom 路径，披露行必须点名真实产物文件）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_fail_findings_for_reports</span><span class="p">(</span><span class="n">report_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report files carrying FAIL-class post-write findings (spec #109 T4b).</span>
+
+<span class="sd">    Returns the offending project-relative report paths (deduped, in input</span>
+<span class="sd">    order). The journal is VOLUMED BY THE WRITTEN FILE&#39;S OWN CHAPTER</span>
+<span class="sd">    (_append_integrity_findings) — a grouped skill&#39;s follower findings live in</span>
+<span class="sd">    ``.integrity-findings-26.jsonl`` while the first report path is 25: the</span>
+<span class="sd">    lookup must walk EVERY report path against ITS OWN volume (C1). FAIL</span>
+<span class="sd">    classification reuses the G4 single source (prefixes + the single WARN</span>
+<span class="sd">    exception).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_json</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">_POST_WRITE_FAIL_PREFIXES</span>  <span class="c1"># pyright: ignore[reportPrivateUsage]</span>
+
+    <span class="n">hits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">report_paths</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapter-(\d+)&quot;</span><span class="p">,</span> <span class="n">rel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">journal</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.integrity-findings-</span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">journal</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">journal</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">_json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">_json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># torn tail (crash) — same tolerance as the G4 reader</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="n">rel</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">finding</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;finding&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">finding</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.pi.fence_imbalance&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>  <span class="c1"># the single WARN class</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">finding</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_POST_WRITE_FAIL_PREFIXES</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">rel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hits</span><span class="p">:</span>
+                    <span class="n">hits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">hits</span>
+</code></pre></div>
+<p>（pyright 私有 import 注记沿用 <code>src/shenbi/facts/settle_ops.py:39</code> 先例——re-review 注记#4。）</p>
+<p><code>_wave_audit_entry</code> 内、返回前加 <code>entry["valid"] = not _fail_findings_for_reports(report_paths, project_dir)</code>。<code>_wave_close_for_n</code>（Task 3）调 consolidate 处<strong>内联计算</strong>（消解顺序依赖——entry 循环在 consolidation 之后，不从 entry 产物取）：<code>invalid_reports=[p for p in _fail_findings_for_reports([f"audits/{f.name}" for f in reports], project_dir)]</code>——<code>reports</code> 即该 n 的在盘 glob 集，命中名全为真实产物文件。done 面改造（re-review 轮 2 Minor#1：done 面在 entry 循环<strong>之前</strong>，<code>_invalid_audit_skills</code> 不得依赖 entry 产物）：与 <code>_failed_audit_skills</code> 同段（<code>:4241-4249</code> zip 循环处）内联计算 <code>_invalid_audit_skills = {task.skill for task in core_wave + core_serial + genre_wave + genre_serial if _fail_findings_for_reports(list(task.all_output_paths()), project_dir)}</code>；<code>:4250-4252</code> 排除条件 <code>not in _failed_audit_skills and not in _invalid_audit_skills</code>。<code>_get_audit_history</code> 提取侧加 <code>"valid": audit_result.get("valid", True)</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_loop.py tests/pipeline/test_audit_cluster.py tests/unit/pipeline/test_parallel_dispatch*.py -v</code>（parallel_dispatch 测试文件名以 <code>ls tests/unit/pipeline/ | grep parallel</code> 实列为准）
+Expected: PASS 全绿。</p>
+<ul>
+<li>[ ] <strong>Step 5: just check + Commit</strong></li>
+</ul>
+<p>Run: <code>just check</code> → 全绿。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/parallel_dispatch.py<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T4b invalid 第三态消费——wave entry valid/cascade streak/done 面/summary 缺口披露&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-resume-invalid-spec-t5infra">Task 6: resume invalid 感知补跑（spec T5，infra）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:393-399</code>（<code>_filter_completed_audit_tasks</code>）
+- Test: <code>tests/pipeline/test_audit_cluster.py</code>（crash-replay 集成测试）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 4 <code>check_audit_starve_verdict</code> + 期刊（双源判定：期刊有 FAIL finding <strong>或</strong> 现盘文件重查器命中 → invalid——期刊为准、重查兜底，两者取或）。
+- Produces: <code>_filter_completed_audit_tasks(tasks: list[ReviewTask], project_dir: Path) -&gt; list[ReviewTask]</code>——签名加 <code>project_dir</code>（调用点 <code>:4162/:4201</code> 同步传）；完成判据=全部产物在盘 <strong>且</strong> 无 invalid 产物。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试——crash-replay（spec T5 判据）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resume_redispatches_invalid_follower_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;mid-wave crash 重放：invalid 产物 → 该技能任务不视为完成 → 重派且带全输入。&quot;&quot;&quot;</span>
+    <span class="c1"># tmp 项目 bundle 25-26；audit_report_paths(25, group-craft) 全部 6 条产物在盘</span>
+    <span class="c1"># （25/26 × texture/reader-pull/anti-ai——I5：必须全部在盘，否则存在性分支先命中、</span>
+    <span class="c1"># 红测因错误理由通过）；仅 audits/chapter-26-texture.md 内容为饿死形</span>
+    <span class="c1"># （**判定**: 待补（正文未提供））；期刊无记录（crash 前写路径钩子未跑——重查器兜底路径）</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">ReviewTask</span><span class="p">(</span>
+        <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">,</span>
+        <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;cluster&quot;</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;audits/chapter-25-texture.md&quot;</span><span class="p">,</span>
+        <span class="n">output_paths</span><span class="o">=</span><span class="n">audit_report_paths</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">remaining</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">_filter_completed_audit_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">],</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">skill</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">remaining</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;shenbi-review-group-craft&quot;</span><span class="p">]</span>  <span class="c1"># invalid → 不算完成</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py::test_resume_redispatches_invalid_follower_report -v</code>
+Expected: FAIL——现行纯存在性过滤把该任务视为完成（remaining 为空）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 invalid 感知过滤</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_filter_completed_audit_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReviewTask</span><span class="p">],</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReviewTask</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C30 F377 + spec #109 T5: drop audit tasks whose outputs all exist AND are valid.</span>
+
+<span class="sd">    Existence alone marks starved/invalid follower products complete — the</span>
+<span class="sd">    resume path never re-dispatches them. Validity = no FAIL-class journal</span>
+<span class="sd">    finding on any output OR (fallback) a fresh starve-verdict re-check of</span>
+<span class="sd">    the on-disk file (journal may be absent/torn after a crash).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_audit_starve_verdict</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReviewTask</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">all_output_paths</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>  <span class="c1"># invalid product → re-dispatch with full inputs</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div>
+<p>（期刊检查并入：命中 <code>.integrity-findings-{n}.jsonl</code> 的 FAIL 行同判 invalid——实现时以最短路径合并两源，保持纯读幂等。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 回归（C30 既有 resume 测试）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_audit_cluster.py -v &amp;&amp; uv run pytest tests/ -k "filter_completed or resume" -v</code>
+Expected: PASS 全绿。</p>
+<ul>
+<li>[ ] <strong>Step 5: just check + Commit</strong></li>
+</ul>
+<p>Run: <code>just check</code> → 全绿。</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/test_audit_cluster.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #109 T5 resume invalid 感知补跑——存在性过滤升级双源 validity&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-ac-spec-234">Task 7: 差分回放离线仲裁 + AC 证据汇总（spec 验收#2/#3/#4，执行面）</h3>
+<p><strong>Files:</strong>
+- 无 src 改动；产出：<code>.superpowers/sdd/2026-11-15-spec109-audit-bundle-coverage/replay-report.md</code>（工作态，不入库）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>tools/audit_starve_baseline.py</code>（manifest+基线）、Task 4 <code>check_audit_starve_verdict</code>。
+- Produces: 回放仲裁报告（验收#2 证据）+ progress.md 验收证据段。</p>
+<ul>
+<li>[ ] <strong>Step 1: 基线复现（语料冻结证）</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/audit_starve_baseline.py novel-xinghuo-vol1/audits --verify-manifest d9a1b5f011127306bd38d2cdfe17c4571fc09c9fb402d1a7056f6ef9ae20f5c2</code>
+Expected: exit 0；判定行口径 47@窄6/85@扩12（全偶零奇）、文件级 114/157、verdict_pass 偶位 23/24——与 spec 快照逐位一致。</p>
+<ul>
+<li>[ ] <strong>Step 2: 生产校验器全量回放（离线，只读）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-I<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.pipeline.audit_starve_family import VERDICT_LINE_RE, NARROW6, WIDE12</span>
+<span class="s2">from shenbi.pipeline.llm_output_integrity import check_audit_starve_verdict</span>
+<span class="s2"># 1) 生产口径 invalid 清单（全判定行 × PRODUCTION_FAMILY）——只报告不设阈值（M1）</span>
+<span class="s2"># 2) 一致性子集断言：基线窄6首行 47 文件集 ⊆ 生产 invalid 集；扩12 85 文件集 ⊆ 生产 invalid 集</span>
+<span class="s2">#    （首行饿死 ⊂ 全行饿死 ∧ 窄词族 ⊂ 生产词族——必然子集，若不成立=锚定实现错）</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>Expected: 子集断言全过；生产计数入 replay-report.md（报告面：全偶分布、词族分布、ch45/ch49 形命中清单）。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: 验收#3/#4 证据核对</strong></p>
+</li>
+<li>
+<h1 id="3task-4-task-2-blob-ch49-t2-spec-replay-report">3：Task 4 三红测（占位/编造通过/节段饿死判定行形）+ Task 2 blob 断言（第四形态输入断言）+ ch49 形=T2 预防单侧（spec 显式声明）——测试名清单入 replay-report。</h1>
+</li>
+<li>
+<h1 id="4-fixture-dry-run-task-2-step-5-task-3-task-6-crash-replay-valid-task-56">4：双章 fixture dry-run 全链（Task 2 Step 5 测试 + Task 3 集成测试 + Task 6 crash-replay）——产物 valid 断言在 Task 5/6 测试内。</h1>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 验收 5 挂账声明（F947）</strong></p>
+</li>
+</ul>
+<p>progress.md 记：验收 5（T2 生成测试 ≥94，G3.4 独立评分）依赖付费实弹——<strong>随用户令挂账</strong>（#106 AC4 先例），离线结构断言（Task 2 blob 级）为替代交付。</p>
+<ul>
+<li>[ ] <strong>Step 5: 汇总写入 progress.md <code>## 验收证据</code>（命令+输出逐条粘贴）</strong></li>
+</ul>
+<hr />
+<h2 id="self-review-5-2026-11-18">Self-Review 结论（含阶段 5 审查修复轮 2026-11-18）</h2>
+<ol>
+<li><strong>Spec 覆盖</strong>：T1→Task 1；T2→Task 2；T3→Task 3；T4→Task 4+5；T5→Task 6；验收#1（判据全绿）=各 task 测试+Task 7；#2=Task 7 Step 1-2；#3=Task 4/2 红测+Task 7 Step 3；#4=Task 2/3/6 集成测试；#5=Task 7 Step 4 挂账（F947）。无缺口。</li>
+<li><strong>占位符扫描</strong>：Task 2 Step 1 的 <code>ReviewChecklist(chapter=25)</code> 现即合法（仅 chapter 必填——阶段 5 审查亲验）；其余步骤均含真码/真命令/期望输出。</li>
+<li><strong>类型一致性</strong>：<code>_wave_close_for_n</code>（Task 3 产、Task 5 消费 invalid_reports 参数——名单来源=per-skill entry valid 面）；<code>check_audit_starve_verdict</code>（Task 4 产、Task 6 消费）；<code>bundle=</code> 参数（Task 1 产、<strong>Task 1 自己接线 <code>:4114</code></strong>——无跨 task 隐式依赖窗口）。</li>
+<li><strong>阶段 5 审查修复轮</strong>（两轮 re-review 后终态）：C1（<code>_fail_findings_for_reports</code> 期刊按文件逐卷查——grouped follower 盲视修复+grouped 红测+<strong>返回真名列表</strong>供披露行点名真实产物——re-review 轮 2 新破坏#1）；I1（<code>_resolve</code> None 分支保留旧语义）；I2（<code>built.user</code>）；I3（generic.py 改 <code>_revalidate_finding</code> 路由、Step 3/Interfaces/commit message 三处旧「FAIL 前缀追加」指令全清——re-review 轮 2 I3 残留补清）；I4（<code>:4114</code> 归属 Task 1+wave 级红测）；I5（Task 6 fixture 全 6 产物在盘）；I6（monkeypatch loader 手法+删物理 SKILL.md 死码）；I7（落码+FAIL 分类单源 import+私有 import pyright 注记）；M1-M9 全落（保留清单/文案统一/骨架测试删/测试并入 tests/pipeline/<strong>volume 章参数化定性</strong>/<strong>ending_history <code>k==chapters[0]</code> 快捷分支适配</strong>/audit_reports 语义注记/cl import——M5/M7 正文实落，re-review 轮 2 指认的虚报已补齐）；顺序依赖消解（invalid_reports 内联计算，不走 entry 产物）。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

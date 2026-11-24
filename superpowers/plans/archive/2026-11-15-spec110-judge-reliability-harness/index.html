@@ -1,0 +1,2189 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec110-judge-reliability-harness/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #110 · judge-reliability-harness Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #110 · judge-reliability-harness Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec110-judge-reliability-harness.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec110-judge-reliability-harness/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #110 · judge-reliability-harness Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec110-judge-reliability-harness.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-110-judge-reliability-harness-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #110 · judge-reliability-harness Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 项目级约束逐字块——每次审查派发注入）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints（spec 项目级约束逐字块——每次审查派发注入）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-parse_resonance_trend-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: parse_resonance_trend confidence 列扩展
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 语料扫描层——卫生剔除+族分组+双口径评级矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 统计核心——κ/α/效度相关/形状纯函数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-justfile-recipevol1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 报告组装+justfile recipe+vol1 基线回放
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t2-107-spec-mcnemar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T2 接线——#107 spec 加 McNemar 引用行
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t3-103-spec-resonance-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T3 接线——#103 spec 裁定路径行 + resonance SKILL 校准口径
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-110-judge-reliability-harness-implementation-plan">Spec #110 · judge-reliability-harness Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 判官间信度/分布形状离线确定性报告工具 <code>just judge-reliability</code>（κ/α/效度相关/形状五件，零 LLM）+ #107/#103/resonance SKILL 三处判据营养接线。</p>
+<p><strong>Architecture:</strong> 薄壳工具 <code>tools/judge_reliability.py</code>：卫生判定复用 <code>check_audit_starve_verdict</code>（#109 T4 单源）、issue 计数复用 <code>extract_finding_units</code>、trend 解析复用并扩展 <code>parse_resonance_trend</code>（confidence 列）；新建仅统计核心（κ/α/相关/形状纯函数）。<strong>评级双口径并报</strong>（any-severity 二值=证据复现口径 ＋ hard 二值/计数=判据营养口径——plan 审查 C3 裁定）。报告落 <code>reports/judge-reliability-&lt;ts&gt;.md</code>，观测面不进生产读面。T2/T3 接线为三处一行级 spec/SKILL 文本修订。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / argparse / 标准库 math·collections（无第三方依赖）；tests/pytest；justfile recipe。</p>
+<h2 id="global-constraintsspec">Global Constraints（spec 项目级约束逐字块——每次审查派发注入）</h2>
+<ul>
+<li><strong>复用钉死</strong>：卫生判定=复用 <code>check_audit_starve_verdict</code>（<code>src/shenbi/pipeline/llm_output_integrity.py:405</code>——#109 T4 单源分类器，全判定行值段匹配+散文提及豁免；词族常量由该函数内部消费自 <code>audit_starve_family</code> 单源，禁自写词表/自写扫描循环）；issue 计数=复用 <code>extract_finding_units</code>（<code>src/shenbi/pipeline/audit_aggregate.py:114</code>）；trend 解析=复用 <code>parse_resonance_trend</code>（<code>tools/report_longitudinal.py:68</code>——tools 互引走仓内既有 sys.path+E402 noqa 先例，无 lint 拦截）</li>
+<li><strong>评级双口径</strong>（spec r2.2）：any-severity 二值（任一 severity 的 finding 存在——<strong>证据复现口径</strong>：动机节 α=0.311/n=25 仅在此口径精确复现，plan 审查 C3 实证）＋ hard 二值（severity ∈ {BLOCKING, CRITICAL}——<code>src/shenbi/contracts/enums.py:9</code> Severity 词表）＋ hard 计数，三列并报</li>
+<li><strong>κ 口径</strong>：成对完整例+逐对披露 n；同派发族对（group-character 成员互对/group-craft 成员互对）附「同派发伪影——不作判官间一致性解读」注记；<strong>族级聚合=OR</strong>——group-character/group-craft 各产出合成 rater（章节=成员并集、评级=成员 OR），参与两两 κ 全配对（对本族成员的配对注记「族 OR 合成」而非伪影注记）；prevalence 退化（边缘分布极端）κ 列输出「—」+警示</li>
+<li><strong>α 口径</strong>：item 集两版（always-on 全 items——group-character 成员不入 items ／ 再剔 craft 三员 texture/reader-pull/anti-ai）× 评级三版（any 二值/hard 二值/hard 计数）= 六数并报；subjects = listwise 完整章；<strong>证据锚=「always-on 全 × any 二值」列（α≈0.31、n=25）</strong></li>
+<li><strong>效度相关口径</strong>（spec r2.2）：join = 既有 scored trend 行 ∧ 该章 ≥1 份 valid 非 resonance 审计；「其余 issue 总量」= 该章全部非 resonance valid 审计的 <strong>any-severity finding 总数</strong>（证据字面「issue 总量」）；负对照 r(overall, 章长)；<strong>验收=方向性判据 |r|&lt;0.3（正交主张）+ n 披露</strong>——原值 +0.068/n=28 判定不可逐字复现（原统计脚本不在盘，阶段 0 登记），报告披露此口径差</li>
+<li><strong>分布形状</strong>：模值频率表、sd、极差、相当/更差/更好计数（Route A 八列表按列名「相对位置」绑定、首表头绑定+后续表头重绑防跨表泄漏）、通胀 slope（章号回归）、confidence 基率；<code>human_overridden</code>（excluded）行不入形状统计并披露行数（drift_gate 先例 <code>tools/report_longitudinal.py:301</code>）</li>
+<li><strong>冷启动披露</strong>：实评行 &lt;8 时分布形状节输出「样本不足」披露行，不输出误导值</li>
+<li><strong>报告双报义务</strong>（#115 T4 对齐）：报告须同时含「分布形状」与「外部锚定效度引用」两节——后者未就绪时输出披露行「#115 T3 外部锚定未执行」，κ/α 不得单独作为判官可用性结论</li>
+<li><strong>报告是仪表不是 gate</strong>：命名与文档明确「观测面，不进生产读面」；生产代码禁读 <code>reports/</code></li>
+<li><strong>G0.9 边界</strong>：红测合成输入 inline/tmp_path 构造不入 <code>tests/fixtures/</code>（结构性豁免——构造结构输入不冒充真实技能产物）；<strong>饿死剔除用例优先引用仓内真实饿死 fixture</strong>（<code>tests/fixtures/audits/chapter-2-memo-compliance.md:4</code>——<code>**判定**: 不通过（无法核对）</code>，「无法核对」∈ NARROW6 生产词族）</li>
+<li><strong>lint 面</strong>：<code>tools/judge_reliability.py</code> 与 <code>tests/unit/tools/test_judge_reliability.py</code> 加 pyproject per-file-ignores <code>["RUF001", "RUF002", "RUF003"]</code>（先例 <code>tools/audit_starve_baseline.py</code> 等）；公开函数/类带 docstring（D1xx）；文件中段 import 带 <code># noqa: E402</code>；魔法数入命名常量（PLR2004）</li>
+<li><strong>域约束</strong>：真实 LLM dispatch 付费且写状态——本 plan 全程零派发零 LLM；deps.json 等生成物禁手改</li>
+<li><strong>T3 接线落点</strong>：#103 spec 文本一行引用（本件自证段）；plan 前置检查单由 #103 plan 期承接（本件不代写他件 plan）；resonance SKILL 改动过 <code>just lint-contracts</code>（纯散文面零契约变更预期 diff 空）</li>
+</ul>
+<p><strong>测试层级声明</strong>：全部 T1 层（tests/unit/tools/ 单元测试；构造语料 tmp_path + 真实饿死 fixture 断言）。vol1 基线回放为本地验收运行（语料 gitignored 不入 CI），输出粘 progress.md <code>## 验收证据</code>。
+<strong>G3.4 声明</strong>：不适用——本 spec 零 LLM 评分场景（纯确定性统计）。
+<strong>F947 声明</strong>：天然合规——验收全离线可复验（构造语料测试+vol1 本地回放），无真实 dispatch 依赖。</p>
+<hr />
+<h3 id="task-1-parse_resonance_trend-confidence">Task 1: <code>parse_resonance_trend</code> confidence 列扩展</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/report_longitudinal.py:60-115</code>（ResonanceRow + parse_resonance_trend）
+- Test: <code>tests/unit/test_report_longitudinal.py</code>（追加测试）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>parse_resonance_trend(path: Path) -&gt; dict[int, ResonanceRow]</code>（现有：列名绑定、pending 行跳过、重复章号 raise）
+- Produces: <code>ResonanceRow(overall: float, excluded: bool, confidence: str = "")</code>——新字段带默认值，现有 5 个调用点（report_longitudinal :397/:842 + 3 个测试文件——<code>tests/unit/test_report_longitudinal.py</code>、<code>tests/unit/tools/test_spec83_longitudinal.py</code>、<code>tests/unit/skill_utils/test_drift_detection.py</code>）属性访问不受影响；Task 4 读 <code>row.confidence</code></p>
+<p><strong>复杂度: leaf · test_kind: tdd_red_green</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（追加到 <code>tests/unit/test_report_longitudinal.py</code>；该文件用函数内 import 风格——沿用）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_parse_resonance_trend_confidence_column</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.report_longitudinal</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_resonance_trend</span>
+
+    <span class="n">trend</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span>
+    <span class="n">trend</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">trend</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">type: truth</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2"># 共鸣趋势</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|---|---|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 1 | 推进 | 23 | 20 | 20 | 15 | 78 | mid |  |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 2 | 过渡 | 22 | 25 | 22 | 10 | 79 | high |  |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 3 | 推进 | - | - | - | - | pending | low |  |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">parse_resonance_trend</span><span class="p">(</span><span class="n">trend</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># pending 行跳过（现有语义）</span>
+    <span class="k">assert</span> <span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;mid&quot;</span>
+    <span class="k">assert</span> <span class="n">rows</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resonance_row_confidence_default_backcompat</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;旧构造（无 confidence）与缺列文件仍工作——向后兼容钉死。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.report_longitudinal</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResonanceRow</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ResonanceRow</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mf">78.0</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_report_longitudinal.py -k confidence -v</code>
+Expected: FAIL with <code>TypeError</code> / <code>AttributeError: 'ResonanceRow' object has no attribute 'confidence'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong>——<code>tools/report_longitudinal.py</code> 三处：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># :60 附近 dataclass 加字段（默认值保旧构造）</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResonanceRow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One parsed trend row: overall score + human-override exclusion flag.&quot;&quot;&quot;</span>
+
+    <span class="n">overall</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">excluded</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+<p>parse 循环内（<code>override_col = ...</code> 同段之后、构造 ResonanceRow 处）：</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">conf_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
+        <span class="n">confidence</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">conf_col</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">conf_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">conf_col</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+<p>构造行改 <code>ResonanceRow(overall=overall, excluded=excluded, confidence=confidence)</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑全部既有调用方测试</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_report_longitudinal.py tests/unit/tools/test_spec83_longitudinal.py tests/unit/skill_utils/test_drift_detection.py -v</code>
+Expected: 全 PASS（新 2 + 三个文件的既有全绿——向后兼容证明）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/report_longitudinal.py<span class="w"> </span>tests/unit/test_report_longitudinal.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #110 T1 前置——parse_resonance_trend 扩展 confidence 列（向后兼容默认值）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2">Task 2: 语料扫描层——卫生剔除+族分组+双口径评级矩阵</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/judge_reliability.py</code>
+- Create: <code>tests/unit/tools/test_judge_reliability.py</code>
+- Modify: <code>pyproject.toml:123-</code>（per-file-ignores 加两行——先例 audit_starve_baseline）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>check_audit_starve_verdict(path: Path) -&gt; list[str]</code>（非空=invalid）；<code>extract_finding_units(report_name: str, content: str) -&gt; tuple[list[FindingUnit], list[str]]</code>，<code>FindingUnit(severity: str, text: str, reporters: tuple[str, ...])</code>
+- Produces（Task 3/4 消费，签名钉死；<strong>Task 4 会补第五字段 <code>any_count</code>——见 Task 4 头注</strong>）:
+  - <code>HARD_SEVERITIES: frozenset[str]</code> = <code>frozenset({"BLOCKING", "CRITICAL"})</code>
+  - <code>SKILL_FAMILY: dict[str, str]</code>（pov/dialogue/character/motivation → "group-character"；texture/reader-pull/anti-ai → "group-craft"）
+  - <code>@dataclass(frozen=True) class AuditRecord: chapter: int; skill: str; any_binary: int; hard_binary: int; hard_count: int</code>（双口径评级——C3）
+  - <code>@dataclass(frozen=True) class ScanResult: records: tuple[AuditRecord, ...]; invalid: tuple[str, ...]; file_total: int</code>
+  - <code>scan_audits(audits_dir: Path) -&gt; ScanResult</code>——遍历 <code>chapter-&lt;N&gt;-&lt;skill&gt;.md</code>（<code>review-summary</code> 排除；<code>chapter-N.aggregate.md</code> 无 <code>-skill</code> 段天然不匹配正则——M4），invalid 剔除，valid 记评级</p>
+<p><strong>复杂度: leaf · test_kind: tdd_red_green</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（新文件；构造语料 tmp_path + 真实饿死 fixture 断言——I4/C1）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unit tests for tools/judge_reliability.py (spec #110).</span>
+
+<span class="sd">Constructed structural corpora under tmp_path — G0.9 structural-input</span>
+<span class="sd">exemption; the real starvation fixture is consumed read-only via its</span>
+<span class="sd">canonical classifier (evidence-priority rule, spec acceptance #3).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">HARD_LINE</span> <span class="o">=</span> <span class="s2">&quot;- [BLOCKING] 时序矛盾：ch3 与 ch5 对同一事件的日期记述冲突</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">MINOR_LINE</span> <span class="o">=</span> <span class="s2">&quot;- [MINOR] 用词重复</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="c1"># 生产词族 token（NARROW6「无法核对」——「无法验证」仅 WIDE12，不命中生产分类器）</span>
+<span class="n">STARVE_BODY</span> <span class="o">=</span> <span class="s2">&quot;**判定**: 不通过（无法核对）</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="n">dir_</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">dir_</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scan_audits_dual_caliber_ratings_and_hygiene</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuditRecord</span><span class="p">,</span> <span class="n">scan_audits</span>
+
+    <span class="n">audits</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">_write</span><span class="p">(</span><span class="n">audits</span><span class="p">,</span> <span class="s2">&quot;chapter-1-texture.md&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;**判定**：有瑕疵</span><span class="se">\n</span><span class="si">{</span><span class="n">HARD_LINE</span><span class="si">}{</span><span class="n">MINOR_LINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_write</span><span class="p">(</span><span class="n">audits</span><span class="p">,</span> <span class="s2">&quot;chapter-1-sensitivity.md&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;**判定**：有瑕疵</span><span class="se">\n</span><span class="si">{</span><span class="n">MINOR_LINE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 仅 MINOR</span>
+    <span class="n">_write</span><span class="p">(</span><span class="n">audits</span><span class="p">,</span> <span class="s2">&quot;chapter-2-texture.md&quot;</span><span class="p">,</span> <span class="n">STARVE_BODY</span><span class="p">)</span>  <span class="c1"># 饿死形态→invalid</span>
+    <span class="n">_write</span><span class="p">(</span><span class="n">audits</span><span class="p">,</span> <span class="s2">&quot;chapter-1-review-summary.md&quot;</span><span class="p">,</span> <span class="s2">&quot;汇总（不参与）&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">scan_audits</span><span class="p">(</span><span class="n">audits</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">res</span><span class="o">.</span><span class="n">file_total</span> <span class="o">==</span> <span class="mi">3</span>  <span class="c1"># summary 排除（aggregate 无 -skill 段不匹配）</span>
+    <span class="n">by</span> <span class="o">=</span> <span class="p">{(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">skill</span><span class="p">):</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">records</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">by</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;texture&quot;</span><span class="p">)]</span> <span class="o">==</span> <span class="n">AuditRecord</span><span class="p">(</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="n">any_binary</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hard_binary</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hard_count</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">by</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;sensitivity&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">any_binary</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">by</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;sensitivity&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">hard_binary</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">by</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;sensitivity&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">hard_count</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;texture&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">by</span>  <span class="c1"># invalid 剔除</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">invalid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;chapter-2-texture.md&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">invalid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_real_starve_fixture_classified_invalid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验收 3 优先项：真实饿死 fixture 经 #109 单源分类器判 invalid。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_audit_starve_verdict</span>
+
+    <span class="n">fixture</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tests/fixtures/audits/chapter-2-memo-compliance.md&quot;</span>
+    <span class="k">assert</span> <span class="n">fixture</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">fixture</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'tools.judge_reliability'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 实现扫描层</strong>——<code>tools/judge_reliability.py</code>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Judge inter-rater reliability harness (spec #110) — offline, deterministic, zero LLM.</span>
+
+<span class="sd">Observation-plane instrument, NOT a gate: nothing in src/shenbi/ may read</span>
+<span class="sd">its reports (repo discipline, #108 T3 precedent). Replay semantics are</span>
+<span class="sd">pinned HERE in executable form; spec prose is a gloss.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span><span class="p">))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_finding_units</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_audit_starve_verdict</span>  <span class="c1"># noqa: E402</span>
+
+<span class="n">HARD_SEVERITIES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">})</span>
+<span class="c1"># 单源派发族（SKILL writes 声明的单次派发产物——同族两两 κ 为伪影，族 OR 合成 rater）</span>
+<span class="n">SKILL_FAMILY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;pov&quot;</span><span class="p">:</span> <span class="s2">&quot;group-character&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="s2">&quot;group-character&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;character&quot;</span><span class="p">:</span> <span class="s2">&quot;group-character&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation&quot;</span><span class="p">:</span> <span class="s2">&quot;group-character&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="s2">&quot;group-craft&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reader-pull&quot;</span><span class="p">:</span> <span class="s2">&quot;group-craft&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;anti-ai&quot;</span><span class="p">:</span> <span class="s2">&quot;group-craft&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_AUDIT_FORM</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapter-(\d+)-([\w-]+)\.md$&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuditRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One valid audit file&#39;s dual-caliber ratings (spec r2.2).&quot;&quot;&quot;</span>
+
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">any_binary</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># 任一 severity finding 存在（证据复现口径）</span>
+    <span class="n">hard_binary</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># BLOCKING/CRITICAL 存在</span>
+    <span class="n">hard_count</span><span class="p">:</span> <span class="nb">int</span>  <span class="c1"># BLOCKING/CRITICAL 单元数</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Corpus scan outcome: valid records + invalid disclosure + file total.&quot;&quot;&quot;</span>
+
+    <span class="n">records</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">AuditRecord</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">invalid</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">file_total</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scan_audits</span><span class="p">(</span><span class="n">audits_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Walk chapter-&lt;N&gt;-&lt;skill&gt;.md; drop review-summary and starved (invalid).&quot;&quot;&quot;</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AuditRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">invalid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">file_total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">audits_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_AUDIT_FORM</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span> <span class="ow">or</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;review-summary&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">file_total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_audit_starve_verdict</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># #109 T4 单源判定</span>
+        <span class="k">if</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">invalid</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">units</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">hard</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="n">HARD_SEVERITIES</span><span class="p">)</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">AuditRecord</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">units</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">hard</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">hard</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ScanResult</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">records</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">invalid</span><span class="p">),</span> <span class="n">file_total</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: pyproject per-file-ignores</strong>——<code>[tool.ruff.lint.per-file-ignores]</code> 内（<code>"tools/audit_starve_baseline.py"</code> 行附近，按字母序）加两行：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;tools/judge_reliability.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">]</span>
+<span class="s2">&quot;tests/unit/tools/test_judge_reliability.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 跑测通过 + lint</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -v &amp;&amp; uv run ruff check tools/judge_reliability.py tests/unit/tools/test_judge_reliability.py</code>
+Expected: 2 PASS；ruff 零告警</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/judge_reliability.py<span class="w"> </span>tests/unit/tools/test_judge_reliability.py<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #110 T1——judge_reliability 扫描层（#109 T4 卫生单源+族映射+双口径评级）+lint 豁免面&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3">Task 3: 统计核心——κ/α/效度相关/形状纯函数</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/judge_reliability.py</code>（追加统计函数——import 并顶部）
+- Test: <code>tests/unit/tools/test_judge_reliability.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的 <code>AuditRecord</code>/<code>ScanResult</code>/<code>SKILL_FAMILY</code>
+- Produces（Task 4 消费）:
+  - <code>@dataclass(frozen=True) class KappaResult: kappa: float | None; agreement: float; n: int; warning: str | None</code>——p_e ≥ <code>_PREVALENCE_EPS</code>(0.999) 或 n=0 时 kappa=None+警示
+  - <code>cohen_kappa(a: Sequence[int], b: Sequence[int]) -&gt; KappaResult</code>
+  - <code>cronbach_alpha(items: Sequence[Sequence[float]]) -&gt; float | None</code>（items=行(k)、subjects=列(n)；σ²_total=0 或 k&lt;2 或 n&lt;2 → None）
+  - <code>pearson(xs, ys) -&gt; float | None</code>
+  - <code>@dataclass(frozen=True) class SlopeResult: slope: float; r: float; t: float</code>——n&lt;2 → 全 0；|r|≥1 → t=<code>float("inf")</code>（报告渲染「∞ 完美拟合」——M2）
+  - <code>slope_regression(xs, ys) -&gt; SlopeResult</code>（t = r·√((n−2)/(1−r²))）
+  - <code>shape_stats(overalls, confidences) -&gt; dict</code>（n&lt;<code>_COLD_START_MIN</code>(8) 附 <code>insufficient</code>；含 mode/mode_table/sd 样本/range/high_rate）
+  - <code>anchor_position_counts(audits_dir: Path) -&gt; Counter</code>——首表头绑定+后续表头重绑（防跨表泄漏——M1）</p>
+<p><strong>复杂度: leaf · test_kind: tdd_red_green</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（追加；spec 红测三件全落）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_cohen_kappa_identical_raters</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohen_kappa</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">cohen_kappa</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">res</span><span class="o">.</span><span class="n">kappa</span> <span class="o">==</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">agreement</span> <span class="o">==</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">warning</span> <span class="ow">is</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cohen_kappa_prevalence_degenerate_warns</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohen_kappa</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">cohen_kappa</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># 全零 flag 技能对</span>
+    <span class="k">assert</span> <span class="n">res</span><span class="o">.</span><span class="n">kappa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">warning</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;prevalence&quot;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">warning</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cronbach_alpha_identical_items_is_one</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">cronbach_alpha</span>
+
+    <span class="k">assert</span> <span class="n">cronbach_alpha</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span> <span class="o">==</span> <span class="mf">1.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cronbach_alpha_independent_items_near_zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">cronbach_alpha</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">110</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">400</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">cronbach_alpha</span><span class="p">(</span><span class="n">items</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.10</span>  <span class="c1"># 独立→α≈0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_pearson_and_slope_with_guards</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlopeResult</span><span class="p">,</span> <span class="n">pearson</span><span class="p">,</span> <span class="n">slope_regression</span>
+
+    <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pearson</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">slope_regression</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">78.0</span><span class="p">,</span> <span class="mf">78.7</span><span class="p">,</span> <span class="mf">79.4</span><span class="p">,</span> <span class="mf">80.1</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sr</span><span class="o">.</span><span class="n">slope</span> <span class="o">-</span> <span class="mf">0.7</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="ow">and</span> <span class="n">sr</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>  <span class="c1"># r=±1→∞（M2）</span>
+    <span class="k">assert</span> <span class="n">slope_regression</span><span class="p">([</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">78.0</span><span class="p">])</span> <span class="o">==</span> <span class="n">SlopeResult</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># n&lt;2 自守</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_shape_stats_mode_sd_and_cold_start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">shape_stats</span>
+
+    <span class="n">st</span> <span class="o">=</span> <span class="n">shape_stats</span><span class="p">([</span><span class="mf">79.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">[</span><span class="mf">78.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="mf">86.0</span><span class="p">,</span> <span class="mf">74.0</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">15</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;mid&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mf">79.0</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span> <span class="ow">and</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mf">74.0</span><span class="p">,</span> <span class="mf">86.0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;high_rate&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">15</span> <span class="o">/</span> <span class="mi">17</span> <span class="ow">and</span> <span class="n">st</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;insufficient&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">cold</span> <span class="o">=</span> <span class="n">shape_stats</span><span class="p">([</span><span class="mf">79.0</span><span class="p">,</span> <span class="mf">78.0</span><span class="p">,</span> <span class="mf">77.0</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;mid&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">cold</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;insufficient&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_anchor_position_counts_first_table_only</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">anchor_position_counts</span>
+
+    <span class="n">audits</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">_write</span><span class="p">(</span>
+        <span class="n">audits</span><span class="p">,</span>
+        <span class="s2">&quot;chapter-1-resonance.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;| 维度 | 得分 | 满分 | 置信度 | 对照锚点 | 相对位置 | 证据 | 裁判理由 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|---|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 情感落地 | 22 | 30 | high | AC-001 | 相当 | L45 | show 充分 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 场景临场感 | 20 | 25 | mid | AC-004 | 更差 | L12 | 概述偏多 |</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## 其他表</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 列甲 | 列乙 |</span><span class="se">\n</span><span class="s2">|---|---|</span><span class="se">\n</span><span class="s2">| x | 相当 |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># 次表不误计（M1）</span>
+    <span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">anchor_position_counts</span><span class="p">(</span><span class="n">audits</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;相当&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;更差&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;更好&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'cohen_kappa'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 实现统计核心</strong>（追加到 <code>tools/judge_reliability.py</code>；全部纯函数零 IO——anchor_position_counts 除外）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqrt</span>  <span class="c1"># noqa: E402</span>
+
+<span class="n">_MIN_ITEMS</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># PLR2004：最小 item/样本数守卫（命名常量）</span>
+<span class="n">_MIN_PAIR</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">_SLOPE_MIN_N</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_COLD_START_MIN</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">_PREVALENCE_EPS</span> <span class="o">=</span> <span class="mf">0.999</span>
+<span class="n">_ANCHOR_POSITIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;相当&quot;</span><span class="p">,</span> <span class="s2">&quot;更差&quot;</span><span class="p">,</span> <span class="s2">&quot;更好&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KappaResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cohen kappa with raw agreement and degeneracy disclosure.&quot;&quot;&quot;</span>
+
+    <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">agreement</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">warning</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cohen_kappa</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">KappaResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cohen kappa over paired binary ratings; None + warning when degenerate.&quot;&quot;&quot;</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+    <span class="n">p_o</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">ca</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">p_e</span> <span class="o">=</span> <span class="n">ca</span> <span class="o">*</span> <span class="n">cb</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ca</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cb</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">KappaResult</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">p_o</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;零重叠章——不输出 κ&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">p_e</span> <span class="o">&gt;=</span> <span class="n">_PREVALENCE_EPS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">KappaResult</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="n">p_o</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;prevalence 退化（边缘分布极端）——κ 不输出误导值，附原始 agreement&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">KappaResult</span><span class="p">((</span><span class="n">p_o</span> <span class="o">-</span> <span class="n">p_e</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_e</span><span class="p">),</span> <span class="n">p_o</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cronbach_alpha</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cronbach alpha — items are rows (k), subjects are columns (n).&quot;&quot;&quot;</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">k</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">_MIN_ITEMS</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">_MIN_ITEMS</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">items</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">sigma_i</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+        <span class="n">sigma_i</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">v</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">totals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">items</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+    <span class="n">tm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">totals</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">sigma_t</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="n">tm</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">totals</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="k">if</span> <span class="n">sigma_t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">sigma_i</span> <span class="o">/</span> <span class="n">sigma_t</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pearson</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">ys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pearson r; None when constant input or n below the pair floor.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">_MIN_PAIR</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ys</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">sxy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mx</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">my</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">sxx</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mx</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="n">syy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">my</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sxx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">syy</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">sxy</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">sxx</span> <span class="o">*</span> <span class="n">syy</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SlopeResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OLS slope with r and t; t=inf marks a perfect fit (M2).&quot;&quot;&quot;</span>
+
+    <span class="n">slope</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">slope_regression</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">ys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SlopeResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OLS of ys on xs; guards n&lt;2 (zeros) and |r|&gt;=1 (t=inf).&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">_MIN_PAIR</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ys</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SlopeResult</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">pearson</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">r</span>
+    <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">sxx</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mx</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mx</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">my</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">/</span> <span class="n">sxx</span> <span class="k">if</span> <span class="n">sxx</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">1.0</span>
+        <span class="k">else</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">((</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="n">_SLOPE_MIN_N</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">SlopeResult</span><span class="p">(</span><span class="n">slope</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">shape_stats</span><span class="p">(</span><span class="n">overalls</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">confidences</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribution shape summary; insufficient-sample disclosure below the floor.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">overalls</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">_COLD_START_MIN</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;insufficient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;disclosure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;样本不足（实评行 </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">_COLD_START_MIN</span><span class="si">}</span><span class="s2">）——分布形状节不输出指标，仅此披露行&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">overalls</span><span class="p">)</span>
+    <span class="n">mode_val</span><span class="p">,</span> <span class="n">mode_n</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">overalls</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">sd</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">((</span><span class="n">v</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">overalls</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># 样本 sd</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">confidences</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">mode</span><span class="o">=</span><span class="p">(</span><span class="n">mode_val</span><span class="p">,</span> <span class="n">mode_n</span><span class="p">),</span>
+        <span class="n">mode_table</span><span class="o">=</span><span class="n">counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">(),</span>
+        <span class="n">sd</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">overalls</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">overalls</span><span class="p">)),</span>
+        <span class="n">high_rate</span><span class="o">=</span><span class="n">high</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">anchor_position_counts</span><span class="p">(</span><span class="n">audits_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Counter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count Route-A anchor positions (相当/更差/更好), bound by header name.</span>
+
+<span class="sd">    A header row containing 相对位置 (re)binds the column; rows in tables</span>
+<span class="sd">    without that column cannot match at the bound index (column-position</span>
+<span class="sd">    mismatch), preventing cross-table leakage (plan-review M1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span><span class="p">:</span> <span class="n">Counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">audits_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*-resonance.md&quot;</span><span class="p">)):</span>
+        <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cells</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">):</span>
+                <span class="k">continue</span>  <span class="c1"># markdown 分隔行</span>
+            <span class="k">if</span> <span class="s2">&quot;相对位置&quot;</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">cells</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;相对位置&quot;</span><span class="p">)</span>  <span class="c1"># 绑定或重绑（首表后的表头=重置再绑定）</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">idx</span> <span class="ow">and</span> <span class="n">cells</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_ANCHOR_POSITIONS</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">cells</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">counts</span>
+</code></pre></div>
+<p>（说明：M1 的「首表绑定」语义按「表头行重绑」实现——次表头若不含「相对位置」列则其数据行因列位语义不同而天然不命中三值集合；测试 <code>test_anchor_position_counts_first_table_only</code> 的次表「| x | 相当 |」在第 2 列位，首表「相对位置」在第 6 列位（0 基 5），len(cells)&gt;idx 检查 + 列位不匹配 → 不计。若审阅认为应严格首表独占，实现时改为 <code>bound</code> 标志位版本，测试不变。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测通过 + lint</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -v &amp;&amp; uv run ruff check tools/judge_reliability.py</code>
+Expected: 全 PASS；ruff 零告警</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/judge_reliability.py<span class="w"> </span>tests/unit/tools/test_judge_reliability.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #110 T1——统计核心（κ+prevalence 警示/α/相关+守卫/形状+冷启动门/锚点表头绑定）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-justfile-recipevol1">Task 4: 报告组装+justfile recipe+vol1 基线回放</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/judge_reliability.py</code>（AuditRecord 补 <code>any_count</code> 字段+_alpha_versions/_validity/build_report/main）
+- Modify: <code>justfile</code>（judge-reliability recipe，加在 gate-power 配方后）
+- Test: <code>tests/unit/tools/test_judge_reliability.py</code>（追加报告级测试+Task 2 测试同步五字段）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>ResonanceRow.confidence</code>；Task 2 <code>scan_audits</code>/<code>SKILL_FAMILY</code>/<code>AuditRecord</code>；Task 3 全部统计函数；<code>LongitudinalDataError</code>（tools.report_longitudinal）
+- Produces:
+  - <code>AuditRecord</code> 第五字段 <code>any_count: int</code>（any-severity finding 单元数——C3 效度口径「issue 总量」字面）；<strong>Task 2 的测试构造断言同步为五字段</strong>
+  - <code>build_report(project_dir: Path) -&gt; str</code>——纯内容确定性（同输入同输出字节；时间戳只在文件名）
+  - <code>main(argv: Sequence[str] | None = None) -&gt; int</code>——写 <code>reports/judge-reliability-&lt;UTCts&gt;.md</code>；<code>LongitudinalDataError</code> → stderr + exit 2（M7，report_longitudinal 先例）
+  - justfile：<code>judge-reliability DIR *ARGS:</code> → <code>uv run python tools/judge_reliability.py "$1" "${@:2}"</code></p>
+<p><strong>复杂度: infra · test_kind: tdd_red_green（报告组装）+ characterization（vol1 回放带宽数字断言不入 CI——本地验收）</strong></p>
+<p>报告节序（模板钉死）：①前置卫生行（file_total/invalid 剔除计数逐文件）②两两 κ 表（rater = 个体技能 + <strong>族 OR 合成 rater</strong>（group-character(OR)/group-craft(OR)——章节=成员并集、评级=成员 OR，注记「族 OR 合成」）；评级列 agreement(any)/κ(any)/κ(hard)/计数版 r；同族成员对注记「同派发伪影——不作判官间一致性解读」；prevalence 退化行）③Cronbach α 六数（item 集两版 × any 二值/hard 二值/hard 计数——<strong>证据锚=「always-on 全 × any 二值」列注记</strong>）④效度相关（r(overall, 其余 any-severity issue 总量)+n+join 披露行；human_overridden 剔除行数；负对照 r(overall, 章长)；<strong>口径差披露行</strong>：原证据 +0.068/n=28 的统计脚本不在盘不可逐字复现——本行为重派生口径（spec r2.2））⑤分布形状（excluded 行剔除；shape_stats+通胀 slope/r/t（t=∞ 渲染「∞（完美拟合）」）+锚点相对位置计数；冷启动披露）⑥<strong>外部锚定效度引用</strong>（固定披露行「#115 T3 外部锚定未执行——κ/α 不得单独作为判官可用性结论」）⑦方法论注记（低 κ 的一半是分工；观测面不是 gate）。</p>
+<p>效度相关取数规则（钉死）：join = scored 非 excluded trend 行 ∧ 该章 ≥1 份 valid 非 resonance 审计；「其余 issue 总量」= 该章全部非 resonance valid 审计的 <code>any_count</code> 总和；「章长」= <code>chapters/chapter-N.md</code> 去空白字符数（文件缺失→不入负对照）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（报告级——迷你语料断言关键行+确定性+main 错误面）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">MINI_TREND</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;|---|---|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> | 推进 | 20 | 20 | 20 | 15 | </span><span class="si">{</span><span class="mi">75</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="si">}</span><span class="s2"> | high |  |</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mini_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># 幂等（确定性测试二次调用）</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">type: truth</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2"># 共鸣趋势</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">MINI_TREND</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">audits</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">_write</span><span class="p">(</span>
+            <span class="n">audits</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-sensitivity.md&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;**判定**：有瑕疵</span><span class="se">\n</span><span class="si">{</span><span class="n">HARD_LINE</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">ch</span> <span class="o">%</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;**判定**：通过</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_write</span><span class="p">(</span>
+            <span class="n">audits</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-resonance.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;**判定**：通过 (80/100)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;| 维度 | 得分 | 满分 | 置信度 | 对照锚点 | 相对位置 | 证据 | 裁判理由 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;|---|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;| 情感落地 | 22 | 30 | high | AC-001 | 相当 | L1 | x |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_write</span><span class="p">(</span>
+            <span class="n">audits</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-world-rules.md&quot;</span><span class="p">,</span> <span class="s2">&quot;**判定**：通过</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>  <span class="c1"># 全零对→prevalence 退化行</span>
+        <span class="n">_write</span><span class="p">(</span><span class="n">audits</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-pacing.md&quot;</span><span class="p">,</span> <span class="s2">&quot;**判定**：通过</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;字&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">ch</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_build_report_sections_and_determinism</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_report</span>
+
+    <span class="n">report</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">_mini_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">needle</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;前置数据卫生&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Cronbach α&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;效度相关&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;外部锚定未执行&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;观测面&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;prevalence&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">needle</span> <span class="ow">in</span> <span class="n">report</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;报告缺节：</span><span class="si">{</span><span class="n">needle</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">assert</span> <span class="n">build_report</span><span class="p">(</span><span class="n">_mini_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="n">report</span>  <span class="c1"># 同输入同输出（_mini_project 幂等）</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_group_pair_not_degrouped_emits_artifact_warning</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;④(c) 红测：同族对（pov×dialogue）带伪影注记+族 OR 合成 rater 行（I2）。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_report</span>
+
+    <span class="n">proj</span> <span class="o">=</span> <span class="n">_mini_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">_write</span><span class="p">(</span><span class="n">proj</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-pov.md&quot;</span><span class="p">,</span> <span class="s2">&quot;**判定**：通过</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_write</span><span class="p">(</span><span class="n">proj</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-dialogue.md&quot;</span><span class="p">,</span> <span class="s2">&quot;**判定**：通过</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">proj</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;dialogue × pov&quot;</span> <span class="ow">in</span> <span class="n">report</span> <span class="ow">and</span> <span class="s2">&quot;同派发伪影&quot;</span> <span class="ow">in</span> <span class="n">report</span>
+    <span class="k">assert</span> <span class="s2">&quot;group-character(OR)&quot;</span> <span class="ow">in</span> <span class="n">report</span> <span class="ow">and</span> <span class="s2">&quot;族 OR 合成&quot;</span> <span class="ow">in</span> <span class="n">report</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_main_missing_trend_exits_two</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">capsys</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;M7：数据面缺失 → stderr + exit 2（report_longitudinal 先例）。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.judge_reliability</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+
+    <span class="n">empty</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;proj&quot;</span>
+    <span class="p">(</span><span class="n">empty</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">main</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">empty</span><span class="p">)])</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="s2">&quot;resonance_trend&quot;</span> <span class="ow">in</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span><span class="o">.</span><span class="n">err</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -k "build_report or main_missing" -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'build_report'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 AuditRecord 第五字段 + build_report + main + recipe</strong></li>
+</ul>
+<p><code>AuditRecord</code> 补字段（Task 2 测试的构造断言同步加 <code>any_count=2</code>/<code>any_count=1</code> 等实际值——texture 两单元=any_count 2、sensitivity 一单元=any_count 1）；<code>scan_audits</code> 构造行补 <code>any_count=len(units)</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="n">_ALPHA_EXCLUDED</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">SKILL_FAMILY</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span>
+    <span class="s2">&quot;texture&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reader-pull&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;anti-ai&quot;</span><span class="p">,</span>
+<span class="p">}</span>  <span class="c1"># group-character 成员</span>
+<span class="n">_CRAFT_TRIO</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="s2">&quot;reader-pull&quot;</span><span class="p">,</span> <span class="s2">&quot;anti-ai&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_family_raters</span><span class="p">(</span><span class="n">records</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">AuditRecord</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Family OR raters: chapters = member union, rating = member OR (I2).&quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">fam</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">SKILL_FAMILY</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+        <span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span> <span class="k">if</span> <span class="n">SKILL_FAMILY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span> <span class="o">==</span> <span class="n">fam</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">members</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">any_or</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">hard_or</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+            <span class="n">any_or</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">]</span> <span class="o">=</span> <span class="n">any_or</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">r</span><span class="o">.</span><span class="n">any_binary</span>
+            <span class="n">hard_or</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">]</span> <span class="o">=</span> <span class="n">hard_or</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_binary</span>
+        <span class="n">out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fam</span><span class="si">}</span><span class="s2">(OR)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">any_or</span>
+        <span class="n">out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fam</span><span class="si">}</span><span class="s2">(OR-hard)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hard_or</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_alpha_versions</span><span class="p">(</span><span class="n">scan</span><span class="p">:</span> <span class="n">ScanResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;α 六数：item 集两版 × 评级三版；subjects = listwise 完整章。&quot;&quot;&quot;</span>
+    <span class="n">by</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">AuditRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">{(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">skill</span><span class="p">):</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">}</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">r</span><span class="o">.</span><span class="n">skill</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">})</span>
+    <span class="n">item_sets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;always-on 全 items&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">skills</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ALPHA_EXCLUDED</span><span class="p">]),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;剔 craft 族 items&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">skills</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ALPHA_EXCLUDED</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_CRAFT_TRIO</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">getters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;any 二值&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">any_binary</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;hard 二值&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">hard_binary</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;hard 计数&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">hard_count</span><span class="p">)),</span>
+    <span class="p">]</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">set_name</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">item_sets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_MIN_ITEMS</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">set_name</span><span class="p">,</span> <span class="n">ver</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">ver</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">getters</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">({</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">sk</span> <span class="ow">in</span> <span class="n">by</span> <span class="k">if</span> <span class="n">sk</span> <span class="o">==</span> <span class="n">s</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">ver</span><span class="p">,</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">getters</span><span class="p">:</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">fn</span><span class="p">(</span><span class="n">by</span><span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">set_name</span><span class="p">,</span> <span class="n">ver</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapters</span><span class="p">),</span> <span class="n">cronbach_alpha</span><span class="p">(</span><span class="n">matrix</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validity</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">scan</span><span class="p">:</span> <span class="n">ScanResult</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ResonanceRow</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;④ 效度相关：join = scored 非 excluded 行 ∧ 该章 ≥1 valid 非 resonance 审计。&quot;&quot;&quot;</span>
+    <span class="n">any_sum</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">skill</span> <span class="o">!=</span> <span class="s2">&quot;resonance&quot;</span><span class="p">:</span>
+            <span class="n">any_sum</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">]</span> <span class="o">=</span> <span class="n">any_sum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">any_count</span>
+    <span class="n">joined</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">excluded</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">any_sum</span><span class="p">)</span>
+    <span class="n">r_val</span> <span class="o">=</span> <span class="n">pearson</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">overall</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">joined</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">any_sum</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">joined</span><span class="p">])</span>
+    <span class="n">lens</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">overs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">joined</span><span class="p">:</span>
+        <span class="n">text_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">.md&quot;</span>
+        <span class="k">if</span> <span class="n">text_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">lens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))))</span>
+            <span class="n">overs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">overall</span><span class="p">))</span>
+    <span class="n">r_len</span> <span class="o">=</span> <span class="n">pearson</span><span class="p">(</span><span class="n">overs</span><span class="p">,</span> <span class="n">lens</span><span class="p">)</span> <span class="k">if</span> <span class="n">lens</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">n_over</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">excluded</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fmt</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;- resonance overall × 其余审计 issue 总量（any 口径）：r = </span><span class="si">{</span><span class="n">fmt</span><span class="p">(</span><span class="n">r_val</span><span class="p">)</span><span class="si">}</span><span class="s2">（n = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">joined</span><span class="p">)</span><span class="si">}</span><span class="s2">）&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- join 规则：scored 非 excluded trend 行 ∧ 该章 ≥1 valid 非 resonance 审计（n 如上披露）&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;- human_overridden 行剔除：</span><span class="si">{</span><span class="n">n_over</span><span class="si">}</span><span class="s2"> 行（不入效度/形状统计）&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;- 长度偏差负对照：overall × 章长（去空白字符数）r = </span><span class="si">{</span><span class="n">fmt</span><span class="p">(</span><span class="n">r_len</span><span class="p">)</span><span class="si">}</span><span class="s2">（n = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span><span class="si">}</span><span class="s2">）&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- 口径差披露：动机证据 r=+0.068/n=28 的原统计脚本不在盘不可逐字复现——本行为重派生口径（spec r2.2）&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+</code></pre></div>
+<p><code>build_report</code> 主体（节序①-⑦；rater 列表 = 个体技能四列（any/hard 二值+hard 计数 dict）+ 族 OR 两行（any/hard，无计数列）；κ 表七列：技能对/n/agreement(any)/κ(any)/κ(hard)/计数版 r/注记；族 rater 参与全配对 note=「族 OR 合成」（含对本族成员的配对）、同族成员对 note=「同派发伪影」、其余=warning 或空；③α 行在 any 二值×全 items 行尾追加「（证据锚：动机节 α=0.311/n=25 在本列复现）」注记；⑤形状节 kept=[非 excluded] 行、slope 行 t=∞ 渲染「∞（完美拟合）」；⑥⑦固定文案——文案逐字：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_report</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble the seven-section report; byte-deterministic for a fixed corpus.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.report_longitudinal</span><span class="w"> </span><span class="kn">import</span> <span class="n">TREND_FILENAME</span><span class="p">,</span> <span class="n">parse_resonance_trend</span>
+
+    <span class="n">audits_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">scan</span> <span class="o">=</span> <span class="n">scan_audits</span><span class="p">(</span><span class="n">audits_dir</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">parse_resonance_trend</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">TREND_FILENAME</span><span class="p">)</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;# Judge Reliability Report（观测面——非 gate，不进生产读面）&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="c1"># ① 前置卫生</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="s2">&quot;## 前置数据卫生（#109 T4 invalid 剔除）&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;- 语料文件总数：</span><span class="si">{</span><span class="n">scan</span><span class="o">.</span><span class="n">file_total</span><span class="si">}</span><span class="s2">；invalid 剔除：</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">invalid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">invalid</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;  - （零 invalid）&quot;</span><span class="p">]</span>
+    <span class="c1"># ② 两两 κ：个体技能 + 族 OR 合成 rater</span>
+    <span class="n">by</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">AuditRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">{(</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">skill</span><span class="p">):</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">}</span>
+    <span class="n">raters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">r</span><span class="o">.</span><span class="n">skill</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">}):</span>
+        <span class="n">recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scan</span><span class="o">.</span><span class="n">records</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="n">s</span><span class="p">]</span>
+        <span class="n">raters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">s</span><span class="p">,</span>
+                <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">any_binary</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">},</span>
+                <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_binary</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">},</span>
+                <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">chapter</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_count</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">},</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ratings</span> <span class="ow">in</span> <span class="n">_family_raters</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;(OR)&quot;</span><span class="p">):</span>
+            <span class="n">hard</span> <span class="o">=</span> <span class="n">_family_raters</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(OR)&quot;</span><span class="p">,</span> <span class="s2">&quot;(OR-hard)&quot;</span><span class="p">),</span> <span class="p">{})</span>
+            <span class="n">raters</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">ratings</span><span class="p">,</span> <span class="n">hard</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;## 跨技能两两 Cohen κ（评级 any/hard 二值 + hard 计数相关；成对完整例）&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;| 技能对 | n | agreement(any) | κ(any) | κ(hard) | 计数版 r | 注记 |&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;|---|---|---|---|---|---|---|&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">h1</span><span class="p">,</span> <span class="n">c1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raters</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s2</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">c2</span> <span class="ow">in</span> <span class="n">raters</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
+            <span class="n">common</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">a2</span><span class="p">))</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">cohen_kappa</span><span class="p">([</span><span class="n">a1</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">],</span> <span class="p">[</span><span class="n">a2</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">])</span>
+            <span class="n">res_h</span> <span class="o">=</span> <span class="n">cohen_kappa</span><span class="p">([</span><span class="n">h1</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">],</span> <span class="p">[</span><span class="n">h2</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">])</span>
+            <span class="n">r_cnt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pearson</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c1</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c2</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">common</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">c1</span> <span class="ow">and</span> <span class="n">c2</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">fam1</span><span class="p">,</span> <span class="n">fam2</span> <span class="o">=</span> <span class="n">SKILL_FAMILY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s1</span><span class="p">),</span> <span class="n">SKILL_FAMILY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
+            <span class="n">synthetic</span> <span class="o">=</span> <span class="s2">&quot;(OR)&quot;</span> <span class="ow">in</span> <span class="n">s1</span> <span class="ow">or</span> <span class="s2">&quot;(OR)&quot;</span> <span class="ow">in</span> <span class="n">s2</span>
+            <span class="n">note</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;同派发伪影——不作判官间一致性解读&quot;</span>
+                <span class="k">if</span> <span class="n">fam1</span> <span class="ow">and</span> <span class="n">fam1</span> <span class="o">==</span> <span class="n">fam2</span>
+                <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;族 OR 合成&quot;</span> <span class="k">if</span> <span class="n">synthetic</span> <span class="k">else</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">warning</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">k_any</span> <span class="o">=</span> <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">kappa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">kappa</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">k_hard</span> <span class="o">=</span> <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">res_h</span><span class="o">.</span><span class="n">kappa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res_h</span><span class="o">.</span><span class="n">kappa</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">r_txt</span> <span class="o">=</span> <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">r_cnt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r_cnt</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">s1</span><span class="si">}</span><span class="s2"> × </span><span class="si">{</span><span class="n">s2</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">n</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">agreement</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">k_any</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">k_hard</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">r_txt</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">note</span><span class="si">}</span><span class="s2"> |&quot;</span>
+            <span class="p">)</span>
+    <span class="c1"># ③ α 六数</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;## Cronbach α（item 集两版 × 评级三版；subjects=listwise 完整章）&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">set_name</span><span class="p">,</span> <span class="n">ver</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">_alpha_versions</span><span class="p">(</span><span class="n">scan</span><span class="p">):</span>
+        <span class="n">a_txt</span> <span class="o">=</span> <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alpha</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">anchor</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;（证据锚：动机节 α=0.311/n=25 在本列复现）&quot;</span>
+            <span class="k">if</span> <span class="n">ver</span> <span class="o">==</span> <span class="s2">&quot;any 二值&quot;</span> <span class="ow">and</span> <span class="s2">&quot;全&quot;</span> <span class="ow">in</span> <span class="n">set_name</span>
+            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">set_name</span><span class="si">}</span><span class="s2"> × </span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">：α = </span><span class="si">{</span><span class="n">a_txt</span><span class="si">}</span><span class="s2">（n = </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">）</span><span class="si">{</span><span class="n">anchor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># ④ 效度相关</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;## 效度相关&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_validity</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="c1"># ⑤ 分布形状（excluded 剔除）</span>
+    <span class="n">kept_rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">excluded</span><span class="p">]</span>
+    <span class="n">overs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">overall</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">kept_rows</span><span class="p">]</span>
+    <span class="n">confs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">kept_rows</span><span class="p">]</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">shape_stats</span><span class="p">(</span><span class="n">overs</span><span class="p">,</span> <span class="n">confs</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;## 分布形状&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;- 实评行（excluded 剔除后）：</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;insufficient&quot;</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- ⚠️ </span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;disclosure&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mode_val</span><span class="p">,</span> <span class="n">mode_n</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore[misc]</span>
+        <span class="n">mode_table</span> <span class="o">=</span> <span class="s2">&quot;、&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">×</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">st</span><span class="p">[</span><span class="s2">&quot;mode_table&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore[misc]</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;- 模值：</span><span class="si">{</span><span class="n">mode_val</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> × </span><span class="si">{</span><span class="n">mode_n</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">；频率表（降序）：</span><span class="si">{</span><span class="n">mode_table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;- sd（样本）：</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;sd&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">；极差：</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># type: ignore[index]</span>
+            <span class="sa">f</span><span class="s2">&quot;- confidence=high 基率：</span><span class="si">{</span><span class="n">st</span><span class="p">[</span><span class="s1">&#39;high_rate&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># type: ignore[index]</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">_SLOPE_MIN_N</span><span class="p">:</span>
+            <span class="n">chs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">kept_rows</span><span class="p">]</span>
+            <span class="n">sr</span> <span class="o">=</span> <span class="n">slope_regression</span><span class="p">(</span><span class="n">chs</span><span class="p">,</span> <span class="n">overs</span><span class="p">)</span>
+            <span class="n">t_txt</span> <span class="o">=</span> <span class="s2">&quot;∞（完美拟合）&quot;</span> <span class="k">if</span> <span class="n">sr</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sr</span><span class="o">.</span><span class="n">t</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- 通胀 slope：</span><span class="si">{</span><span class="n">sr</span><span class="o">.</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> 分/章（r = </span><span class="si">{</span><span class="n">sr</span><span class="o">.</span><span class="n">r</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">，t = </span><span class="si">{</span><span class="n">t_txt</span><span class="si">}</span><span class="s2">）&quot;</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">anchor_position_counts</span><span class="p">(</span><span class="n">audits_dir</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;- 锚点相对位置计数：相当 </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;相当&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> / 更差 </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;更差&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> / 更好 </span><span class="si">{</span><span class="n">pos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;更好&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">]</span>
+    <span class="c1"># ⑥ 外部锚定效度引用</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;## 外部锚定效度引用（#115 T4 对齐）&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- 披露：#115 T3 外部锚定未执行——本报告的 κ/α 为判官间信度，&quot;</span>
+        <span class="s2">&quot;不得单独作为判官可用性结论（判官可用性须外部 criterion validity 一并裁定）&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># ⑦ 方法论注记</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;## 方法论注记&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- 低 κ 的一半是分工：各审计技能测不同构念属设计，κ/α 低未必是判官病&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- 本报告是观测面不是 gate：生产代码禁读 reports/（#108 T3 同款纪律）&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry: write reports/judge-reliability-&lt;ts&gt;.md; exit 2 on data errors.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.report_longitudinal</span><span class="w"> </span><span class="kn">import</span> <span class="n">LongitudinalDataError</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Judge inter-rater reliability report (spec #110)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;project_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">build_report</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">LongitudinalDataError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;数据面错误：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;reports&quot;</span>
+    <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">-%H%M%SZ&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">())</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;judge-reliability-</span><span class="si">{</span><span class="n">ts</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div>
+<p>（<code>ResonanceRow</code> 类型注解：文件顶部 <code>from tools.report_longitudinal import ResonanceRow</code> 带 <code># noqa: E402</code>，或函数内 import——与 build_report 内 parse import 同段。）</p>
+<p>justfile 追加（gate-power 配方后）：</p>
+<div class="highlight"><pre><span></span><code># Judge reliability offline report (spec #110) — observation plane, not a gate
+judge-reliability DIR *ARGS:
+    uv run python tools/judge_reliability.py &quot;$1&quot; &quot;${@:2}&quot;
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测通过+全量门禁</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -v &amp;&amp; just check</code>
+Expected: 全 PASS（含既有套件零回归）</p>
+<ul>
+<li>[ ] <strong>Step 5: vol1 基线回放（本地验收，不入 CI）</strong></li>
+</ul>
+<p>Run: <code>just judge-reliability novel-xinghuo-vol1</code>
+Expected: 报告落 <code>novel-xinghuo-vol1/reports/</code>；<strong>证据锚核对</strong>：α（always-on 全 × any 二值）∈[0.26,0.36] 且 n=25；更好=0 精确；模值 79×12 精确；high 24/32；invalid 剔除计数≈51（plan 审查 sim 实测参考值）；any 口径效度 r 满足 |r|&lt;0.3（方向性判据）；hard 口径数字（α≈0.71/0.58、效度 r≈-0.05/n=32）如实入报告作重派生基线——输出与核对结论粘 progress.md <code>## 验收证据</code>（证据锚带外→停查口径，不静默放过）</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/judge_reliability.py<span class="w"> </span>justfile<span class="w"> </span>tests/unit/tools/test_judge_reliability.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #110 T1——报告组装（七节+双口径+族 OR rater+口径差披露）+just recipe+vol1 基线回放验收&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-t2-107-spec-mcnemar">Task 5: T2 接线——#107 spec 加 McNemar 引用行</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/specs/2026-11-15-spec107-reviewer-model-tier.md:35</code>（T2 bullet 列表末尾、判据行前追加）
+- Test: <code>tests/unit/tools/test_judge_reliability.py</code>（追加 grep 断言）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: spec #110 r2.1 T2 义务文本
+- Produces: #107 spec 文本含 #110 引用行（grep 可证——AC 自证段）</p>
+<p><strong>复杂度: leaf · test_kind: characterization（grep 级断言）</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_spec107_references_110_mcnemar</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">spec107</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;docs/superpowers/specs/2026-11-15-spec107-reviewer-model-tier.md&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">spec107</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;#110&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;McNemar&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">,</span> <span class="s2">&quot;#107 T2 须含 #110 McNemar 配对设计引用行&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -k spec107 -v</code>
+Expected: FAIL with AssertionError</p>
+<ul>
+<li>[ ] <strong>Step 3: 加引用行</strong>（#107 T2 bullet 列表末尾、<code>**判据**</code> 行之前追加）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="k">-</span><span class="w"> </span><span class="gs">**判据设计（spec #110 T2 接线）**</span>：A/B 判据须为 <span class="gs">**McNemar 配对设计**</span>（同变异两臂同测）+ 功效核算表入预注册文档（27/臂起步 power 0.56-0.60、45/臂 0.78-0.81、63/臂 0.90+；15pp 效应明示不可检）——核算口径引用 spec <span class="ni">#110</span>（judge-reliability-harness）；
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -k spec107 -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/specs/2026-11-15-spec107-reviewer-model-tier.md<span class="w"> </span>tests/unit/tools/test_judge_reliability.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: spec #110 T2——#107 A/B 判据接 McNemar 配对+功效核算引用行&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-t3-103-spec-resonance-skill">Task 6: T3 接线——#103 spec 裁定路径行 + resonance SKILL 校准口径</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/specs/2026-11-15-spec103-highlight-distill.md:24</code>（T1 选章判据行后）
+- Modify: <code>skills/shenbi-review-resonance/SKILL.md:120-125</code>（置信度守护节内加一行）
+- Test: <code>tests/unit/tools/test_judge_reliability.py</code>（追加 grep 断言）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: spec #110 r2.1 T3 双闸语义（基率 &gt;50% 或 ρ&lt;0.3 → confidence 降参考列）
+- Produces: #103 spec 引用行（AC 自证段）；SKILL 校准口径行；<code>just lint-contracts</code> 预期 diff 空</p>
+<p><strong>复杂度: leaf · test_kind: characterization（grep 级断言）</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_spec103_references_110_confidence_gate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">spec103</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;docs/superpowers/specs/2026-11-15-spec103-highlight-distill.md&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;#110&quot;</span> <span class="ow">in</span> <span class="n">spec103</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;#103 T1 须含 #110 confidence 双闸裁定路径引用行&quot;</span>
+    <span class="p">)</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;skills/shenbi-review-resonance/SKILL.md&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;锚点集内可比证据行&quot;</span> <span class="ow">in</span> <span class="n">skill</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;resonance SKILL 须含校准口径行&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -k spec103 -v</code>
+Expected: FAIL with AssertionError</p>
+<ul>
+<li>[ ] <strong>Step 3: 两处文本</strong>——</li>
+</ul>
+<h1 id="103-spec-t1-overall-running-median-5">103 spec T1 选章判据行（<code>…overall ≥ 全书 running median + 5</code>（<strong>相对阈值抗通胀</strong>））后追加一句：</h1>
+<div class="highlight"><pre><span></span><code>（<span class="gs">**confidence 前置校准——spec #110 T3 接线**</span>：judge-reliability 报告 confidence=high 基率 &gt;50%，或 <span class="ni">#115</span> T3 外部锚 ρ&lt;0.3 回退成立，两闸任一触发 → confidence 从合取判据降为参考列，相对阈值单独承担；#103 plan 前置检查单须含此条）
+</code></pre></div>
+<p>resonance SKILL「## 置信度守护（框架自动，spec #33 T1b）」节首段后加一行：</p>
+<div class="highlight"><pre><span></span><code><span class="k">&gt; </span><span class="ge">**校准口径（spec #110 T3）**：自报 `high` 必须附「本锚点集内可比证据行」——至少一条与 AC-NNN 锚点段对照的具体依据（维度/方向/差距），裸 `high` 不可信；框架侧基率与外部锚校准见 `just judge-reliability` 报告。</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测通过 + lint-contracts</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_judge_reliability.py -k spec103 -v &amp;&amp; just lint-contracts &amp;&amp; just generate</code>
+Expected: PASS；lint-contracts 绿；<code>just generate</code> 生成物 diff 空（纯散文面零契约变更——#119 T2 同款预期）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/specs/2026-11-15-spec103-highlight-distill.md<span class="w"> </span>skills/shenbi-review-resonance/SKILL.md<span class="w"> </span>tests/unit/tools/test_judge_reliability.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: spec #110 T3——#103 confidence 双闸裁定路径行+resonance SKILL 校准口径（lint-contracts 预期 diff 空）&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="ac">AC 覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec AC</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1 判据：vol1 回放关键数字一致（<strong>证据锚=any 口径列</strong>：α≈0.31/n=25/更好=0/模值 79×12；r 为方向性判据+口径差披露——spec r2.2）</td>
+<td>Task 4 Step 5</td>
+<td>本地回放+证据锚带核对粘 progress.md</td>
+</tr>
+<tr>
+<td>T1 判据：红测（同分→α=1/独立→α≈0/prevalence 警示/饿死剔除/group 反例/冷启动）</td>
+<td>Task 2/3/4 测试</td>
+<td>pytest 全绿</td>
+</tr>
+<tr>
+<td>T2 判据：#107 引用行 grep 可证</td>
+<td>Task 5</td>
+<td>test_spec107_references_110_mcnemar</td>
+</tr>
+<tr>
+<td>T2 判据：报告含外部锚定效度引用节+未就绪披露</td>
+<td>Task 4</td>
+<td>test_build_report_sections（「外部锚定未执行」needle）</td>
+</tr>
+<tr>
+<td>T3 判据：#103 spec 引用行（自证段）+SKILL 校准口径行</td>
+<td>Task 6</td>
+<td>test_spec103_references_110_confidence_gate</td>
+</tr>
+<tr>
+<td>验收 2：报告落盘数字可重放（同输入同输出）</td>
+<td>Task 4</td>
+<td>test_build_report_sections_and_determinism</td>
+</tr>
+<tr>
+<td>验收 3：bug-hunt 四件（饿死剔除【真实 fixture】/prevalence 陷阱/group 反例/冷启动）</td>
+<td>Task 2/3/4</td>
+<td>对应四测试</td>
+</tr>
+<tr>
+<td>T3 承接段（#103 plan 检查单）</td>
+<td>不在本件生命周期</td>
+<td>deviations 移交 #103 plan 审查核验</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

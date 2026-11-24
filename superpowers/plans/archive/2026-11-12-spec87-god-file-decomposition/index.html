@@ -1,0 +1,2229 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-12-spec87-god-file-decomposition/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #87 god 文件拆分与正名 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #87 god 文件拆分与正名 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-12-spec87-god-file-decomposition.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-12-spec87-god-file-decomposition/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #87 god 文件拆分与正名 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-12-spec87-god-file-decomposition.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-87-god-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #87 god 文件拆分与正名 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 逐字）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-re-anchor-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task -1 · Re-anchor（前置，无独立 commit）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-0-characterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0 · characterization 八路径（先钉行为）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-1-builtprompt-namedtuple-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1 · BuiltPrompt NamedTuple（替 5 元组）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-extractor-registry-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2 · extractor 注册表：叶 + REGISTRY + 11 臂坍缩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3 · 五体制拆分 + 三时机后钩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4 · 子串判定消灭（双路径）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5 · 正名 + 基线 lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-87-god-implementation-plan">Spec #87 god 文件拆分与正名 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 行为保持地拆解 chapter_loop/dispatch_helper 两个 god 文件——五体制出鞘、prompt 装配 NamedTuple 化、extractor 注册表坍缩 11 臂、子串判定消灭、事实公共 API 正名 + tests 私有 import 增量 lint。</p>
+<p><strong>Architecture:</strong> 全部行为保持（T0 characterization 先行钉死五体制+条件跳过+serial resonance/revision 尾共八条公共入口路径）；T2 以 contracts 侧零依赖叶 + read_extractors.REGISTRY 单源派生 + dispatch_helper 单臂坍缩；T4 双路径（ChapterStep 属性 / 精确 frozenset）；T5 正名后冻基线。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / structlog / pytest（unit 标记）/ basedpyright strict。</p>
+<h2 id="global-constraintsspec">Global Constraints（spec 逐字）</h2>
+<ul>
+<li>验收 1：<code>chapter_loop.py</code> + <code>dispatch_helper.py</code> 合计 <strong>≤9,500 行</strong>；<code>chapter_loop.py</code> <strong>≤4,820</strong>、<code>dispatch_helper.py</code> <strong>≤4,680</strong>（基线 2026-11-12：4,780+4,910=9,690）</li>
+<li>验收 2：<code>_run_chapter_step_impl</code> 消失；五个体制函数各有独立红测；checkpoint 创建/恢复唯一持有于 <code>run_chapter_step</code>；serial 段 &lt;260（现 331，抽 3 块）</li>
+<li>验收 3：<code>grep -c extractor_failed_fulltext src/shenbi/pipeline/dispatch_helper.py</code> = 1（:322 注释同批改写）</li>
+<li>验收 4：T4 红测绿；pipeline 内 pyright 私有压制 <strong>≤12</strong>（现 17：−1 _ending_archetype_of −3 名字级正名 −1 AuditResult 改公共 import）</li>
+<li>验收 5：<code>tests/private_imports_baseline.txt</code> 子集断言绿 + dispatch_helper 零 <code>extractor ==</code> 字面量断言绿</li>
+<li>验收 6：<code>just check</code> exit 0 + 全量测试绿</li>
+<li>T5 正名验收 = <code>grep -rn '&lt;旧名&gt;' src/ tests/ tools/</code> 零输出（docs/ 有意排除）</li>
+<li><strong>禁</strong>：真实 LLM dispatch（核心原则 8）；<code>git add -A</code>（pathspec commit）；改契约三源时手改生成物（走 <code>just generate</code>）</li>
+<li><strong>行号纪律</strong>：spec 行号为 2026-11-12 快照；本 plan 首 task 前先跑 re-anchor 步骤；执行中每 task 开头重验锚点</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/contracts/read_extractor_names.py</code></td>
+<td>Create</td>
+<td>零依赖叶：11 名 frozenset 单源</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/loader.py</code></td>
+<td>Modify</td>
+<td>READ_EXTRACTORS 改叶派生</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/read_extractors.py</code></td>
+<td>Modify</td>
+<td>ExtractSpec + 统一包装 + REGISTRY + 叶对账 assert</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Modify</td>
+<td>BuiltPrompt 类型注解；11 臂坍缩单臂；:322 注释改写；正名</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Modify</td>
+<td>五体制拆出；三钩函数；ChapterStep +3 字段；正名</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td>Modify</td>
+<td>REVIEW_SKILLS frozenset 26 名 + is_review_skill 精确判定</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/state.py</code> <code>crash_recovery.py</code> <code>parallel_dispatch.py</code> <code>gates/g4/chapter_drafting.py</code></td>
+<td>Modify</td>
+<td>4 处压制符号正名（r2 订正：<code>_ending_archetype_of</code> 实定义于 gates/g4/chapter_drafting.py:514，非 text/——plan r1 误记）</td>
+</tr>
+<tr>
+<td><code>tools/lint_private_imports.py</code></td>
+<td>Create</td>
+<td>tests 私有 import 子集断言 lint（--update 人工评审后用）</td>
+</tr>
+<tr>
+<td><code>tests/private_imports_baseline.txt</code></td>
+<td>Create</td>
+<td>(file, symbol) 对基线</td>
+</tr>
+<tr>
+<td><code>justfile</code></td>
+<td>Modify</td>
+<td>挂 lint_private_imports（首跑 report-only 后接 FAIL）</td>
+</tr>
+<tr>
+<td><code>tests/pipeline/test_chapter_step_characterization.py</code></td>
+<td>Create</td>
+<td>T0 八路径</td>
+</tr>
+<tr>
+<td><code>tests/pipeline/test_read_extractor_registry.py</code></td>
+<td>Create</td>
+<td>T2 表驱动 + 防复发禁令</td>
+</tr>
+<tr>
+<td><code>tests/pipeline/test_review_skill_routing.py</code></td>
+<td>Create</td>
+<td>T4 路径 B 对账 + escalation 特征 + 红测</td>
+</tr>
+<tr>
+<td><code>tests/unit/pipeline/test_read_extractors_slicing.py</code></td>
+<td>Modify</td>
+<td>:271-284 硬编码名集改 ⊆ REGISTRY 断言</td>
+</tr>
+<tr>
+<td><code>tests/unit/pipeline/test_spec83_stale_declarations.py</code></td>
+<td>Modify</td>
+<td>T3 拆函数后白名单同步</td>
+</tr>
+<tr>
+<td><code>tools/lint_dead_code_allowlist.py</code></td>
+<td>Modify</td>
+<td>T5 收缩 :32-33 两条</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-re-anchor-commit">Task -1 · Re-anchor（前置，无独立 commit）</h3>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> —（纯核对）</p>
+<ul>
+<li>[ ] <strong>Step 1: 重验全部锚点</strong>（spec §3 行号纪律；若漂移在 ±5 内照 plan 施工、超 ±5 记 deviation 并更新本 plan 锚点）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;def _run_chapter_step_impl&quot;</span><span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w">          </span><span class="c1"># 期望 :3856</span>
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;def _build_skill_prompt&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w">         </span><span class="c1"># 期望 :746</span>
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;if extractor == \&quot;volume_chapter\&quot;&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w">  </span><span class="c1"># 期望 :879</span>
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;elif extractor is not None:&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w">     </span><span class="c1"># 期望 :1160</span>
+grep<span class="w"> </span>-cn<span class="w"> </span><span class="s2">&quot;extractor ==&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w">                   </span><span class="c1"># 期望 11</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;extractor_failed_fulltext&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w">       </span><span class="c1"># 期望 21</span>
+wc<span class="w"> </span>-l<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span><span class="c1"># 期望 4780/4910</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;reportPrivateUsage&quot;</span><span class="w"> </span>src/shenbi/pipeline/*.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;:0&quot;</span><span class="w">             </span><span class="c1"># 期望 8/4/2/1/1/1=17</span>
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;READ_EXTRACTORS&quot;</span><span class="w"> </span>src/shenbi/contracts/loader.py<span class="w">                          </span><span class="c1"># 期望 :94-107 11 名</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;from shenbi.pipeline&quot;</span><span class="w"> </span>src/shenbi/contracts/<span class="w">                            </span><span class="c1"># 期望空（反边 0 先例）</span>
+</code></pre></div>
+<hr />
+<h3 id="task-0-characterization">Task 0 · characterization 八路径（先钉行为）</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/pipeline/test_chapter_step_characterization.py</code>（Create，八条）
+- Reference: <code>tests/pipeline/test_bundle_stepping.py:382-420</code>（公共入口驱动模板——<code>_project()</code> helper / <code>PipelineState.default</code> / <code>step_index = next(i for i,s in enumerate(CHAPTER_STEPS) if s.skill==...)</code> / <code>monkeypatch.setattr(chapter_loop, "dispatch_skill", ...)</code>）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>run_chapter_step(state: PipelineState, project_dir: Path | str) -&gt; bool</code>（chapter_loop.py:3823 公共入口）、<code>CHAPTER_STEPS</code>、<code>PipelineState.default(project_dir_str)</code>、<code>PipelinePhase.CHAPTER_LOOP</code>
+- Produces: <strong>八条</strong> characterization 测试（r2.3：六路径 + serial resonance 尾 + serial revision 尾——后两条是位置作用域钩语义的承载场景；拆分安全网；T3 完成后全绿即行为保持证明）</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> characterization ｜ <strong>层级:</strong> T1（结构单元测试，无 LLM 产物依赖）</p>
+<ul>
+<li>[ ] <strong>Step 1: 先列覆盖缺口表</strong>（spec r3.2 要求——证 T0 增量）</li>
+</ul>
+<p>对五体制+条件跳过各查既有公共入口覆盖（<code>grep -rn "run_chapter_step" tests/ | grep -v characterization</code>），输出表：
+| 路径 | 触发条件 | 既有覆盖（文件:测试名） | T0 新增 |
+|---|---|---|---|
+| 审计波 | <code>step_idx == _FIRST_AUDIT_IDX and step.is_audit</code>（:3918） | （查填） | 是/否 |
+| 后起草对 | <code>step_idx == _FORESHADOWING_LIFECYCLE_IDX</code>（:4177） | （查填） | 是/否 |
+| context_assembly | <code>step.calls_context_assembly</code>（:4355-4357） | （查填） | 是/否 |
+| pipeline 内部 | <code>step.skill.startswith("pipeline-")</code>（:4360） | （查填） | 是/否 |
+| 通用串行 | else 域（:4450+） | （查填） | 是/否 |
+| 条件跳过 | <code>:4435-4456</code> 三块 skip（r2.3 锚订正） | （查填） | 是/否 |
+| <strong>serial resonance 尾</strong> | serial 域 :4702（r2.3 补——T0 盲区） | （查填） | 是 |
+| <strong>serial revision 尾</strong> | serial 域 :4728-4778（r2.3 补——位置作用域钩语义的承载体） | （查填） | 是 |</p>
+<p>已有覆盖的路径注明复用锚不重写；缺口路径写新测试。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写八条测试</strong>（已有覆盖的路径至少断言一次 checkpoint 契约：返回 bool + step_index 前进/steps_done 记录）</li>
+</ul>
+<p>八条测试统一骨架（以审计波为例；其余五条按表驱动换 step 定位与断言面）：</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #87 T0: per-regime characterization through the public entry.</span>
+
+<span class="sd">These pin behavior BEFORE the five-regime extraction (T3). They must stay</span>
+<span class="sd">green after T3 without modification — that is the behavior-preservation</span>
+<span class="sd">proof. Reference seam: test_bundle_stepping.py:382-420.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span> <span class="k">as</span> <span class="n">cl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">CHAPTER_STEPS</span><span class="p">,</span> <span class="n">run_chapter_step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelinePhase</span><span class="p">,</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_step_index_of</span><span class="p">(</span><span class="n">skill_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">CHAPTER_STEPS</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">skill</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">skill_prefix</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_audit_wave_regime</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;First audit step dispatches the parallel wave and advances.</span>
+
+<span class="sd">    Wave seam (test_parallel_steps.py:344-371 precedent): the wave core runs</span>
+<span class="sd">    through dispatch_reviews_parallel which resolves dispatch_skill in the</span>
+<span class="sd">    parallel_dispatch namespace — patching cl.dispatch_skill alone would let</span>
+<span class="sd">    REAL dispatches through. Patch the wave boundary instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">PipelinePhase</span><span class="o">.</span><span class="n">CHAPTER_LOOP</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">CHAPTER_STEPS</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_audit</span>
+    <span class="p">)</span>  <span class="c1"># first audit step — attribute access, not private-const import</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_results_for</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+        <span class="c1"># r2.1: dispatch_reviews_parallel (parallel_dispatch.py:241) and</span>
+        <span class="c1"># _dispatch_serial_reviews (chapter_loop.py:3787) both return</span>
+        <span class="c1"># list[DispatchResult] — wave consumers .extend()/concat; a dict</span>
+        <span class="c1"># would TypeError. Reference: test_parallel_steps.py:337-338.</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="p">{},</span> <span class="n">stdout</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span>
+        <span class="p">]</span>
+
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.audit_context_cache.build_shared_audit_context&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="n">SimpleNamespace</span><span class="p">(</span>
+                <span class="n">estimated_tokens</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">raw_files</span><span class="o">=</span><span class="p">{},</span>
+                <span class="n">world_rules</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">character_list</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">style_profile</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">pending_hooks</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.audit_layer.get_active_genre_audits&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]),</span>
+        <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">on_task_complete</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">:</span> <span class="n">_results_for</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span>
+            <span class="n">cl</span><span class="p">,</span>
+            <span class="s2">&quot;_dispatch_serial_reviews&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">:</span> <span class="n">_results_for</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="s2">&quot;_parse_and_persist_resonance&quot;</span><span class="p">),</span>
+        <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="s2">&quot;_route_revision_after_resonance&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">reached</span> <span class="o">=</span> <span class="n">run_chapter_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reached</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">reached</span>  <span class="c1"># 游标推进或 checkpoint</span>
+</code></pre></div>
+<p>其余五条（同骨架，差异面；<strong>全部新测试函数打 <code>@pytest.mark.unit</code></strong>——tests/pipeline/ 多数文件无标记会被 <code>-m unit</code> deselect，plan 各 task 的 unit 门禁依赖标记存在）：
+1. <code>test_post_draft_pair_regime</code>：step_index 用 skill 名定位 <code>shenbi-foreshadowing-lifecycle</code>（<strong>属性访问</strong> <code>cl._FORESHADOWING_LIFECYCLE_IDX</code> 亦可——避免私有 const import 进 T5 基线）；断言两个 skill（lifecycle+settling）顺序派发（参考 test_parallel_steps.py:16-39 的顺序断言）且 step_index 推进 2；<strong>前置构造</strong> <code>chapters/chapter-1.md</code>（幽灵链守卫 :3893 <code>_DRAFT_CONSUMING_SKILLS</code> 无草稿即拒）+ patch <code>run_gate_g4</code>（参考 test_bundle_stepping.py:416-449 既有 seam）。
+2. <code>test_context_assembly_regime</code>：定位 <code>calls_context_assembly=True</code> 的 step（<code>next(i for i,s in enumerate(CHAPTER_STEPS) if s.calls_context_assembly)</code>）；monkeypatch <code>cl._run_context_assembly</code> 记录调用章号；断言被调用且游标推进。
+3. <code>test_pipeline_internal_regime</code>：定位 skill <code>startswith("pipeline-")</code> 的 step；断言<strong>零</strong> dispatch_skill 调用且游标推进（pipeline-internal 不派发）。
+4. <code>test_serial_dispatch_regime</code>：定位 <code>shenbi-chapter-planning</code>（bundle_stepping 模板）；断言 dispatch 调用带 skill 名与 prompt、游标推进。
+5. <code>test_conditional_skip_regime</code>：定位 <code>conditional=True</code> 的 step 且构造条件不满足（或直接用 <code>shenbi-context-composing</code>——:4435 skip 分支）；断言零 dispatch、<code>state.add_step_done</code> 记录、游标推进、返回 bool。
+6. <code>test_serial_resonance_tail</code>（r2.3 补）：定位 <code>shenbi-review-resonance</code>（serial 域）；monkeypatch <code>cl._parse_and_persist_resonance</code>/<code>cl._route_revision_after_resonance</code> 记录调用；fake dispatch success；断言两 void 调用各恰一次 + <code>_step_output_exists</code> 闸/add_step_done/_reset_retries 仍执行（spy 或状态断言）+ 游标推进——<strong>位置 1 钩语义载体</strong>。
+7. <code>test_serial_revision_tail</code>（r2.3 补）：定位 <code>shenbi-chapter-revision</code>；构造 decisions 文件与 staging 输出（test_bundle_stepping 既有 seam）；fake dispatch success；断言 <code>_ensure_revision_decisions_exists</code> 效果（decisions 落盘）+ <code>declarations_stale</code> 翻转 + 游标推进——<strong>位置 2 钩语义载体</strong>。</p>
+<ul>
+<li>[ ] <strong>Step 3: 跑新测试全绿</strong>（characterization 是钉现状——若现状即红，说明锚点/构造错，修构造不修产品码）</li>
+</ul>
+<p>Run: <code>uv run pytest tests/pipeline/test_chapter_step_characterization.py -v</code>
+Expected: 8 passed</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/pipeline/test_chapter_step_characterization.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #87 T0 per-regime characterization through run_chapter_step public entry&quot;</span>
+</code></pre></div>
+产出 <code>.superpowers/sdd/audit-T0.md</code>（fresh-context 子 agent 全量重审）后方可进 T1。</p>
+<hr />
+<h3 id="task-1-builtprompt-namedtuple-5">Task 1 · BuiltPrompt NamedTuple（替 5 元组）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（_build_skill_prompt 返回类型 :746-1607；解构消费点 :3887/:4360 两处仅改类型注解可读性——零改动也合法）
+- Test: <code>tests/pipeline/test_built_prompt.py</code>（Create）</p>
+<p><strong>Interfaces:</strong>
+- Produces:
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BuiltPrompt</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assembled dispatch prompt (spec #87 T1; replaces the 5-tuple).&quot;&quot;&quot;</span>
+
+    <span class="n">system</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">output_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">reads_manifest</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="n">raw_disk_reads</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+- <code>_build_skill_prompt(...) -&gt; BuiltPrompt</code>（9 参签名不变：skill, project_dir, prompt, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None, outputs_override=None）；<strong>63 处解构位点</strong>（r2 订正：AST 全仓口径 src 2 + tests 61/22 文件——r1 的 54 系旧计数残留）<strong>零改动</strong>——NamedTuple tuple 协议兼容</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> regression_guard ｜ <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 写回归守卫测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #87 T1: BuiltPrompt NamedTuple — tuple-protocol compatibility.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuiltPrompt</span><span class="p">,</span> <span class="n">_build_skill_prompt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_built_prompt_is_namedtuple_with_five_fields</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+
+    <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">BuiltPrompt</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">BuiltPrompt</span><span class="o">.</span><span class="n">_fields</span> <span class="o">==</span> <span class="p">(</span>
+        <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_paths&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reads_manifest&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;raw_disk_reads&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_built_prompt_tuple_unpack_and_named_access</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">bp</span> <span class="o">=</span> <span class="n">BuiltPrompt</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span> <span class="p">[{</span><span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}],</span> <span class="p">{</span><span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">})</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">bp</span>  <span class="c1"># 5 元解构兼容</span>
+    <span class="o">*</span><span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">bp</span>  <span class="c1"># 星号解包兼容</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span> <span class="p">[{</span><span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}],</span> <span class="p">{</span><span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">bp</span><span class="o">.</span><span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span> <span class="ow">and</span> <span class="n">bp</span><span class="o">.</span><span class="n">raw_disk_reads</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑绿</strong>（NamedTuple 先行定义即绿——tdd 红相在此 task 无意义，test_kind=regression_guard）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong>——dispatch_helper.py 顶部 import 区加 <code>from typing import NamedTuple</code>（已有 typing import 则并入）；在 <code>_INPUT_MAX_CHARS_TOTAL</code> 常量块附近定义 <code>BuiltPrompt</code>；<code>_build_skill_prompt</code> 签名行 <code>-&gt; tuple[str, str, list[str], list[dict[str, Any]], dict[str, str]]</code> 改 <code>-&gt; BuiltPrompt</code>；<code>return system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads</code>（:1607）改 <code>return BuiltPrompt(system_prompt, user_prompt, output_paths, reads_manifest, raw_disk_reads)</code>。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 全量回归</strong>——<code>uv run pytest tests/pipeline/test_built_prompt.py tests/ -x -q -m "unit"</code>（63 解构位点零破坏证明）；<code>uv run pytest tests/ -q -m unit</code>（大面）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit + audit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_built_prompt.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #87 T1 BuiltPrompt NamedTuple replaces 5-tuple return (63 destructure sites zero-break)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-extractor-registry-11">Task 2 · extractor 注册表：叶 + REGISTRY + 11 臂坍缩</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/contracts/read_extractor_names.py</code>
+- Modify: <code>src/shenbi/contracts/loader.py:94-107</code>（READ_EXTRACTORS 改派生）
+- Modify: <code>src/shenbi/pipeline/read_extractors.py</code>（ExtractSpec+包装+REGISTRY+assert）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:879-1160</code>（11 臂坍缩单臂）+ <code>:322</code>（注释改写）
+- Modify: <code>tests/unit/pipeline/test_read_extractors_slicing.py:271-286</code>（硬编码名集改 ⊆ 断言）
+- Test: <code>tests/pipeline/test_read_extractor_registry.py</code>（Create）</p>
+<p><strong>Interfaces:</strong>
+- Produces（read_extractors.py）:
+<div class="highlight"><pre><span></span><code><span class="n">ChapterNonePolicy</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;guard_warn&quot;</span><span class="p">,</span> <span class="s2">&quot;silent&quot;</span><span class="p">,</span> <span class="s2">&quot;loud&quot;</span><span class="p">,</span> <span class="s2">&quot;irrelevant&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtractSpec</span><span class="p">:</span>
+    <span class="n">impl</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">chapter_none</span><span class="p">:</span> <span class="n">ChapterNonePolicy</span> <span class="o">=</span> <span class="s2">&quot;irrelevant&quot;</span>
+    <span class="n">empty_warn_predicate</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None=空即 WARN</span>
+
+
+<span class="n">REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ExtractSpec</span><span class="p">]</span>  <span class="c1"># 11 项；set(REGISTRY) == READ_EXTRACTOR_NAMES 模块级 assert</span>
+</code></pre></div>
+- Produces（contracts/read_extractor_names.py）: <code>READ_EXTRACTOR_NAMES: frozenset[str]</code>（11 名，与现 loader 字面量逐一相同）
+- dispatch_helper 单臂消费 <code>REGISTRY</code>；策略四态 = guard_warn（volume_chapter None→unrouted WARN）/ silent（hooks_audit_scoped None→静默回退）/ loud（matrix_scoped None→failed WARN）/ irrelevant+predicate noop（recent_increments 空且无章单元）</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>层级:</strong> T1（表驱动结构测试）</p>
+<ul>
+<li>[ ] <strong>Step 1: 红测</strong>——<code>tests/pipeline/test_read_extractor_registry.py</code>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #87 T2: extractor registry — table-driven WARN policies + leaf single-source.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">READ_EXTRACTORS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.read_extractor_names</span><span class="w"> </span><span class="kn">import</span> <span class="n">READ_EXTRACTOR_NAMES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_extractors</span> <span class="k">as</span> <span class="n">re_mod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.read_extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span><span class="p">,</span> <span class="n">ExtractSpec</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_registry_keys_equal_leaf_roster</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">REGISTRY</span><span class="p">)</span> <span class="o">==</span> <span class="n">READ_EXTRACTOR_NAMES</span> <span class="o">==</span> <span class="n">READ_EXTRACTORS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_registry_size_matches_leaf</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="kc">None</span>
+<span class="p">):</span>  <span class="c1"># r2: 硬编码 11 违背单源故事——第 12 个 extractor 只该改 2 处</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">REGISTRY</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">READ_EXTRACTOR_NAMES</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_per_extractor_chapter_none_policies</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">REGISTRY</span><span class="p">[</span><span class="s2">&quot;volume_chapter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;guard_warn&quot;</span>
+    <span class="k">assert</span> <span class="n">REGISTRY</span><span class="p">[</span><span class="s2">&quot;hooks_audit_scoped&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;silent&quot;</span>
+    <span class="k">assert</span> <span class="n">REGISTRY</span><span class="p">[</span><span class="s2">&quot;matrix_scoped&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;loud&quot;</span>
+    <span class="k">assert</span> <span class="n">REGISTRY</span><span class="p">[</span><span class="s2">&quot;recent_increments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty_warn_predicate</span> <span class="ow">is</span> <span class="n">re_mod</span><span class="o">.</span><span class="n">has_chapter_units</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_bare_extractor_equality_in_dispatch_helper</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;防复发禁令：新 extractor 不得重写裸 if 臂（#95 加臂博弈路径）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_helper</span> <span class="k">as</span> <span class="n">dh</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;extractor ==&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">dh</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红</strong>——<code>uv run pytest tests/pipeline/test_read_extractor_registry.py -v</code> → FAIL（REGISTRY 不存在）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现叶 + REGISTRY</strong></p>
+</li>
+</ul>
+<p><code>src/shenbi/contracts/read_extractor_names.py</code>（新文件，零内部 import）：
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Read-extractor name roster — single source (spec #87 T2).</span>
+
+<span class="sd">Zero-dependency leaf: contracts must never import shenbi.pipeline (the</span>
+<span class="sd">reverse edge has 0 precedent). loader.READ_EXTRACTORS derives from this</span>
+<span class="sd">roster; read_extractors.REGISTRY keys must equal it (module assert + test).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">READ_EXTRACTOR_NAMES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;volume_chapter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_audit_scoped&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_inventory_scoped&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_overview&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;threads_overview&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;relationships_overview&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;locations_overview&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;book_strata_current&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;matrix_scoped&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume_opening_protocol&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;recent_increments&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<p><code>loader.py</code>：删 :94-107 的手写 frozenset 字面量体，改：
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.read_extractor_names</span><span class="w"> </span><span class="kn">import</span> <span class="n">READ_EXTRACTOR_NAMES</span>
+
+<span class="o">...</span>
+<span class="n">READ_EXTRACTORS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">READ_EXTRACTOR_NAMES</span>
+</code></pre></div></p>
+<p><code>read_extractors.py</code> 尾部追加（import 区补 <code>from shenbi.contracts.read_extractor_names import READ_EXTRACTOR_NAMES</code>、<code>from typing import Literal</code>、<code>from dataclasses import dataclass</code>、<code>from collections.abc import Callable</code>、<code>from shenbi.pipeline._shared import load_volume_context</code>）：
+<div class="highlight"><pre><span></span><code><span class="c1"># --- spec #87 T2: registry — single dispatch for read extractors ----------</span>
+
+<span class="n">ChapterNonePolicy</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;guard_warn&quot;</span><span class="p">,</span> <span class="s2">&quot;silent&quot;</span><span class="p">,</span> <span class="s2">&quot;loud&quot;</span><span class="p">,</span> <span class="s2">&quot;irrelevant&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtractSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-extractor routing policy for the collapsed dispatch arm.</span>
+
+<span class="sd">    chapter_none governs the ``chapter is None`` case; empty_warn_predicate</span>
+<span class="sd">    (None = warn on empty) governs empty results — the four observed</span>
+<span class="sd">    behaviors: guard-warn / silent / loud / conditional no-op.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">impl</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">chapter_none</span><span class="p">:</span> <span class="n">ChapterNonePolicy</span> <span class="o">=</span> <span class="s2">&quot;irrelevant&quot;</span>
+    <span class="n">empty_warn_predicate</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_content_only</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrap</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_chapterly</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrap</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_volume_chapter</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># chapter=None never reaches impl (chapter_none=&quot;guard_warn&quot; intercepts),</span>
+    <span class="c1"># so the int-typed _shared call needs no cast (r2: dropped typing.cast —</span>
+    <span class="c1"># typing import list never included it).</span>
+    <span class="k">assert</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># invariant guard, see comment above (no noqa:</span>
+    <span class="c1"># S101 is not in the ruff select set — a noqa would trip RUF100 unused-noqa)</span>
+    <span class="k">return</span> <span class="n">load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+
+<span class="n">REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ExtractSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;volume_chapter&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_volume_chapter</span><span class="p">,</span> <span class="n">chapter_none</span><span class="o">=</span><span class="s2">&quot;guard_warn&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;hooks_audit_scoped&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">extract_hooks_audit_scoped</span><span class="p">,</span> <span class="n">chapter_none</span><span class="o">=</span><span class="s2">&quot;silent&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;hooks_inventory_scoped&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_hooks_inventory_scoped</span><span class="p">)),</span>
+    <span class="s2">&quot;hooks_overview&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_hooks_overview</span><span class="p">)),</span>
+    <span class="s2">&quot;threads_overview&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_chapterly</span><span class="p">(</span><span class="n">extract_threads_overview</span><span class="p">)),</span>
+    <span class="s2">&quot;relationships_overview&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_relationships_overview</span><span class="p">)),</span>
+    <span class="s2">&quot;locations_overview&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_locations_overview</span><span class="p">)),</span>
+    <span class="s2">&quot;book_strata_current&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_book_strata_current</span><span class="p">)),</span>
+    <span class="s2">&quot;matrix_scoped&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">extract_matrix_scoped</span><span class="p">,</span> <span class="n">chapter_none</span><span class="o">=</span><span class="s2">&quot;loud&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;volume_opening_protocol&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span><span class="n">_content_only</span><span class="p">(</span><span class="n">extract_volume_opening_protocol</span><span class="p">)),</span>
+    <span class="s2">&quot;recent_increments&quot;</span><span class="p">:</span> <span class="n">ExtractSpec</span><span class="p">(</span>
+        <span class="n">_content_only</span><span class="p">(</span><span class="n">extract_recent_increments</span><span class="p">),</span> <span class="n">empty_warn_predicate</span><span class="o">=</span><span class="n">has_chapter_units</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+<span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">REGISTRY</span><span class="p">)</span> <span class="o">==</span> <span class="n">READ_EXTRACTOR_NAMES</span><span class="p">,</span> <span class="s2">&quot;roster drift: update leaf + registry together&quot;</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 4: 坍缩 dispatch_helper :879-1160</strong> 为单臂（保持 :879 行前缩进上下文——在 reads 循环体内）。替换体：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">spec</span> <span class="o">=</span> <span class="n">REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span> <span class="k">if</span> <span class="n">extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="n">extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;extractor_unrouted_fulltext&quot;</span><span class="p">,</span> <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">))</span>
+<span class="k">elif</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;guard_warn&quot;</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;extractor_unrouted_fulltext&quot;</span><span class="p">,</span> <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;silent&quot;</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># full-pool view preserved (§4.3 fallthrough)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_x_err</span><span class="p">:</span> <span class="ne">Exception</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">_extracted</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">chapter_none</span> <span class="o">==</span> <span class="s2">&quot;loud&quot;</span><span class="p">):</span>
+            <span class="c1"># matrix_scoped: None never reaches impl — loud falls through</span>
+            <span class="c1"># to the shared WARN below (same event/fields as today&#39;s arm)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_extracted</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">impl</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">_x_err</span> <span class="o">=</span> <span class="n">exc</span>
+                <span class="n">_extracted</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_extracted</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">_extracted</span>
+        <span class="k">elif</span> <span class="n">_x_err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">empty_warn_predicate</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">empty_warn_predicate</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># THE single literal site — acceptance 3 (grep -c == 1)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;extractor_failed_fulltext&quot;</span><span class="p">,</span>
+                <span class="n">extractor</span><span class="o">=</span><span class="n">extractor</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span>
+                <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">_x_err</span><span class="p">)}</span> <span class="k">if</span> <span class="n">_x_err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
+            <span class="p">)</span>
+</code></pre></div>
+<p>⚠️ 行为逐臂核对表（坍缩前跑既有测试 + 逐臂人工比对，任何一臂 WARN 事件字段差异都要在此表登记）：
+| 臂 | 现行为 | 坍缩后来源 |
+|---|---|---|
+| volume_chapter None | 落链尾 unrouted WARN | guard_warn 分支 |
+| volume_chapter raise/空 | failed WARN(±error) | except/else 统一 |
+| hooks_audit_scoped None | 静默回退（if chapter is not None 包裹） | silent 分支 |
+| hooks_inventory/overview/book_strata/threads/relationships/locations 空 | failed WARN | 空+谓词 None |
+| matrix_scoped None | failed WARN(chapter=None) | loud（chapter is None 分支）⚠️ 现码在 else 里带 chapter=chapter——统一分支已覆盖 |
+| vop 空/raise | failed WARN(±error) | 统一 |
+| recent raise | failed WARN(+error) | <code>_x_err is not None</code> 优先 |
+| recent 空有章单元 | failed WARN | 谓词 True |
+| recent 空无章单元 | no-op | 谓词 False |</p>
+<p>注意（r2.1）：坍缩后 dispatch_helper 顶部逐 extractor import 有 ~10 个变 unused——F401 必红，同批删（这些行也计入 −252 口径）。<code>matrix_scoped</code> chapter=None 现行走 <code>extracted=""</code> → <code>log.warning(..., chapter=chapter)</code>（chapter=None 字段带上）——坍缩统一分支 <code>chapter is None or predicate</code> 命中同事件同字段 ✓。dispatch_helper 顶部补 <code>from shenbi.pipeline.read_extractors import REGISTRY</code>。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: :322 注释改写</strong>（验收 3 前置）：<code># 降级路径（extractor_failed_fulltext 回全文）同受此预算约束；超预算→披露式截断</code> 改 <code># extractor 降级回全文路径同受此预算约束；超预算→披露式截断</code>（不含机器判据字面量）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: slicing 测试改写</strong>（:271-284 硬编码名集 → ⊆ 断言）：</p>
+</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_contract_extractor_names_subset_of_registry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec #87 T2: contract roster derives from the registry leaf.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.read_extractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">READ_EXTRACTORS</span>
+
+    <span class="k">assert</span> <span class="n">READ_EXTRACTORS</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">REGISTRY</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">READ_EXTRACTORS</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">REGISTRY</span><span class="p">)</span>  <span class="c1"># 当前恰等；⊂ 时须 spec deviation 说明</span>
+</code></pre></div>
+（原 <code>== READ_EXTRACTORS</code> 硬编码 :286 断言保留或并入此测试——实现时读原测试上下文保持文件风格）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 7: 验证</strong>——<code>uv run pytest tests/pipeline/test_read_extractor_registry.py tests/unit/pipeline/test_read_extractors_slicing.py -v</code> 全绿；<code>grep -c extractor_failed_fulltext src/shenbi/pipeline/dispatch_helper.py</code> = <strong>1</strong>（验收 3）；<code>grep -c "extractor ==" src/shenbi/pipeline/dispatch_helper.py</code> = <strong>0</strong>；<code>wc -l src/shenbi/pipeline/dispatch_helper.py</code> ≤ 4,680（−252+15 后 ≈4,673）；全量 <code>-m unit</code> 绿（WARN 语义行为保持）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 8: Commit + audit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/read_extractor_names.py<span class="w"> </span>src/shenbi/contracts/loader.py<span class="w"> </span>src/shenbi/pipeline/read_extractors.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_read_extractors_slicing.py<span class="w"> </span>tests/pipeline/test_read_extractor_registry.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #87 T2 extractor registry — contracts leaf + REGISTRY + 11-arm collapse (-252 lines, WARN policies table-driven)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3">Task 3 · 五体制拆分 + 三时机后钩</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（<code>_run_chapter_step_impl</code> :3856-4780 → 主函数 + 五体制函数 + 三钩）
+- Modify: <code>tests/unit/pipeline/test_spec83_stale_declarations.py:73-89</code>（白名单同步——拆出函数内 <code>dispatch_skill(</code> 调用点逐一归类）</p>
+<p><strong>Interfaces:</strong>
+- Produces（全部模块私有、签名统一；<strong>r2 接口修正</strong>——钩子带返回值保持控制流：pre 钩返回 settle-guard 结果供调用方路由（<code>_pre_settle_guard</code> :2957 是 3 参谓词返回 <code>(demoted, hard)</code> 双值，其路由 <code>return _handle_failure(...)</code> 不能进 <code>-&gt; None</code> 钩）；failure/success 钩返回 bool=checkpoint raised（现分支尾即 <code>return True  # checkpoint raised</code> 逐字语义））:
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_audit_wave_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_post_draft_pair_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_context_assembly_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_pipeline_internal_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_serial_dispatch_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pre_dispatch_hooks</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_dispatch_failure</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># r2.3 三态：None=未触发臂/True=checkpoint raised/False=retry 透传</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_resonance_success</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>  <span class="c1"># r2.3 位置作用域：resonance 位 :4702（闸前），现体 void fall-through</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_revision_success</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>  <span class="c1"># r2.3 位置作用域：revision 位 :4728（add_done+reset 后），尾 _advance/_handle_failure</span>
+</code></pre></div>
+- 主函数保留：step_idx==0 特例（:3883）、<code>_DRAFT_CONSUMING_SKILLS</code> 门（:3893）、条件跳过三连（r2.1 标签订正：:4435-4456 = 22 行——spec 的「≈14 行」仅覆盖前两块）、checkpoint 创建/恢复唯一持有</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> regression_guard（T0 八路径即安全网）｜ <strong>层级:</strong> T1/T2</p>
+<ul>
+<li>[ ] <strong>Step 1: 一次一个体制搬出</strong>（spec §3——五步串行，每步搬完跑 T0 八测试+全量 unit；任何一步红即回滚该步）：</li>
+<li><code>_run_audit_wave_step</code> ← :3913-4162 域（域起以 <code>:3918 if step_idx == _FIRST_AUDIT_IDX and step.is_audit:</code> 为准——:3913 是前分支尾 return）</li>
+<li><code>_run_post_draft_pair_step</code> ← :4170-4351 域（含直写 <code>state.chapter_loop.step_index</code> 的推进语义）</li>
+<li><code>_run_context_assembly_step</code> ← :4355-4357 三行体</li>
+<li><code>_run_pipeline_internal_step</code> ← :4360-4432 域（<code>startswith("pipeline-")</code>）</li>
+<li><code>_run_serial_dispatch_step</code> ← serial 域（r2 边界澄清：条件跳过块 :4451-4456 <code>_should_run_step</code> 留主函数，实际函数体 ≈:4457-4780 = 324 行——仍 &gt;260，三块抽取主张成立）——内部再抽三块使函数体 &lt;260 行：a) dispatch 调用块（bundle_set 构建 + <code>dispatch_skill</code> 调用）; b) 四钩位（三时机）：pre :4485-4501 / 失败 :4521-4533 / 成功位 1 resonance :4702 + 成功位 2 revision :4728; c) revision 成功尾块（r2.1 范围订正：<strong>整块 :4729-~4776</strong>——<code>if "chapter-revision" in step.skill:</code> 起，含 <code>_ensure_revision_decisions_exists</code>/<code>declarations_stale=True</code>/<code>_revalidate_revised_chapter</code>+<code>return _handle_failure("g4")</code>/<code>declarations_stale=False</code> 清除/settle 重派队——全部入 <code>_on_revision_success</code>（r2.3 名）；<strong>无条件 <code>_reset_retries</code>（:4725-4726）留在 serial 主体每步执行，不得搬入钩</strong>——r2 的「:4726-4732」字面搬运会丢非 revision 步的重试重置=行为破坏）。三钩本体（<strong>r2</strong>：真实函数名与控制流对齐现树——pre 钩的 revision 项是 <code>write_audit_aggregate(project_dir, chapter)</code> :4486〔plan r1 误写 <code>_refresh_revision_aggregate</code>，树无此函数〕；settle guard 谓词经钩透传结果；failure/success 钩返回 bool）：</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_pre_dispatch_hooks</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ordered pre-dispatch hooks: revision aggregate write, settle guard.</span>
+
+<span class="sd">    Returns the settle-guard outcome (demoted, hard) when the step settles</span>
+<span class="sd">    state, else None — routing (the _handle_failure call) stays with the</span>
+<span class="sd">    caller because it ends in `return`. r2.3 condition fix: the present</span>
+<span class="sd">    body uses EXACT equality (:4485 `== &quot;shenbi-chapter-revision&quot;`,</span>
+<span class="sd">    :4492 `== &quot;shenbi-state-settling&quot;`) — move `==` verbatim, do NOT widen</span>
+<span class="sd">    to substring `in` (widening is the very hazard T4&#39;s red test 1 targets).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">:</span>  <span class="c1"># T4 → step.is_revision  (:4485-4486)</span>
+        <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">:</span>  <span class="c1"># T4 → step.settles_state  (:4492-4493)</span>
+        <span class="n">outcome</span> <span class="o">=</span> <span class="n">_pre_settle_guard</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outcome</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_dispatch_failure</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">result</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Failure-branch hooks (r2.3 three-state: None = neither arm fired —</span>
+<span class="sd">    caller falls to the generic :4552 route; True = checkpoint raised;</span>
+<span class="sd">    False = in-budget retry passthrough — caller returns it verbatim).</span>
+<span class="sd">    :4521 (settle escalate) and :4533 (resonance failure) moved VERBATIM;</span>
+<span class="sd">    their conditions are present-day substring `in step.skill` — T4 swaps</span>
+<span class="sd">    to ChapterStep attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;state-settling&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>  <span class="c1"># T4 → step.settles_state</span>
+        <span class="o">...</span>  <span class="c1"># :4521-4532 现体逐行搬入（escalation 派发，尾 return True）</span>
+    <span class="k">if</span> <span class="s2">&quot;review-resonance&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>  <span class="c1"># T4 → step.emits_resonance</span>
+        <span class="o">...</span>  <span class="c1"># :4533-... 现体逐行搬入（尾 return _handle_failure(...) bool 透传，</span>
+        <span class="c1"># 内含 return False retry 分支保留）</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_resonance_success</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resonance-position hook (:4702, BEFORE _step_output_exists gate).</span>
+<span class="sd">    r2.3: the present body :4702-4705 calls two `-&gt; None` functions</span>
+<span class="sd">    (:3046/:3119) and FALLS THROUGH — faithful extraction is void (r2.2&#39;s</span>
+<span class="sd">    「尾 bool 透传」 was wrong, no such bool exists).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;review-resonance&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>  <span class="c1"># T4 → step.emits_resonance</span>
+        <span class="n">_parse_and_persist_resonance</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>      <span class="c1"># :4702-4705 现体（-&gt; None）</span>
+        <span class="n">_route_revision_after_resonance</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="c1"># 同上（-&gt; None）</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_revision_success</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Revision-position hook (:4728, AFTER add_step_done + unconditional</span>
+<span class="sd">    _reset_retries :4725). Whole present block :4728-4778; the block&#39;s own</span>
+<span class="sd">    tail `return _advance(...)` / `return _handle_failure(...)` is the hook</span>
+<span class="sd">    return; non-revision steps take the unconditional tail (present body).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;chapter-revision&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>  <span class="c1"># T4 → step.is_revision</span>
+        <span class="n">retry_key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>  <span class="c1"># r2.4：块体 :4751/:4755 引用，钩内重算（纯推导行为等同）</span>
+        <span class="o">...</span>  <span class="c1"># :4728-4778 现体整块（ensure_decisions/stale=True → revalidate+</span>
+        <span class="c1"># return _handle_failure bool 透传 → stale=False 清除 → settle 重派队 → 尾 _advance）</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">块尾现值</span><span class="o">&gt;</span>
+    <span class="k">return</span> <span class="n">_advance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># 非 revision 尾</span>
+</code></pre></div>
+  调用形态（<strong>r2.3 位置作用域——两个不同函数</strong>。r2.2 的同函数双调用是机制级破坏：revision step 在位置 1 提前 return 会跳过 <code>_step_output_exists</code> 闸/add_step_done/<code>_reset_retries</code>；resonance step 在位置 1 fall-through 后位置 2 会<strong>再次</strong>触发 resonance 臂→双重 persist/route）：
+<div class="highlight"><pre><span></span><code><span class="n">_on_resonance_success</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># 位置 1（:4702，闸前）——void 直调</span>
+<span class="o">...</span>  <span class="c1"># _step_output_exists 闸 / add_step_done / 无条件 _reset_retries(:4725) 原样</span>
+<span class="k">return</span> <span class="n">_on_revision_success</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">chapter</span>
+<span class="p">)</span>  <span class="c1"># 位置 2（:4728）——bool 即函数尾</span>
+</code></pre></div>
+  失败分支调用方（三态）：
+<div class="highlight"><pre><span></span><code><span class="n">outcome</span> <span class="o">=</span> <span class="n">_on_dispatch_failure</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">outcome</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">outcome</span>  <span class="c1"># True=checkpoint raised / False=retry 预算内透传</span>
+<span class="o">...</span>  <span class="c1"># generic :4552 现路由（None=未触发臂）</span>
+</code></pre></div>
+  （函数体内的 <code>...</code> 均为「现体逐行搬入」占位——搬移源行号已给，重构类 task 源码即规格；<strong>不做全局注册表</strong>——显式顺序 if 即「表+顺序」）
+  ⚠️ <strong>spec83 <code>_func_body</code> 断言同步</strong>：test_spec83_stale_declarations.py:96-98 断言 settle_capable 函数体含 <code>_pre_settle_guard</code> 字面量——settle 站点搬入 <code>_run_serial_dispatch_step</code> 后体内经 <code>_pre_dispatch_hooks</code> 间接持有，断言目标须同批改 <code>"_pre_dispatch_hooks" in body or "_pre_settle_guard" in body</code>（Step 3 白名单同步一并落）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 主函数重写为分派骨架</strong>（<code>_run_chapter_step_impl</code> 删除——验收 2；<code>run_chapter_step</code> 内直接写分派或保留薄 impl 皆可——spec 验收 2 写 <code>_run_chapter_step_impl</code> 消失，主分派逻辑并入 <code>run_chapter_step</code> try 块或改名——<strong>采用并入</strong>：<code>run_chapter_step</code> 的 try 块内直接五体制分派）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="o">...</span>  <span class="c1"># :3883 特例原样</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="ow">in</span> <span class="n">_DRAFT_CONSUMING_SKILLS</span><span class="p">:</span>
+            <span class="o">...</span>  <span class="c1"># :3893 门原样</span>
+        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="n">_FIRST_AUDIT_IDX</span> <span class="ow">and</span> <span class="n">step</span><span class="o">.</span><span class="n">is_audit</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_run_audit_wave_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="n">_FORESHADOWING_LIFECYCLE_IDX</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_run_post_draft_pair_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">calls_context_assembly</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_run_context_assembly_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pipeline-&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_run_pipeline_internal_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="c1"># conditional skips (:4435-4456, r2.2) stay here — 主函数持有</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">_run_serial_dispatch_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="o">...</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: spec83 白名单同步</strong>——<code>tests/unit/pipeline/test_spec83_stale_declarations.py</code>：拆出函数内 <code>dispatch_skill(</code> 调用点的 <code>_enclosing</code> 归属变为新函数名——settle_capable 三元组中 <code>("pipeline/chapter_loop.py", "_run_chapter_step_impl")</code> 改为新归属（serial 函数内的 <code>_pre_settle_guard</code> 站点→<code>_run_serial_dispatch_step</code>；<code>run_parallel_post_draft_steps</code> 不变；逐一跑该测试按 unclassified 红名清单归类）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 验证</strong>——T0 八测试零改动全绿（行为保持证明）；<code>tests/unit/pipeline/test_spec83_stale_declarations.py</code> 绿；<code>grep -n "_run_chapter_step_impl" src/ tests/</code> 零输出（验收 2）；serial 函数体 wc &lt;260；<code>wc -l chapter_loop.py</code> ≤4,820；全量 <code>-m unit</code> 绿</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit + audit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_spec83_stale_declarations.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #87 T3 five-regime extraction + three-timing hooks (917-&gt;dispatch skeleton, checkpoint sole-holder)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4">Task 4 · 子串判定消灭（双路径）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（ChapterStep +3 字段 :97-152；CHAPTER_STEPS 表填值；五位子串位点 :1819/:4521/:4533/:4702/:4728 改属性——行号以 T3 后新树 re-anchor）
+- Modify: <code>src/shenbi/pipeline/review_checklist.py</code>（REVIEW_SKILLS frozenset 26 名 + <code>is_review_skill</code> 精确判定）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（:1577 调用点 :1709-1711 <code>_is_review_skill</code> 改用精确名单）
+- Test: <code>tests/pipeline/test_review_skill_routing.py</code>（Create）</p>
+<p><strong>Interfaces:</strong>
+- Produces:
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py ChapterStep 新字段（dataclass 尾部追加，带默认值）</span>
+<span class="n">settles_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>      <span class="c1"># &quot;state-settling&quot; in step.skill 的显式化</span>
+<span class="n">emits_resonance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># &quot;review-resonance&quot; ...</span>
+<span class="n">is_revision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>        <span class="c1"># &quot;chapter-revision&quot; ...</span>
+
+<span class="c1"># review_checklist.py 模块级</span>
+<span class="n">REVIEW_SKILLS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span> <span class="o">..</span><span class="mf">.26</span> <span class="n">名</span><span class="o">...</span> <span class="p">})</span>  <span class="c1"># 24 shenbi-review-* + shenbi-escalation-review + shenbi-foundation-review</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_review_skill</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">REVIEW_SKILLS</span>
+</code></pre></div></p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> tdd_red_green ｜ <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 红测</strong>（三条——resonance 子串负例 / preview 假想名负例 / escalation 保留注入）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #87 T4: substring elimination — dual path, behavior-preserving.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_review_resonance_substring_negative</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A skill merely CONTAINING &#39;review-resonance&#39; must not trigger</span>
+<span class="sd">    resonance post-processing (currently it does — red-&gt;green).&quot;&quot;&quot;</span>
+    <span class="c1"># 构造 ChapterStep(skill=&quot;shenbi-xreview-resonance-y&quot;, emits_resonance=False)</span>
+    <span class="c1"># 走 run_chapter_step 公共入口（serial 域），断言 _parse_and_persist_resonance 未被调用</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_preview_named_skill_not_review</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">is_review_skill</span><span class="p">(</span><span class="s2">&quot;shenbi-preview-x&quot;</span><span class="p">)</span>  <span class="c1"># &quot;review&quot; 子串假阳性负例</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escalation_review_keeps_injection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;r3.1 裁定：escalation-review 保留 review checklist 注入（活行为）。&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">is_review_skill</span><span class="p">(</span><span class="s2">&quot;shenbi-escalation-review&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">is_review_skill</span><span class="p">(</span><span class="s2">&quot;shenbi-foundation-review&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_roster_scan_reconciles_with_skills_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;skills/ 目录扫描对账：新 review 技能漏登即红（谓词=前缀∪两名，禁子串）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span>
+    <span class="n">on_disk</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;shenbi-review-&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;shenbi-escalation-review&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-foundation-review&quot;</span><span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">assert</span> <span class="n">on_disk</span> <span class="o">&lt;=</span> <span class="n">REVIEW_SKILLS</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红</strong> → <code>uv run pytest tests/pipeline/test_review_skill_routing.py -v</code> FAIL（<code>is_review_skill</code> 不存在；resonance 子串现误触）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong>——review_checklist.py 加 26 名 frozenset（从 <code>ls skills/</code> 逐一誊抄）+ <code>is_review_skill</code>；dispatch_helper :1577 <code>_is_review_skill(skill)</code> 改 <code>is_review_skill(skill)</code>（删 :1709-1711 旧实现）；ChapterStep +3 字段；CHAPTER_STEPS 表中 <code>shenbi-state-settling</code> 行加 <code>settles_state=True</code>、<code>shenbi-review-resonance</code> 行加 <code>emits_resonance=True</code>、<code>shenbi-chapter-revision</code> 行加 <code>is_revision=True</code>；五位子串位点改属性判定（<code>:1819 step.uses_staging and step.settles_state</code>、失败/成功尾与三钩内 <code>step.emits_resonance</code>/<code>step.settles_state</code>/<code>step.is_revision</code>——行号以 T3 后现树为准 grep <code>"state-settling" in step.skill</code> 等三模式逐一定位）；<strong><code>_pre_dispatch_hooks</code>/<code>_on_dispatch_failure</code>/<code>_on_resonance_success</code>/<code>_on_revision_success</code> 四钩体内的 <code>if "state-settling" in step.skill</code> 等子串/等值条件（T3 引入，三模式 grep 已覆盖但 dict/属性形态注意）一并改属性判定</strong>：</p>
+</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_pre_dispatch_hooks</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ordered pre-dispatch hooks (r2.2: same contract as T3&#39;s r2 form).&quot;&quot;&quot;</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">is_revision</span><span class="p">:</span>
+        <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># real name (:4486)</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">settles_state</span><span class="p">:</span>
+        <span class="n">outcome</span> <span class="o">=</span> <span class="n">_pre_settle_guard</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># 3-arg (:2957)</span>
+    <span class="k">return</span> <span class="n">outcome</span>
+</code></pre></div>
+（T4 只做<strong>条件替换</strong>——<code>in step.skill</code> → <code>step.xxx</code> 属性；签名/函数名/返回契约与 T3 落地形态完全一致，不重定义。<code>_on_dispatch_failure</code>/<code>_on_resonance_success</code>/<code>_on_revision_success</code> 同步换条件；T4 红测 1 的外来 step 注入用 <code>monkeypatch.setattr(chapter_loop, "CHAPTER_STEPS", ...)</code> 替换序列项〔r2.2 补注入 seam〕）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: 验证</strong>——红测全绿（含 T0 八路径）；<code>grep -n '"state-settling" in step.skill\|"review-resonance" in step.skill\|"chapter-revision" in step.skill' src/shenbi/pipeline/chapter_loop.py</code> = 零输出；<strong>泛查</strong> <code>grep -n "in step.skill" src/shenbi/pipeline/chapter_loop.py</code> 逐条裁定（应仅剩非三模式的合法用法或零）；T0 八路径仍绿；全量 unit 绿</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit + audit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/review_checklist.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_review_skill_routing.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #87 T4 substring elimination — ChapterStep attrs + 26-name precise roster (escalation keeps injection)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-lint">Task 5 · 正名 + 基线 lint</h3>
+<p><strong>Files:</strong>
+- Modify: 18 个正名符号的定义+全部引用（清单见下）+ <code>src/shenbi/pipeline/audit_context_cache.py:124</code> import 改公共路径 + chapter_loop:1066 AuditResult import 改 <code>from shenbi.audit import AuditResult</code>
+- Create: <code>tools/lint_private_imports.py</code>、<code>tests/private_imports_baseline.txt</code>
+- Modify: <code>justfile</code>（挂 lint）、<code>tools/lint_dead_code_allowlist.py:32-33</code>（收缩两条）</p>
+<p><strong>正名清单（19 行=18 函数正名+1 import 改路，r2.4 标签对齐表实列）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>旧名→新名</th>
+<th>定义文件</th>
+<th>tests import 次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>_build_skill_prompt→build_skill_prompt</code></td>
+<td>dispatch_helper</td>
+<td>29</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>_write_parsed_outputs→write_parsed_outputs</code></td>
+<td>dispatch_helper</td>
+<td>30</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>_init_truth_templates→init_truth_templates</code></td>
+<td>dispatch_helper</td>
+<td>7</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>_resolve_wildcard_path→resolve_wildcard_path</code></td>
+<td>dispatch_helper</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>_dispatch_via_api→dispatch_via_api</code></td>
+<td>dispatch_helper</td>
+<td>5</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>_route_append_dedup_write→route_append_dedup_write</code></td>
+<td>dispatch_helper</td>
+<td>4</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>_chapter_header_style→chapter_header_style</code></td>
+<td>dispatch_helper</td>
+<td>4</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>_resolve_all_wildcards→resolve_all_wildcards</code></td>
+<td>dispatch_helper</td>
+<td>4</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>_increment_units→increment_units</code></td>
+<td>dispatch_helper</td>
+<td>4</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>_should_skip_audit→should_skip_audit</code></td>
+<td>chapter_loop</td>
+<td>10</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>_check_linguistic_drift→check_linguistic_drift</code></td>
+<td>chapter_loop</td>
+<td>7</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>_parse_resonance_score→parse_resonance_score</code></td>
+<td>chapter_loop</td>
+<td>5</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>_resolve_g4_files→resolve_g4_files</code></td>
+<td>chapter_loop</td>
+<td>4</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>_dispatch_serial_reviews→dispatch_serial_reviews</code></td>
+<td>chapter_loop</td>
+<td>4</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>_any_audit_has_findings→any_audit_has_findings</code></td>
+<td>chapter_loop</td>
+<td>4</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>_check_emergency_flag→check_emergency_flag</code></td>
+<td>crash_recovery（压制 :64 摘）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>_merge_step_result→merge_step_result</code></td>
+<td>state（压制 :3685 摘）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>_dispatch_with_retry→dispatch_with_retry</code></td>
+<td>parallel_dispatch（压制 :3802 摘；接线四类面：string monkeypatch tests/unit/pipeline/test_c15_wave_and_context_branches.py:45/:56；直接调用 tests/pipeline/test_parallel_retry_feedback.py:53/:76、tests/unit/pipeline/test_wave_state_threading.py:47/:59、tests/unit/pipeline/test_retry_taxonomy.py:431/:552；pinned 对 test_spec83_stale_declarations.py rest 集；测试函数名 test_wave_state_threading.py:38/:51、test_retry_taxonomy.py:408 同批改）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>_ending_archetype_of→ending_archetype_of</code></td>
+<td><strong>gates/g4/chapter_drafting.py:514</strong>（r2 订正——非 text/）；连带 :569/:571 内部使用 + tests/unit/gates/g4/test_hook_type_rotation.py:156/:160/:168/:172/:173 五站点（r2.1 补 :160）；压制 audit_context_cache:124 摘</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>另有 chapter_loop:1066 <code>from shenbi.audit._shared import AuditResult  # pyright: ignore[reportPrivateUsage]</code> 改 <code>from shenbi.audit import AuditResult</code>（公共再导出已在 <code>shenbi/audit/__init__.py:6</code>）。</p>
+<p><strong>docstring/字符串连带</strong>（grep 归零兜底，导航清单）：exceptions.py:98、gates/g4/generic.py:270、pipeline/helper_injection.py:8、pipeline/llm_output_integrity.py:7、dispatch_helper 自身 :4228/:4513/:4638、tools/lint_key_reconciliation.py:128（<code>_should_skip_audit</code> 字符串站点，r2.2 补）。</p>
+<p><strong>复杂度:</strong> infra ｜ <strong>test_kind:</strong> regression_guard + tdd（lint 工具）｜ <strong>层级:</strong> T1</p>
+<ul>
+<li>[ ] <strong>Step 1: 正名（逐符号机械改写）</strong>——每符号：定义处改名 → <code>grep -rn '&lt;旧名&gt;' src/ tests/ tools/</code> 逐站点改（import/调用/string monkeypatch/docstring/测试函数名/pinned 对）→ 该符号 grep 归零 → 跑受影响测试文件。18+1 个符号串行做完后全量 <code>-m unit</code> 绿。</li>
+<li>ALLOWLIST 收缩：<code>tools/lint_dead_code_allowlist.py</code> 删 :32-33 两行（<code>_merge_step_result</code>/<code>_check_emergency_flag</code> 正名后 seen 集变化——不删则「shrink ALLOWLIST」红）</li>
+<li>
+<p>spec83 rest 集 pinned 对 <code>("pipeline/parallel_dispatch.py", "_dispatch_with_retry")</code> 改 <code>dispatch_with_retry</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 写 lint 工具红测</strong>（<code>tests/pipeline/test_private_imports_lint.py</code>）：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_subset_assertion</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;当前 tests 私有 import 集合 ⊆ 基线（增量=0）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;tools/lint_private_imports.py&quot;</span><span class="p">,</span> <span class="s2">&quot;--check&quot;</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_shrinks_only</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;--update 仅人工评审后可用；基线行数 ≤ 当前文件行数（防自动膨胀）。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/private_imports_baseline.txt&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">baseline</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 实现 lint 工具</strong>——<code>tools/lint_private_imports.py</code>（AST 解析 tests/** 的 <code>from shenbi.pipeline... import _x</code> 形态（含多行括号/别名——用 ast.ImportFrom 非正则）；产出 (file, symbol) 对集合；<code>--check</code> 模式=当前集合 ⊆ 基线文件否则 exit 1 列出新增对；<code>--update</code> 模式=重写基线（仅人工评审后用，commit message 须注明）；<code>--report</code> 模式=打印拟议基线不写盘）。首跑：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_private_imports.py<span class="w"> </span>--report<span class="w"> </span>&gt;<span class="w"> </span>/tmp/proposed-baseline.txt
+<span class="c1"># 人工核对（正名后残留私有 import 应与 19 文件存量吻合）后：</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_private_imports.py<span class="w"> </span>--update
+git<span class="w"> </span>add<span class="w"> </span>tests/private_imports_baseline.txt
+</code></pre></div>
+<p>justfile 挂载（lint 面既有 recipe 风格——参考 :40 lint-dead-code-allowlist 条目旁）+ just check 链路接入（首跑 report-only 人工评审完成后才把 --check 接进 check——本 task 内完成两步并记录于 commit message）。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: pyright 压制验收</strong>——<code>grep -c "reportPrivateUsage" src/shenbi/pipeline/*.py</code>（逐文件）合计 <strong>≤12</strong>（17−1−3−1=12；cli 8 + context_assemble 1 + plan_skeleton 1 + dispatch_helper 2[truth_io，若做加项公共化则 ≤10]）；basedpyright 跑绿</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: 验证</strong>——正名 18+1 符号 grep 归零逐个确认；<code>uv run pytest tests/ -q -m unit</code> 全绿；<code>just check</code> exit 0</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit + audit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>&lt;逐文件<span class="w"> </span>pathspec&gt;
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #87 T5 public renames (18 syms + AuditResult import) + private-import baseline lint (report-only first run)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 行数 ≤9,500/≤4,820/≤4,680</td>
+<td>T1/T2/T3</td>
+<td><code>wc -l src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/dispatch_helper.py</code></td>
+</tr>
+<tr>
+<td>2 <code>_run_chapter_step_impl</code> 消失+五函数红测+checkpoint 唯一持有+serial&lt;260</td>
+<td>T0+T3</td>
+<td><code>grep -n "_run_chapter_step_impl" src/ tests/</code>=空；T0 八测试零改动绿；<code>uv run pytest tests/pipeline/test_chapter_step_characterization.py -v</code></td>
+</tr>
+<tr>
+<td>3 grep -c = 1</td>
+<td>T2</td>
+<td><code>grep -c extractor_failed_fulltext src/shenbi/pipeline/dispatch_helper.py</code></td>
+</tr>
+<tr>
+<td>4 T4 红测绿+压制 ≤12</td>
+<td>T4+T5</td>
+<td><code>uv run pytest tests/pipeline/test_review_skill_routing.py -v</code>；<code>grep -c reportPrivateUsage src/shenbi/pipeline/*.py \| grep -v :0</code> 合计</td>
+</tr>
+<tr>
+<td>5 基线子集断言+禁裸比较</td>
+<td>T2+T5</td>
+<td><code>uv run python tools/lint_private_imports.py --check</code>；<code>grep -c "extractor ==" src/shenbi/pipeline/dispatch_helper.py</code> = 0</td>
+</tr>
+<tr>
+<td>6 just check + 全量绿</td>
+<td>全部</td>
+<td><code>just check</code> exit 0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>评分场景</strong>：无（纯行为保持重构，零 LLM dispatch——F947 规则满足）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

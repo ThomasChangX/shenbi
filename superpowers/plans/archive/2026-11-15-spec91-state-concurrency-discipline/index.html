@@ -1,0 +1,1886 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec91-state-concurrency-discipline/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #91 状态与并发纪律（state-and-concurrency-discipline）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #91 状态与并发纪律（state-and-concurrency-discipline）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec91-state-concurrency-discipline.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec91-state-concurrency-discipline/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #91 状态与并发纪律（state-and-concurrency-discipline）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec91-state-concurrency-discipline.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-91-state-and-concurrency-disciplineimplementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #91 状态与并发纪律（state-and-concurrency-discipline）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-gate_passed-characterization-9-11-15974063-task-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: gate_passed 单源 + characterization 断言表（9 单比较站点；11 点判定面另含 :1597/:4063 由 Task 2 钉死）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-11-_gate_passed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 11 判定点换装 + 五 _gate_passed 定义删除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-lint-toolslint_gate_status_comparisonspy-justfile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 比较侧 lint 守卫（tools/lint_gate_status_comparisons.py + justfile 接线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-t2-classify_dispatch_failure-contracts-re-export-genesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: T2 classify_dispatch_failure 迁 contracts + re-export + genesis 差异表落盘
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t3a-ledger_archive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T3a ledger_archive 锁窗口闭合（红绿两测）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t3b-dispatch_helper-outline-path_lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T3b dispatch_helper outline 合并锁内重读重验 + path_lock 不可重入警告
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-t4-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: T4 retry 状态写回归封装（三新存取器 + 全写点换装 + 三组测试）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-t5-semaphore-run_post_draft_pair-semaphore1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: T5 semaphore 可选化 + run_post_draft_pair 改名 + Semaphore(1) 戏法删除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-index-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: 验收汇跑 + INDEX plan 指针
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-2-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §2 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review 记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-91-state-and-concurrency-disciplineimplementation-plan">Spec #91 状态与并发纪律（state-and-concurrency-discipline）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> gate_passed 单源+SKIP 显式化+比较侧 lint、失败协议分类器单源迁移+genesis 差异表、两处锁窗口闭合（确定性红绿测）、retry 状态写回归封装（存取器接线）、T5 收尾（改名+semaphore 可选化）。</p>
+<p><strong>Architecture:</strong> 全部任务为 infra 类（动 <code>src/shenbi/pipeline/</code>、<code>src/shenbi/status.py</code>、<code>src/shenbi/contracts/</code>），协调者亲自实现。修法=单源化+锁窗口收拢+存取器接线，行为保持（characterization 钉死）优先，唯一行为变更面（genesis 接线）已挂用户裁定不落码。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+/pytest/ast（新 lint）/threading.Event（确定性并发编排）/justfile。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>spec：<code>docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md</code>（r2.3c）——行号锚 2026-11-15 树（deb50f99+工作分支）；<strong>plan 首步 re-anchor 纪律</strong>：每 task 开工前以符号 grep 复核行号（INDEX 行号锚纪律）。</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；gate 检查器纯函数幂等；<code>pathlib.Path</code>；conventional commits；测试结构输入可 inline/tmp_path 构造（G0.9 允许面），禁手写 fixture 冒充真实产物。</li>
+<li>改 src 文件的 task 提交后<strong>必须重锁工具哈希</strong>：<code>tests/lock-tool-hashes.sh</code> + <code>git add tests/tiers/deps.json</code>（216 src 文件全锁；#90 教训①——字节级追加[如 noqa]后也须再锁）。</li>
+<li>全部验收离线（fixtures/结构断言），零真实 dispatch（核心原则 8；F947 无涉）。</li>
+<li>commit 用显式 pathspec，禁 <code>git add -A</code>。</li>
+</ul>
+<hr />
+<h3 id="task-1-gate_passed-characterization-9-11-15974063-task-2">Task 1: <code>gate_passed</code> 单源 + characterization 断言表（9 单比较站点；11 点判定面另含 :1597/:4063 由 Task 2 钉死）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: characterization</strong>（钉死现行为——SKIP 分歧逐点快照）</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/status.py</code>（新增公共函数，置于 <code>GateStatus</code> 类之后）
+- Test: <code>tests/unit/test_gate_passed_single_source.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>gate_passed(result: Any, *, accept_skip: bool = False) -&gt; bool</code>（<code>shenbi.status</code>）——Task 2 全部换装点消费此签名；语义：<code>status = str(result.get("status", ""))</code>，<code>accept_skip=True</code> → <code>status in (GateStatus.PASS, GateStatus.SKIP)</code>，默认 → <code>status == GateStatus.PASS</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 characterization 断言表（9 单比较站点 × PASS/SKIP/FAIL）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #91 T1: gate_passed single-source characterization.</span>
+
+<span class="sd">Pins the CURRENT per-site semantics BEFORE rewiring (spec r2.3c):</span>
+<span class="sd">- triggers/closure sites: SKIP counts as passed (accept_skip=True target)</span>
+<span class="sd">- chapter_loop/audit_layer/genesis + phase_runner/cli direct compares:</span>
+<span class="sd">  only PASS counts (accept_skip=False target)</span>
+<span class="sd">- chapter_loop:1597 compound: status None also passes</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateStatus</span><span class="p">,</span> <span class="n">gate_passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_res</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+
+
+<span class="c1"># Target semantics table: (site, input, expected_after_rewire)</span>
+<span class="n">SITES</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># 9 single-compare sites (r3 审查 M2: 1597/4063 pinned in Task 2)</span>
+    <span class="p">(</span><span class="s2">&quot;triggers.py:505/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;PASS&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;triggers.py:505/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>  <span class="c1"># SKIP passes HERE ONLY</span>
+    <span class="p">(</span><span class="s2">&quot;triggers.py:505/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;FAIL&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;closure.py:125/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;chapter_loop.py:1446/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>  <span class="c1"># SKIP fails here</span>
+    <span class="p">(</span><span class="s2">&quot;audit_layer.py:209/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;genesis.py:284/_gate_passed&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;phase_runner.py:146/&#39;PASS&#39;&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;phase_runner.py:378/&#39;PASS&#39;&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;cli.py:223/GateStatus.PASS&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;cli.py:255/GateStatus.PASS&quot;</span><span class="p">,</span> <span class="n">_res</span><span class="p">(</span><span class="s2">&quot;SKIP&quot;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_gate_passed_default_rejects_skip</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">({})</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_gate_passed_accept_skip</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">),</span> <span class="n">accept_skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">),</span> <span class="n">accept_skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">gate_passed</span><span class="p">(</span><span class="n">_res</span><span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">),</span> <span class="n">accept_skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="c1"># NOTE (r3 审查 M2): table covers the 9 single-compare sites; chapter_loop:1597</span>
+<span class="c1"># (compound None-passes) and :4063 (negative compare) are pinned by Task 2&#39;s</span>
+<span class="c1"># mapping comments + their post-rewire unit tests, not by this table.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_semantics_table_covers_all_sites</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">SITES</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span>
+    <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">SITES</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">site</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认 FAIL（<code>ImportError: cannot import name 'gate_passed'</code>）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_gate_passed_single_source.py -q</code>
+Expected: FAIL（函数未定义）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现（status.py，GateStatus 类后）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gate_passed</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">accept_skip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Single source for gate-result pass/fail decisions (spec #91 T1).</span>
+
+<span class="sd">    ``accept_skip`` makes the site&#39;s SKIP tolerance explicit: trigger/closure</span>
+<span class="sd">    sites pass True (SKIP counts as passed — pinned pre-existing behavior);</span>
+<span class="sd">    all other sites default to PASS-only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">accept_skip</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">(</span><span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span><span class="p">,</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">SKIP</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">status</span> <span class="o">==</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">PASS</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认 PASS</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_gate_passed_single_source.py -q</code>
+Expected: 3 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit（含 deps.json 重锁）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/status.py<span class="w"> </span>tests/unit/test_gate_passed_single_source.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #91 T1 gate_passed 单源（status.py）+9 站点 characterization 断言表（11 点判定面）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-11-_gate_passed">Task 2: 11 判定点换装 + 五 <code>_gate_passed</code> 定义删除</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong>（换装后语义=Task 1 断言表；<code>def _gate_passed</code> 零残留）</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/triggers.py:505-509</code>（删 def；调用点 :657/:724 换装）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:1446-1448</code>（删 def；调用点 :1569/:2308/:4257/:4263/:4651/:4655/:4743 换装；复合点 :1597；负比较 :4063）
+- Modify: <code>src/shenbi/pipeline/closure.py:125-129</code>（删 def；调用点 :309/:317）
+- Modify: <code>src/shenbi/pipeline/audit_layer.py:209-212</code>（删 def；调用点 :248）
+- Modify: <code>src/shenbi/pipeline/genesis.py:284-287</code>（删 def；调用点 :644/:649/:708）
+- Modify: <code>src/shenbi/phase_runner.py:146/:378</code>
+- Modify: <code>src/shenbi/pipeline/cli.py:223/:255</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.status.gate_passed</code>（Task 1）
+- Produces: 验收 1 前半——<code>grep -rn "def _gate_passed" src/</code> 零残留</p>
+<p><strong>换装 pattern（逐文件代表例 + 穷举清单）：</strong></p>
+<p>triggers.py（SKIP 算过——唯一传 <code>accept_skip=True</code> 的文件）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 头部 import 区加：from shenbi.status import gate_passed</span>
+<span class="c1"># :657  if not _gate_passed(g4):        → if not gate_passed(g4, accept_skip=True):</span>
+<span class="c1"># :724  if not _gate_passed(g3):        → if not gate_passed(g3, accept_skip=True):</span>
+<span class="c1"># :505-509 def _gate_passed 整体删除</span>
+</code></pre></div>
+closure.py 同 pattern（:309/:317 传 accept_skip=True；:125-129 删）。</p>
+<p>chapter_loop.py（默认 PASS-only）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 头部：from shenbi.status import gate_passed（GateStatus 若仅剩他用则保留原 import）</span>
+<span class="c1"># :1569/:2308/:4257/:4263/:4651/:4655/:4743:  _gate_passed(x) → gate_passed(x)</span>
+<span class="c1"># :1446-1448 def _gate_passed 删除</span>
+<span class="c1"># :1597 复合判定（语义保持——None 也算过）：</span>
+<span class="c1">#   旧: if xc.get(&quot;status&quot;) not in (&quot;PASS&quot;, None):</span>
+<span class="c1">#   新: if xc.get(&quot;status&quot;) is not None and not gate_passed(xc):</span>
+<span class="c1"># :4063 负比较:</span>
+<span class="c1">#   旧: if str(rec[&quot;g3&quot;].get(&quot;status&quot;, &quot;&quot;)) != &quot;PASS&quot;:</span>
+<span class="c1">#   新: if not gate_passed(rec[&quot;g3&quot;]):</span>
+</code></pre></div>
+audit_layer.py（:248 换装；:209 删）、genesis.py（:644/:649/:708 换装；:284 删）同默认 pattern。
+<strong>unused-import 清理（r2 审查 M1；r4 审查补 audit_layer/genesis 同查）</strong>：triggers.py/closure.py/pipeline-cli.py/audit_layer.py/genesis.py 的 <code>GateStatus</code> import 在 def 删除/换装后若失用（ruff F401）——按 ruff 提示逐文件删除；chapter_loop/genesis 的 GateStatus 若仍有他处消费则保留。</p>
+<p>phase_runner.py:
+<div class="highlight"><pre><span></span><code><span class="c1"># 头部加 from shenbi.status import gate_passed</span>
+<span class="c1"># :146  if g5.get(&quot;status&quot;) == &quot;PASS&quot;:   → if gate_passed(g5):</span>
+<span class="c1"># :378  if g5.get(&quot;status&quot;) != &quot;PASS&quot;:   → if not gate_passed(g5):</span>
+</code></pre></div>
+pipeline/cli.py:
+<div class="highlight"><pre><span></span><code><span class="c1"># :223  if str(g4.get(&quot;status&quot;)) == GateStatus.PASS:  → if gate_passed(g4):</span>
+<span class="c1"># :255  if str(routed.get(&quot;status&quot;)) == GateStatus.PASS:  → if gate_passed(routed):</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 1: 逐文件换装（pattern+清单如上；每文件改后跑其单测）</strong></li>
+</ul>
+<p>Run（每文件）: <code>uv run pytest tests/unit/pipeline/test_triggers.py tests/unit/pipeline/test_chapter_loop.py -q 2&gt;&amp;1 | tail -3</code>（按文件选既有测试文件名）</p>
+<ul>
+<li>[ ] <strong>Step 2: 验收 grep 零残留</strong></li>
+</ul>
+<p>Run: <code>grep -rn "def _gate_passed" src/</code> → 期望空输出（exit 1）</p>
+<ul>
+<li>[ ] <strong>Step 3: 全量回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit -q -x -m "not slow" 2&gt;&amp;1 | tail -3</code>（全绿后进 Step 4）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/closure.py<span class="w"> </span>src/shenbi/pipeline/audit_layer.py<span class="w"> </span>src/shenbi/pipeline/genesis.py<span class="w"> </span>src/shenbi/phase_runner.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #91 T1 11 判定点换装 gate_passed 单源——五 _gate_passed 定义删除+SKIP 容忍逐点显式&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-lint-toolslint_gate_status_comparisonspy-justfile">Task 3: 比较侧 lint 守卫（tools/lint_gate_status_comparisons.py + justfile 接线）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: tdd_red_green</strong></p>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_gate_status_comparisons.py</code>
+- Modify: <code>justfile:24-50</code> lint recipe 区（加一行）
+- Test: <code>tests/unit/tools/test_lint_gate_status_comparisons.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Produces: lint 守卫（验收 1 后半）——a) <code>src/shenbi/pipeline/**</code>+<code>src/shenbi/phase_runner.py</code> 域内 <code>def *_gate_passed</code> 模式定义零容忍；b) 同域 Compare 节点中 status 与 PASS/SKIP（<code>GateStatus.PASS</code>/<code>GateStatus.SKIP</code>/裸 <code>"PASS"</code>/<code>"SKIP"</code>）比较仅允许出现在 <code>gate_passed</code> 单源本体（域外 status.py 天然不在扫描面）。已知残余不拦：反演式（<code>== "FAIL"</code>）、变量间接。
+- CLI 形态对齐既有 lint：<code>uv run python tools/lint_gate_status_comparisons.py</code> → 零违规 exit 0 / 违规逐行打印 exit 1。<strong>scan 签名（r2 审查 I4）</strong>：<code>scan(roots: list[Path] | None = None) -&gt; list[str]</code>——None 时内建默认域 <code>DOMAIN = [Path("src/shenbi/pipeline"), Path("src/shenbi/phase_runner.py")]</code>（CLI 无参跑默认域；测试 <code>scan()</code> 即首跑零红基线——gates/gate_manifest.py:195、g7.py:151 等域外命中不进面）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 红测（违规样本 tmp 构造 + 干净面零违规）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #91 T1 lint: gate-status comparison guard (red-green).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_gate_status_comparisons</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">scan</span><span class="p">,</span>
+    <span class="n">scan_file</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># repo convention (test_lint_status_strings.py:8)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clean_tree_zero_violations</span><span class="p">():</span>
+    <span class="c1"># against the real repo src face (post-Task-2 rewiring)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">scan</span><span class="p">()</span>  <span class="c1"># default domain = pipeline/ + phase_runner.py (I4: domain built-in)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_detects_new_private_definition</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;def _gate_passed(r):</span><span class="se">\n</span><span class="s2">    return True</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">scan_file</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;_gate_passed&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_detects_bare_compare</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad2.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;if g4.get(&quot;status&quot;) == &quot;PASS&quot;:</span><span class="se">\n</span><span class="s1">    pass</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">scan_file</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;PASS&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_enum_emit_and_non_status_compare</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;x = GateStatus.PASS.value  # emit, not compare</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s1">&#39;if name == &quot;PASS-ish&quot;:</span><span class="se">\n</span><span class="s1">    pass</span><span class="se">\n</span><span class="s1">&#39;</span>  <span class="c1"># not a status-keyed compare</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">scan_file</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">))</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<p>（AST 实现要点：<code>ast.walk</code> 收 <code>Compare</code> 节点；左侧 <code>.get("status"/"state"/"classification"/"s")</code> 调用或 <code>Subscript</code> status 键，右侧/左侧常量 <code>"PASS"/"SKIP"</code> 或 <code>GateStatus.PASS/SKIP</code> 属性 → 违规；<code>FunctionDef</code> 名匹配 <code>*_gate_passed</code> → 违规；扫描根=<code>src/shenbi/pipeline</code>+<code>src/shenbi/phase_runner.py</code>；豁免=无（status.py 域外）。<code>main()</code> 对齐 lint_status_strings 的 exit 约定。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红</strong> → <code>uv run pytest tests/unit/tools/test_lint_gate_status_comparisons.py -q</code> FAIL（模块不存在）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现 lint</strong> → Step 4: 跑绿（<code>test_clean_tree_zero_violations</code> 在 Task 2 完成后必绿=首跑零红基线）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: justfile 接线</strong>（lint recipe <code>:44</code> <code>lint_audit_run</code> 行后加）：
+<div class="highlight"><pre><span></span><code>    uv run python tools/lint_gate_status_comparisons.py
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: <code>just check</code> 快验证 + Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_gate_status_comparisons.py<span class="w"> </span>tests/unit/tools/test_lint_gate_status_comparisons.py<span class="w"> </span>justfile
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #91 T1 比较侧 lint 守卫——def *_gate_passed 零容忍+status 比较 held-to-single-source&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-t2-classify_dispatch_failure-contracts-re-export-genesis">Task 4: T2 <code>classify_dispatch_failure</code> 迁 contracts + re-export + genesis 差异表落盘</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong>（迁移零行为变化；消费面 8 点零改动）</p>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/contracts/failure.py</code>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:3411-3436</code>（定义体移出，原位改 re-export）
+- Modify: <code>docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md</code>（追加 §4 差异表）
+- Test: <code>tests/unit/contracts/test_failure_classify.py</code>（新）+ 既有 <code>tests/unit/pipeline/test_retry_taxonomy.py</code> 全绿</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>shenbi.contracts.failure.classify_dispatch_failure(exc: BaseException | None = None, returncode: int | None = None, *, stderr: str = "") -&gt; FailureClass</code>（逐字迁移，含 docstring；<code>exc</code> 形参保留——签名零变化）
+- dispatch_helper.py 原位：<code>from shenbi.contracts.failure import classify_dispatch_failure as classify_dispatch_failure  # noqa: F401, PLC0414</code>（as-alias 显式 re-export 过 mypy no_implicit_reexport[pyproject strict]——#90 教训④；既有 8 消费点 parallel_dispatch :151/:154 + dispatch_helper :3773/:3794/:4345 + chapter_loop :461/:4233/:4638 零改动）</p>
+<ul>
+<li>[ ] <strong>Step 1: 测试（纯函数分类表 + re-export 同一性）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #91 T2: classify_dispatch_failure relocation (contracts layer).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">FailureClass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.failure</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify_dispatch_failure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify_dispatch_failure</span> <span class="k">as</span> <span class="n">re_exported</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rc2_gate</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">classify_dispatch_failure</span><span class="p">(</span><span class="n">returncode</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;write-audit GATE_FAIL x&quot;</span><span class="p">)</span>
+        <span class="ow">is</span> <span class="n">FailureClass</span><span class="o">.</span><span class="n">DETERMINISTIC_GATE</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rc2_plain</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">classify_dispatch_failure</span><span class="p">(</span><span class="n">returncode</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="ow">is</span> <span class="n">FailureClass</span><span class="o">.</span><span class="n">DETERMINISTIC_CONTENT</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_transient_default</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">classify_dispatch_failure</span><span class="p">(</span><span class="n">returncode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="n">FailureClass</span><span class="o">.</span><span class="n">TRANSIENT</span>
+    <span class="k">assert</span> <span class="n">classify_dispatch_failure</span><span class="p">(</span><span class="n">exc</span><span class="o">=</span><span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">))</span> <span class="ow">is</span> <span class="n">FailureClass</span><span class="o">.</span><span class="n">TRANSIENT</span>
+    <span class="k">assert</span> <span class="n">classify_dispatch_failure</span><span class="p">()</span> <span class="ow">is</span> <span class="n">FailureClass</span><span class="o">.</span><span class="n">TRANSIENT</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_reexport_identity</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">re_exported</span> <span class="ow">is</span> <span class="n">classify_dispatch_failure</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 红</strong>（ImportError）→ <strong>Step 3: 迁移</strong>（contracts/failure.py 全文=函数+docstring+<code>from shenbi.contracts.enums import FailureClass</code>；dispatch_helper 原位换 re-export）→ <strong>Step 4: 绿 + 既有消费面回归</strong>：</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_failure_classify.py tests/unit/pipeline/test_retry_taxonomy.py -q</code> → 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: genesis 差异表落盘（spec 追加 §4）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">## 4. genesis 差异表（r2.3c 落盘——用户裁定输入；验收 4）</span>
+
+| 场景 | genesis 现行为（count-only） | 接线后（failure_class 短路） | 差异 |
+|---|---|---|---|
+| dispatch rc=2（DETERMINISTIC_CONTENT/GATE） | <span class="sb">`genesis._handle_failure`</span> :445 count-only——烧满 <span class="sb">`max_revision_retries`</span>（默认 3 次尝试）才 escalation | 首败即 escalation（非 TRANSIENT 短路） | <span class="gs">**有**</span>：重试次数 3→0 |
+| dispatch rc=1/-1/异常（TRANSIENT） | 同上 count-only 重试 | 不短路，count-only 重试（行为同） | 无 |
+| G4/结构失败路径 | 不经 <span class="sb">`_handle_failure`</span> dispatch 分支 | 同左 | 无 |
+
+<span class="gs">**裁定请求**</span>：rc=2 类确定性失败在 genesis（创世重跑场景）是否切换为零重试直通 escalation。裁定通过 → follow-up 小批落「形参+短路+接线」三件；裁定驳回 → 保持 count-only（差异表归档备查）。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/failure.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/contracts/test_failure_classify.py<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/superpowers/specs/2026-11-01-spec91-state-concurrency-discipline.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #91 T2 classify_dispatch_failure 迁 contracts/failure.py+re-export——genesis 差异表落盘挂裁定&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-t3a-ledger_archive">Task 5: T3a ledger_archive 锁窗口闭合（红绿两测）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: tdd_red_green</strong>（红=丢失更新演示；绿=锁内读结构断言——两测形态不同）</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/ledger_archive.py:146-252</code>（<code>archive_ledger</code>——:158 读+锚检/拼接整体移入 :251 <code>with path_lock(live_path):</code>；归档半边 :260-265 不动=蓝本）
+- Modify: <code>src/shenbi/pipeline/truth_io.py</code>（新增公共探针 <code>path_lock_held(path: Path | str) -&gt; bool</code>——<code>entry = _PATH_LOCKS.get(str(path)); return entry is not None and entry[0].locked()</code>；纯读无副作用；供绿测 spy 与后续锁纪律测试用——r2 审查 I2：避免 tests import <code>_PATH_LOCKS</code> 撞 lint_private_imports 基线[增量=零政策]）
+- Test: <code>tests/unit/pipeline/test_ledger_archive_lock_window.py</code>（新）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>truth_io.path_lock</code>（既有）、<code>safe_write</code>（既有）
+- Produces: <code>archive_ledger</code> 读-合-写全锁内（对外签名 <code>(project_dir: Path, resolved_through: int, spec: LedgerSpec) -&gt; list[str]</code> 零变化）</p>
+<ul>
+<li>[ ] <strong>Step 1: 红测（注入 <code>_section_fields</code> 编排线程 B 写入——当前码 B 丢失）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #91 T3: ledger_archive lock-window red/green (no sleep, deterministic).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">ledger_archive</span> <span class="k">as</span> <span class="n">la</span>
+
+<span class="c1"># spy uses the PUBLIC probe added in this task (r2 审查 I2：tests 私有 import 会撞 lint_private_imports 基线增量=零)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">path_lock_held</span>
+
+<span class="c1"># fixture MUST pass POOL_SPEC shape gates: `## 总览` + `## 详情` + a</span>
+<span class="c1"># 详情-section matching HOOK_HEADING_RE (blueprint: tests/unit/pipeline/test_ledger_archive.py:150-155)</span>
+<span class="n">LIVE_TEXT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">type: truth</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2"># 伏笔池</span><span class="se">\n\n</span><span class="s2">## 总览</span><span class="se">\n\n</span><span class="s2">| Hook ID（钩子名） | 当前生命周期 | 种植章 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;| MH01（灵印） | RESOLVED | 4 |</span><span class="se">\n\n</span><span class="s2">## 详情</span><span class="se">\n\n</span><span class="s2">### MH01（灵印）</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;- lifecycle_state: RESOLVED</span><span class="se">\n</span><span class="s2">- resolve_chapter: 30</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="n">B_LINE</span> <span class="o">=</span> <span class="s2">&quot;- lifecycle_state: RESOLVED-by-b</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># B&#39;s committed update</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_b</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">la</span><span class="o">.</span><span class="n">path_lock</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>  <span class="c1"># B takes the lock properly</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">la</span><span class="o">.</span><span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="n">text</span> <span class="o">+</span> <span class="n">B_LINE</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_red_thread_b_update_lost</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># RED on current code: A reads OUTSIDE the lock; B&#39;s locked write</span>
+    <span class="c1"># during A&#39;s parse window is clobbered by A&#39;s blind write.</span>
+    <span class="n">live</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">LIVE_TEXT</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">gate</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+    <span class="n">proceed</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+    <span class="n">orig</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">_section_fields</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">hooked</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gate</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+            <span class="n">gate</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+            <span class="n">proceed</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># hold A in its lock-free window</span>
+        <span class="k">return</span> <span class="n">orig</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">la</span><span class="p">,</span> <span class="s2">&quot;_section_fields&quot;</span><span class="p">,</span> <span class="n">hooked</span><span class="p">)</span>
+    <span class="n">errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_a</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">la</span><span class="o">.</span><span class="n">archive_ledger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">la</span><span class="o">.</span><span class="n">POOL_SPEC</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">run_a</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">gate</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span>  <span class="c1"># shape gates passed; A parked in its lock-free parse window</span>
+    <span class="n">_write_b</span><span class="p">(</span><span class="n">live</span><span class="p">)</span>  <span class="c1"># B commits inside A&#39;s window</span>
+    <span class="n">proceed</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">errors</span>
+    <span class="k">assert</span> <span class="n">B_LINE</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">live</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># B LOST → red asserts the defect</span>
+</code></pre></div>
+<p>（<code>POOL_SPEC</code> 为实际模块常量（ledger_archive.py:82）；<code>resolved_through=30</code> 使 RESOLVED 判定入窗——若 re-anchor 后窗口判定不同，按 <code>test_ledger_archive.py</code> 既有断言调参；红测断言「B 丢失」在当前码为 True=测试通过=缺陷被钉死。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑红</strong>（当前码下 B 行丢失 → 断言 <code>B_LINE not in ...</code> 通过=缺陷实存证据；若断言失败说明窗口未如预期开——调注入点行号后重试）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 绿测（修复后形态——锁内读结构断言）</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_green_read_holds_lock</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">live</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">LIVE_TEXT</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orig</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">read_text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">spy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">live</span><span class="p">:</span>  <span class="c1"># only watch the live ledger file</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_lock_held</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>  <span class="c1"># public probe imported at module top (r3 审查 I2)</span>
+        <span class="k">return</span> <span class="n">orig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="s2">&quot;read_text&quot;</span><span class="p">,</span> <span class="n">spy</span><span class="p">)</span>
+    <span class="n">la</span><span class="o">.</span><span class="n">archive_ledger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">la</span><span class="o">.</span><span class="n">POOL_SPEC</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">seen</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">seen</span><span class="p">)</span>  <span class="c1"># every live-read happened under the path lock</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_green_both_writers_survive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>  <span class="c1"># r2 审查 I5；断言落点 r3 审查 C1 修正</span>
+    <span class="n">live</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">live</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">LIVE_TEXT</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">_write_b</span><span class="p">(</span>
+        <span class="n">live</span>
+    <span class="p">)</span>  <span class="c1"># B commits first (properly locked) → B&#39;s line is INSIDE the section span A reads</span>
+    <span class="n">la</span><span class="o">.</span><span class="n">archive_ledger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">la</span><span class="o">.</span><span class="n">POOL_SPEC</span><span class="p">)</span>  <span class="c1"># A archives afterwards</span>
+    <span class="c1"># archive semantics: the whole section span (INCLUDING B&#39;s line) is moved</span>
+    <span class="c1"># verbatim to the archive file and replaced by a tombstone in live.</span>
+    <span class="c1"># &quot;Both writers survive&quot; therefore asserts: B&#39;s line lives on in the</span>
+    <span class="c1"># ARCHIVE file, and the live file carries A&#39;s tombstone marker.</span>
+    <span class="n">archive</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks_archive.md&quot;</span>
+    <span class="k">assert</span> <span class="n">B_LINE</span> <span class="ow">in</span> <span class="n">archive</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># B&#39;s committed update preserved</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="s2">&quot;archived_to&quot;</span> <span class="ow">in</span> <span class="n">live</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># A&#39;s tombstone present (marker per ledger_archive tombstone const; re-anchor on implementation)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 实现（:146-252 重排——<code>with path_lock(live_path):</code> 提前到 :158 读之前，函数体其余缩进一级；单写者行为零变化；归档半边不动）→ 跑双测</strong>（红测断言现在<strong>翻转</strong>：修复后 B 不丢→<code>B_LINE not in</code> 失败——<strong>将红测断言翻转为 <code>assert B_LINE in ...</code> 并改名</strong>？<strong>否</strong>——spec 验收 2 要求「红绿非同一测试翻转」：保留红测文件原断言但在修复 commit 前将其标记 <code>pytest.mark.xfail(strict=True, reason="defect fixed")</code>，绿测独立存在。采用 xfail(strict) 形态：修复后红测变 xfail-strict 通过=防回潮哨兵，绿测=结构断言）</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_ledger_archive_lock_window.py -q</code> → 红(xfail strict)+绿 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: 既有 ledger 测试回归 + Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline<span class="w"> </span>-q<span class="w"> </span>-k<span class="w"> </span><span class="s2">&quot;ledger or archive&quot;</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-3
+tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/ledger_archive.py<span class="w"> </span>src/shenbi/pipeline/truth_io.py<span class="w"> </span>tests/unit/pipeline/test_ledger_archive_lock_window.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #91 T3 ledger_archive 锁窗口闭合——读-合-写全锁内+确定性红绿双测（xfail 哨兵防回潮）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-t3b-dispatch_helper-outline-path_lock">Task 6: T3b dispatch_helper outline 合并锁内重读重验 + path_lock 不可重入警告</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: tdd_red_green</strong>（注入 <code>_strip_hr_lines</code>）</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:2592-2644</code>（<code>:2596 base_text = target.read_text(...)</code> 与 <code>:2599 _strip_hr_lines</code>、<code>:2610 check_new_volume_anchor</code> 移入 <code>:2618 with path_lock(target):</code> 内；锁内重读 <code>base_text = target.read_text(...) if target.exists() else ""</code> 后再 strip/验锚/合并）
+- Modify: <code>src/shenbi/pipeline/truth_io.py:79-91</code>（path_lock docstring 追加不可重入警告）
+- Test: <code>tests/unit/pipeline/test_outline_merge_lock_window.py</code>（新；形态同 Task 5——注入 <code>_strip_hr_lines</code> 为编排点，红=锁外读+并发写者行丢失[xfail-strict 哨兵]，绿=Path.read_text spy 断言 <code>path_lock_held(path)</code>（Task 5 公共探针——r2 审查 I2/M4））</p>
+<p><strong>Interfaces:</strong>
+- Produces: outline 合并读-验-写全锁内；<code>path_lock</code> docstring 含「Lock is NOT reentrant (threading.Lock): never call write_truth_file on the same path while holding it」。</p>
+<ul>
+<li>[ ] Step 1-2: 红测（同 Task 5 pattern；<code>_strip_hr_lines</code> 注入 Event——编排点在 :2599 锁前窗口）→ 跑红</li>
+<li>[ ] Step 3: 绿测（spy read_text 断言锁内）→ 实现（锁内重读重验锚——<code>anchor_error</code> 在锁内基于<strong>重读后</strong>的 base_text 计算）</li>
+<li>[ ] Step 4: 双测绿 + docstring 警告 + 既有 outline/merge 测试回归：</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline -q -k "outline or merge or dispatch_helper" 2&gt;&amp;1 | tail -3</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/truth_io.py<span class="w"> </span>tests/unit/pipeline/test_outline_merge_lock_window.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #91 T3 outline 合并锁内重读重验锚+path_lock 不可重入 docstring 警告&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-t4-retry">Task 7: T4 retry 状态写回归封装（三新存取器 + 全写点换装 + 三组测试）</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: tdd_red_green（新 API）+ characterization（charge/feedback 并发语义）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py</code>（<code>charge_retry_budget</code> 后新增五方法——increment_retry_budget/set_retry_feedback/pop_retry_feedback/get_retry_feedback/clear_retry_feedback_prefix）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（全部写点换装——清单见下）
+- Modify: <code>src/shenbi/pipeline/triggers.py:594/:746</code>、<code>src/shenbi/pipeline/cli.py:1324-1346</code>
+- Test: <code>tests/unit/pipeline/test_retry_accessors.py</code>（新）+ 既有 <code>test_state_concurrency.py</code> 全绿</p>
+<p><strong>Interfaces（Produces，state.py——全部 <code>with self._lock:</code>；feedback 三存取器收 <code>key: str</code>[『chN-skill』形]——调用面 12+ 点全部已持有/手拼 key 字符串[chapter_loop rk 产物 / cli f-string]，二元组形态反而要求每调用点重构；counts/budget 存取器保持 (chapter, skill) 对齐既有三方法惯例——r1 审查 I6 裁定）：</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">increment_retry_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Thread-safe serial +=1 of retry_budget_consumed (spec #91 T4).</span>
+
+<span class="sd">    NOT charge_retry_budget: charge is idempotent max() for wave aggregation</span>
+<span class="sd">    replay; serial paths need monotonic increments that never lose counts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rk</span> <span class="o">=</span> <span class="n">retry_key</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">skill</span><span class="p">)</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+        <span class="n">consumed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rk</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="n">rk</span><span class="p">]</span> <span class="o">=</span> <span class="n">consumed</span>
+        <span class="k">return</span> <span class="n">consumed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_retry_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feedback</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Locked write of retry_feedback[key] (spec #91 T4; key = &#39;chN-skill&#39;).&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">feedback</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pop_retry_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Locked pop of retry_feedback[key].&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_retry_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Locked read of retry_feedback[key].&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>写点换装穷举清单（re-anchor 后逐点）：</strong>
+- <code>retry_counts</code>：:1954（<code>_handle_failure</code> 内 → <code>count = state.increment_retry(chapter, step.skill)</code>）；:4726-4727（g4_hard 自动重试路径 → 同）；<code>:4737</code> 裸 pop → <code>state.reset_retry(chapter, step.skill)</code>；<code>_reset_retries</code> :2056-2058 体 → <code>state.reset_retry(chapter, step.skill)</code>（7 调用方零改动）
+- <code>retry_budget_consumed</code> 索引写 3 区域 → <code>state.increment_retry_budget(chapter, skill)</code>（:1959-1960 <code>_handle_failure</code> 内[返回值供 <code>consumed</code> 判断]；:4412-4413 monitor_rewind；:4712-4713 g4_hard）；<strong>事件发射顺序重排（r1 审查 I5；r3 审查 M3：双站点同型都改）</strong>：现码 monitor_rewind（:4402-4405）与 g4_hard（:4704-4708）<strong>两处</strong>均为 <code>_emit_retry_event</code> 在增量<strong>前</strong>发射且 <code>loop_id=.get()+1</code>——两处都换装为<strong>先 <code>consumed = state.increment_retry_budget(...)</code> 再发射、<code>loop_id=consumed</code></strong>（返回值已含 +1，字面「返回值+1」会得旧值+2 的可观测漂移）；不新增 budget 读存取器（spec 未要求）
+- <code>retry_feedback</code> 赋值 12 点 → <code>state.set_retry_feedback(rk_or_fstring, accumulate_retry_feedback(state, rk, failures, ...))</code>（key 形态直传——chapter_loop :1879/:4191/:4220/:4252/:4272/:4387/:4524/:4589/:4629/:4697 + cli :1324-1329/:1345-1350）；裸 pop :2416（章闭 sweep——前缀批量清理，单键存取器接不住：新增 <code>clear_retry_feedback_prefix(prefix: str) -&gt; None</code> 锁内批量 pop）；triggers:746 → <code>state.pop_retry_feedback(f"ch{chapter}-{step.skill}")</code>；<code>_clear_retry_feedback</code> :1244 体 → <code>state.pop_retry_feedback(retry_key)</code>（签名收 str key 直传，4 消费点零改动）；读点 :594(triggers)/:1316/:2030-2031 → <code>state.get_retry_feedback(key)</code></p>
+<p><strong>三组测试（tests/unit/pipeline/test_retry_accessors.py；<code>_fresh_state()</code> 抄 tests/unit/pipeline/test_state_concurrency.py:11 同名助手形态——r1 审查 M3）：</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_increment_retry_concurrent_equals_serial_sum</span><span class="p">():</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">increment_retry</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+    <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">),</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+    <span class="n">t1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">t2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="n">t2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">400</span>  <span class="c1"># == serial sum</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_charge_budget_concurrent_is_max_not_sum</span><span class="p">():</span>  <span class="c1"># characterization</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">charge_retry_budget</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="n">ts</span> <span class="o">=</span> <span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span>
+    <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span>  <span class="c1"># max, NOT 10</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_increment_budget_monotonic</span><span class="p">():</span>  <span class="c1"># serial +=1, never loses</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">increment_retry_budget</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">increment_retry_budget</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_feedback_last_writer_wins</span><span class="p">():</span>  <span class="c1"># characterization (STORE_SUBSCR atomic)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">get_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">pop_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">get_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clear_prefix_sweep</span><span class="p">():</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-a&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-b&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">clear_retry_feedback_prefix</span><span class="p">(</span><span class="s2">&quot;ch1-&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">get_retry_feedback</span><span class="p">(</span><span class="s2">&quot;ch1-a&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] Step 1: 写测试（红：五存取器未定义）→ Step 2: 跑红 → Step 3: state.py 实现五方法 → Step 4: 跑绿 → Step 5: 写点换装（清单逐点；每文件换装后跑 <code>uv run pytest tests/unit/pipeline -q -k "retry or chapter_loop or state"</code>）→ Step 6: 验收 3 grep 三连零：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;retry_budget_consumed\[&quot;</span><span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w">        </span><span class="c1"># 期望空</span>
+grep<span class="w"> </span>-nE<span class="w"> </span><span class="s2">&quot;retry_counts\[|retry_counts\.pop&quot;</span><span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w">  </span><span class="c1"># 期望空</span>
+grep<span class="w"> </span>-nE<span class="w"> </span><span class="s2">&quot;retry_feedback\[|retry_feedback\.(pop|get)&quot;</span><span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;genesis.retry_feedback&quot;</span><span class="w">  </span><span class="c1"># 期望空（r3 审查 M1：面扩到 pop/get；genesis 域 4 写点 r2.3b 挂账排除——过滤后零）</span>
+</code></pre></div>
+<ul>
+<li>[ ] Step 7: 生产调用方 grep ≥1：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;increment_retry(\|reset_retry(\|increment_retry_budget(&quot;</span><span class="w"> </span>src/shenbi/pipeline/<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;def \|_reset_retry_budget\|_charge_wave&quot;</span><span class="w">  </span><span class="c1"># 期望多行</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/unit/pipeline/test_retry_accessors.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #91 T4 retry 状态写回归封装——三新存取器+前缀清扫+全写点换装（counts/budget/feedback）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-t5-semaphore-run_post_draft_pair-semaphore1">Task 8: T5 semaphore 可选化 + <code>run_post_draft_pair</code> 改名 + Semaphore(1) 戏法删除</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py:92-96/:118</code>（<code>semaphore: Semaphore | None = None</code>；体内 <code>ctx = nullcontext() if semaphore is None else semaphore; with ctx:</code>；头部 <code>from contextlib import nullcontext</code>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:3636</code>（<code>run_parallel_post_draft_steps</code> → <code>run_post_draft_pair</code>；docstring 首行保持 SEQUENTIALLY 自述）；:3774-3780（Semaphore import+构造+传参删除——<code>dispatch_serial_reviews</code> 内调 <code>dispatch_with_retry(task, state=state)</code>）；:4179 调用点改名
+- Test: 既有测试接线（grep 枚举：<code>tests/pipeline/test_parallel_steps.py</code>、<code>tests/unit/pipeline/test_chapter_loop.py</code>、<code>tests/unit/pipeline/test_retry_taxonomy.py</code>、<code>tests/unit/pipeline/test_spec83_stale_declarations.py</code>、<code>tests/integration/test_spec83_stale_chain.py</code>——字符串 monkeypatch/真调用逐点改新名）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>dispatch_with_retry(task: ReviewTask, semaphore: Semaphore | None = None, state: Any = None)</code>（既有必填调用方 parallel_dispatch.py:269 <code>Semaphore(4)</code> 传入零影响）；<code>run_post_draft_pair(state: PipelineState) -&gt; tuple[Any, Any]</code></p>
+<ul>
+<li>[ ] Step 1: <code>grep -rn "run_parallel_post_draft_steps" src/ tests/</code> 现场枚举接线点（spec r2.3 清单已声明大半失效）→ 逐点改新名</li>
+<li>[ ] Step 2: semaphore 可选化 + 戏法删除 → Step 3: 验收 5 grep：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;Semaphore&quot;</span><span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w">   </span><span class="c1"># 期望空</span>
+</code></pre></div>
+<ul>
+<li>[ ] Step 4: 回归 <code>uv run pytest tests/unit/pipeline tests/pipeline -q -k "parallel or post_draft or serial" 2&gt;&amp;1 | tail -3</code>（全绿）</li>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>tests/lock-tool-hashes.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/parallel_dispatch.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/test_parallel_steps.py<span class="w"> </span>tests/unit/pipeline/test_chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_retry_taxonomy.py<span class="w"> </span>tests/unit/pipeline/test_spec83_stale_declarations.py<span class="w"> </span>tests/integration/test_spec83_stale_chain.py<span class="w"> </span>tests/tiers/deps.json<span class="w">  </span><span class="c1"># pathspec 收窄（r1 审查 M4；以 Step 1 grep 实际命中为准增删）</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #91 T5 semaphore 可选化 nullcontext+run_post_draft_pair 正名+Semaphore(1) 戏法删除&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-9-index-plan">Task 9: 验收汇跑 + INDEX plan 指针</h3>
+<p><strong>复杂度: infra</strong> ｜ <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/specs/INDEX.md</code>（#91「对应 plan」→ 本 plan 路径）</p>
+<ul>
+<li>[ ] Step 1: 验收 1-6 逐条实跑并粘贴输出进 progress.md <code>## 验收证据</code>（验收 grep 六连 + <code>uv run pytest tests/unit/test_gate_passed_single_source.py tests/unit/pipeline/test_ledger_archive_lock_window.py tests/unit/pipeline/test_outline_merge_lock_window.py tests/unit/pipeline/test_retry_accessors.py -q</code>）</li>
+<li>[ ] Step 2: <code>just check</code> EXIT 0（完整输出留 progress.md 门禁输出节）</li>
+<li>[ ] Step 3: INDEX 指针 + Commit：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/specs/INDEX.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: spec #91 INDEX 登记对应 plan 指针&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="spec-2-task">验收覆盖表（spec §2 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 零残留+11 点+lint 首跑零红</td>
+<td>T2/T3</td>
+<td><code>grep -rn "def _gate_passed" src/</code> 空；<code>uv run python tools/lint_gate_status_comparisons.py</code> exit 0；断言表 9 站点</td>
+</tr>
+<tr>
+<td>2 T3 红绿双测（形态不同）</td>
+<td>T5/T6</td>
+<td><code>pytest test_ledger_archive_lock_window.py test_outline_merge_lock_window.py</code>（xfail-strict 哨兵+spy 结构断言）</td>
+</tr>
+<tr>
+<td>3 budget/feedback/counts 裸写零+生产调用 ≥1</td>
+<td>T7</td>
+<td>三连 grep 空 + 调用方 grep 多行</td>
+</tr>
+<tr>
+<td>4 genesis 差异表落盘</td>
+<td>T4</td>
+<td>spec §4 存在+内容=rc=2 单点对比+裁定请求段</td>
+</tr>
+<tr>
+<td>5 Semaphore 零</td>
+<td>T8</td>
+<td><code>grep -rn "Semaphore" src/shenbi/pipeline/chapter_loop.py</code> 空</td>
+</tr>
+<tr>
+<td>6 just check</td>
+<td>T9</td>
+<td>exit 0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="self-review">Self-Review 记录</h2>
+<ul>
+<li>覆盖：spec T1→Task1-3、T2→Task4、T3→Task5-6、T4→Task7、T5→Task8、验收 6→Task9 ✓；genesis 三件挂裁定（不落码）已从任务面剔除 ✓</li>
+<li>占位符：Task 5 <code>spec = ...</code> 处标注 re-anchor 义务（模块常量名开工前 grep——非 TBD，是显式现场枚举步骤）✓</li>
+<li>类型一致：<code>gate_passed(result: Any, *, accept_skip: bool = False) -&gt; bool</code> 全 plan 唯一签名；<code>increment_retry_budget(chapter, skill) -&gt; int</code> 与调用点返回值消费一致 ✓</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

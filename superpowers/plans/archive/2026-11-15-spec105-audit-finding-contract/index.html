@@ -1,0 +1,1689 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec105-audit-finding-contract/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #105 审计发现契约硬化（audit-finding-contract）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #105 审计发现契约硬化（audit-finding-contract）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec105-audit-finding-contract.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec105-audit-finding-contract/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #105 审计发现契约硬化（audit-finding-contract）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec105-audit-finding-contract.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-105-audit-finding-contractimplementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #105 审计发现契约硬化（audit-finding-contract）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-severity-status-vocab-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: severity 单源模块 + status-vocab 登记域先行（spec T1 前置）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-fixtures-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: fixtures 扩容 + 差分基线 + 六消费点换装（spec T1 换装）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-ast-lintseverity-spec-t1-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: AST lint——severity 交替字面量单源守卫（spec T1 lint）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-check_audit_severity_vocab-vol1-spec-t2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: check_audit_severity_vocab + 双点位接线 + vol1 回放（spec T2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-g4avdispatch_integrityspec-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 审计派发前置预检 + G4.av.dispatch_integrity（spec T3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-g4_format_examples-spec-t4a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: G4_FORMAT_EXAMPLES 名册差集 + 补键（spec T4a）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-aggregate-severity-longitudinal-parser-spec-t4b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: aggregate 条目级 severity + longitudinal parser 同步（spec T4b）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-ending_constraints-310spec-t4c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: ending_constraints 注入窗 3→10（spec T4c）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-105-audit-finding-contractimplementation-plan">Spec #105 审计发现契约硬化（audit-finding-contract）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> severity 词表单源化（对齐 enums.Severity 登记域，六消费点行为保持换装）+ 词表外 fail-loud（G4.av.vocab 三段式判别器）+ 派发完整性语义拆分（审计派发前置预检+G4.av.dispatch_integrity）+ 反馈与聚合卫生（EXAMPLES 补键/聚合条目级 severity/ending 窗 3→10）。</p>
+<p><strong>Architecture:</strong> 新 <code>src/shenbi/contracts/severity.py</code> 作为 severity 传感/词表单源（Literal 形常量对齐 status-vocab 登记域 + 运行时元组 + 四锚定形态正则 + 三尾巴），六消费点全部 import 换装并以差分基线钉死行为保持；<code>llm_output_integrity.check_audit_severity_vocab</code> 以「形态槽位通配捕获+统一后处理管线（upper 归一→判别器→legend 拆分豁免→查表）」实现词表外 fail-loud，双点位接线（dispatch_helper is_audit 首线+generic.py pwi）；审计派发前置预检复用 #51 ghost-chain guard 控制流与 escalation reads 三态语义；聚合渲染与纵向 parser 同步升级双格式容差。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+/pathlib/re/structlog/pytest；G0/G4 门禁框架；AST lint（#88/#89 先例 <code>_pattern_arg</code>）。</p>
+<p><strong>Spec↔Task 映射</strong>：spec T1→plan T1-T3（登记域+模块 / 换装+差分 / AST lint）；spec T2→plan T4；spec T3→plan T5；spec T4→plan T6-T8（EXAMPLES / 聚合渲染 / ending 窗）。本 plan 全部 task 为 <strong>infra</strong>（协调者亲自实现，v7.1 单模型裁定）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（ruff T20 零豁免）——用户面文本走 <code>shenbi.cli_utils.echo</code>，日志走 structlog；<code>tools/</code> 脚本可用 print（先例：check_fixture_mirror.py）但 lint 工具输出走 exit code+stderr。</li>
+<li>gate/checker 纯函数幂等、无副作用（G4.av.* 两 checker 只读文件）。</li>
+<li>测试环境同构：一切验证走 <code>just</code>/<code>uv run</code>；fixtures 只能是真实 skill 输出（G0.9）——vol1 语料副本<strong>逐字节复制</strong>（不加头），provenance 走 sidecar <code>tests/fixtures/audits/PROVENANCE.md</code>（G0.11 MIRROR_MAP 不触及）。</li>
+<li>差分基线先冻结后换装（#99 先例）；换装 commit 前基线文件必须已在盘。</li>
+<li>conventional commits：<code>feat:</code>/<code>chore:</code>/<code>test:</code>/<code>docs:</code>。</li>
+<li>每 task commit 后产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 重审）；无 audit 不得开下一 task。</li>
+<li><strong>对 spec r2.6 的两处已裁定偏离（r3-MC 注记，执行期记入 spec-deviations.md）</strong>：①spec T1 称「四锚定形态（bracket/bold/cell/key）编译正则单源」——plan 收缩为 bracket/bold 两锚定（cell/key 由 audit_aggregate 本地组合重建，行为保持且免零消费符号——YAGNI）；②spec (b) 面称「provenance 头注明来源章」——plan 改 PROVENANCE.md sidecar（逐字节副本保差分基线纯净，G0.11 MIRROR_MAP 不触及）。</li>
+</ul>
+<hr />
+<h3 id="task-1-severity-status-vocab-spec-t1">Task 1: severity 单源模块 + status-vocab 登记域先行（spec T1 前置）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/framework/status-vocab.md</code>（AuditSeverity 行后新增两行）
+- Create: <code>src/shenbi/contracts/severity.py</code>
+- Modify: <code>tests/unit/tools/test_status_vocab_registry.py:19</code>（计数锁 47→49）
+- Test: <code>tests/unit/contracts/test_severity.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.contracts.enums.Severity</code>（enums.py:9 <code>Literal["BLOCKING","CRITICAL","MINOR"]</code>）
+- Produces（后续 task 全部依赖）:
+  - <code>RoutingTier: Literal["BLOCKING", "CRITICAL"]</code>（Literal 形常量——registry 行符号）
+  - <code>AggregateVocab: Literal[Severity, "WARNING", "ERROR"]</code>（PEP 586 展平）
+  - <code>ROUTING_TIERS: tuple[str, ...]</code>、<code>AGGREGATE_VOCAB: tuple[str, ...]</code>（<code>get_args</code> 派生运行时元组）
+  - <code>ROUTING_HARD_TIER_ALIASES: tuple[str, ...] = ("ERROR",)</code>
+  - <code>SEV_ENUM_TAIL: str</code>（= revision_router.py:90 <code>_SEV_ENUM_TAIL</code> 原文迁入）
+  - <code>NEGATION_PAYLOAD_TAIL: str</code>、<code>QUOTED_VALUE_TAIL: str</code>（:102/:120 原文迁入）
+  - <code>BLOCKING_BRACKET_LABEL_RE</code>/<code>BLOCKING_BOLD_LABEL_RE</code>: <code>re.Pattern[str]</code>——BLOCKING 标签锚定（bracket 含复合标签后缀；T5 dispatch_integrity 真消费）——r2-M5 YAGNI 收缩（audit-T4 轮 2：泛用四形态锚定删除，避免零消费死面：<strong>不建 CELL_ANCHOR_RE/KEY_ANCHOR_RE</strong>——cell/key 传感由 audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建（行为保持），单源模块只建有生产消费方的锚定）
+  - <code>SECTION_HEADER_RE</code>: <code>re.Pattern[str]</code>——<code>^## (BLOCKING|CRITICAL|MINOR|WARNING|ERROR) Findings</code>（元组组合，含 MINOR——修 report_longitudinal:558 缺词）
+  - <code>CJK_SEVERITY_WORDS: frozenset[str] = frozenset({"严重","高","重大","中","低","警告"})</code>
+  - <code>KEY_NAME_TOKENS: frozenset[str] = frozenset({"SEVERITY", "严重度"})</code>
+  - <code>ROUTING_BLOCKING_BRACKET_WORDS: tuple[str, ...] = ("BLOCKING",)</code> 与 <code>ROUTING_CRITICAL_BRACKET_WORDS: tuple[str, ...] = ("CRITICAL", "ERROR")</code>（<strong>bracket 形词组单源</strong>——CRITICAL 形必须只含 CRITICAL|ERROR，混入 BLOCKING=行为变更，I-1 修正）
+  - <code>AGGREGATE_VOCAB_SET: frozenset[str] = frozenset(AGGREGATE_VOCAB)</code>（T4 管线查表消费——I-2 缝隙闭合：T1 即定义）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试先行</strong>——<code>tests/unit/contracts/test_severity.py</code>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #105 T1: severity single-source module (registry-aligned).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_args</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_routing_tier_literal_and_runtime_tuple</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">ROUTING_TIERS</span><span class="p">,</span> <span class="n">RoutingTier</span>
+
+    <span class="k">assert</span> <span class="n">get_args</span><span class="p">(</span><span class="n">RoutingTier</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ROUTING_TIERS</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_aggregate_vocab_flattens_and_supersedes_severity</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Severity</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">AGGREGATE_VOCAB</span><span class="p">,</span> <span class="n">AggregateVocab</span>
+
+    <span class="k">assert</span> <span class="n">get_args</span><span class="p">(</span><span class="n">AggregateVocab</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span> <span class="s2">&quot;MINOR&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">AGGREGATE_VOCAB</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span> <span class="s2">&quot;MINOR&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_args</span><span class="p">(</span><span class="n">Severity</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">AGGREGATE_VOCAB</span><span class="p">)</span>  <span class="c1"># 子集断言</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hard_tier_aliases_excluded_from_tier_values</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">ROUTING_HARD_TIER_ALIASES</span><span class="p">,</span> <span class="n">RoutingTier</span>
+
+    <span class="k">assert</span> <span class="n">ROUTING_HARD_TIER_ALIASES</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">,)</span>
+    <span class="k">assert</span> <span class="s2">&quot;ERROR&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">RoutingTier</span><span class="p">)</span>  <span class="c1"># registry 值集相等契约</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_anchored_forms_match_in_vocab_words_only</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">AGGREGATE_VOCAB</span><span class="p">,</span>
+        <span class="n">BOLD_ANCHOR_RE</span><span class="p">,</span>
+        <span class="n">BRACKET_ANCHOR_RE</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">BRACKET_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;- [MINOR] something&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">BRACKET_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;- [MAJOR] something&quot;</span><span class="p">)</span>  <span class="c1"># 词表外不入传感域</span>
+    <span class="k">assert</span> <span class="n">BOLD_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;**BLOCKING**&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">BOLD_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;**CRITICAL**&quot;</span><span class="p">)</span>  <span class="c1"># M-10: bold 形全词断言</span>
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">AGGREGATE_VOCAB</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">BRACKET_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- [</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">] x&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_section_header_re_includes_minor</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">SECTION_HEADER_RE</span>
+
+    <span class="k">assert</span> <span class="n">SECTION_HEADER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;## MINOR Findings (3)&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">SECTION_HEADER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;## ERROR Findings (1)&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">SECTION_HEADER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;## Resonance 报告&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测确认失败</strong>——<code>uv run pytest tests/unit/contracts/test_severity.py -x -q</code>（ModuleNotFoundError: shenbi.contracts.severity）</li>
+<li>[ ] <strong>Step 3: 落 <code>src/shenbi/contracts/severity.py</code></strong>——要点：模块 docstring 声明「severity 传感/词表单源（spec #105 T1）——登记域 RoutingTier/AggregateVocab 见 docs/framework/status-vocab.md」；常量与正则全部按 Interfaces 块定义；<strong>bracket/bold 两锚定形态正则以元组组合构造</strong>（r3-I2：cell/key 传感不建模块锚定——audit_aggregate 换装时本地从 AGGREGATE_VOCAB 组合重建，行为保持；注释引用迁出来源 audit_aggregate.py:46-47/revision_router.py:127-146 保留原 probe 教训注释的压缩版）；<code>SECTION_HEADER_RE</code> 用 <code>re.M</code>；<code>AGGREGATE_VOCAB_SET = frozenset(AGGREGATE_VOCAB)</code> 同模块落定（T4 查表消费——I-2）。</li>
+<li>[ ] <strong>Step 4: 跑测通过</strong>——<code>uv run pytest tests/unit/contracts/test_severity.py -q</code> 全绿</li>
+<li>[ ] <strong>Step 5: status-vocab.md 新增两行</strong>——在 AuditSeverity 行（:21）后插入（5 列格式严格对齐邻行）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>| RoutingTier | shenbi.contracts.severity.RoutingTier | BLOCKING\|CRITICAL | 审计产出（escalation 路由两档；legacy <span class="sb">`[ERROR]`</span> 硬档别名=ROUTING_HARD_TIER_ALIASES，不入值集——audit_layer 消费别名非值集，r2-M8 写准） | revision_router、chapter_loop、parallel_dispatch |
+| AggregateVocab | shenbi.contracts.severity.AggregateVocab | BLOCKING\|CRITICAL\|MINOR\|WARNING\|ERROR | 审计产出（聚合面；WARNING/ERROR 为 legacy 词） | audit_aggregate、report_longitudinal |
+</code></pre></div>
+<p>同时把 :21 AuditSeverity 行「消费点」列的失实声明（<code>escalation 路由（regex 域大小写归一后比对，revision_router.py、parallel_dispatch.py）</code>）改为 <code>审计产出 severity 三档（T2 fail-loud 校验域）</code>——死线消费声明修真。
+- [ ] <strong>Step 6: 计数锁 47→49</strong>——<code>tests/unit/tools/test_status_vocab_registry.py:19</code> <code>assert len(rows) == 47</code> → <code>== 49</code>；跑 <code>uv run pytest tests/unit/tools/test_status_vocab_registry.py -q</code> 全绿（若 reconcile 面报 RoutingTier/AggregateVocab 解析失败：确认 severity.py 的 Literal 是模块级 <code>Name = Literal[...]</code> 直接赋值——<code>_enum_or_literal_values</code> 经 <code>_resolve_via_import</code>+<code>__args__</code> 解析，勿用函数内定义或 tuple 直接赋值）。
+- [ ] <strong>Step 7: lint 面自证</strong>——<code>uv run python tools/lint_status_strings.py</code>（若其为 just check 内 lint 则跑对应 just 目标）确认 <code>_registry_union()</code> 扩集无红、<code>_unregistered_code_domains</code> 无新 unregistered。
+- [ ] <strong>Step 8: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/framework/status-vocab.md<span class="w"> </span>src/shenbi/contracts/severity.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/contracts/test_severity.py<span class="w"> </span>tests/unit/tools/test_status_vocab_registry.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T1a — contracts/severity.py 单源模块+status-vocab RoutingTier/AggregateVocab 双行登记（47→49）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-fixtures-spec-t1">Task 2: fixtures 扩容 + 差分基线 + 六消费点换装（spec T1 换装）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/audits/</code>（vol1 真实审计逐字节副本 ~10 份）+ <code>tests/fixtures/audits/PROVENANCE.md</code>
+- Create: <code>tools/gen_severity_diff_baseline.py</code>
+- Create: <code>tests/baselines/severity-swap/</code>（基线 JSON）
+- Modify: <code>src/shenbi/pipeline/revision_router.py:90-146</code>（尾巴与双正则换装）
+- Modify: <code>src/shenbi/pipeline/audit_aggregate.py:34-79</code>（_SEV_WORDS 与锚定族换装）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:672-683</code>（_BLOCKING_MARKER_RE 换装）
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py:365-386</code>（consolidator 正则换装）
+- Modify: <code>src/shenbi/pipeline/audit_layer.py:38</code>（_ERROR_LABEL_RE 换装）
+- Modify: <code>tools/report_longitudinal.py:558</code>（节头正则换装+MINOR 修复）
+- Test: <code>tests/unit/pipeline/test_severity_swap_differential.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 全部符号。
+- Produces: 六消费点全部 import 单源符号（<strong>无本地交替词表</strong>——单词字面量分支[key/bold 单词面、table-bold、单字标签]按行为保持设计保留，M-11 措辞归真）；<code>gen_severity_diff_baseline.py &lt;corpus_dir&gt; &lt;out_json&gt;</code> CLI。</p>
+<ul>
+<li>[ ] <strong>Step 1: 语料选章</strong>——按 r2.6 矩阵（文件数口径）选覆盖 union 的 ~10 份（每词≥1、每锚定形态≥1、含 heading 形 <code>## BLOCKING</code> 与 <code>## FAIL</code> 若语料有——用 grep 实测定稿；<strong>真空洞组合仅 CRITICAL bold 与 ERROR bracket</strong>，MINOR cell 22 份/CRITICAL cell 3 份语料实有必选）。执行期用：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-rlE<span class="w"> </span><span class="s1">&#39;^\s*-\s*\[MINOR\]&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+grep<span class="w"> </span>-rl<span class="w"> </span><span class="s1">&#39;\*\*WARNING\*\*&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+grep<span class="w"> </span>-rl<span class="w"> </span><span class="s1">&#39;| CRITICAL |&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+grep<span class="w"> </span>-rlE<span class="w"> </span><span class="s1">&#39;^#{1,3}\s*##?\s*(BLOCKING|CRITICAL|FAIL)\b&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+grep<span class="w"> </span>-rl<span class="w"> </span><span class="s1">&#39;\*\*ERROR\*\*&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+grep<span class="w"> </span>-rl<span class="w"> </span><span class="s1">&#39;| MINOR |&#39;</span><span class="w"> </span>novel-xinghuo-vol1/audits/chapter-*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 逐字节复制</strong>（不加头）+ <code>tests/fixtures/audits/PROVENANCE.md</code>（每行：文件名｜来源章｜复制日期 2026-11-15｜G0.9 真实 skill 输出声明）。</li>
+<li>[ ] <strong>Step 3: 写差分生成器 <code>tools/gen_severity_diff_baseline.py</code></strong>——遍历 corpus 目录每份 .md，跑五传感并记录逐文件结果 JSON：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Spec #105 T1: freeze five-sensor outputs on the audit corpus (pre/post swap differential, #99 precedent).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sensor_outputs</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Five sensors over one audit file&#39;s content (pre-swap call sites, kept stable).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">audit_aggregate</span><span class="p">,</span> <span class="n">audit_layer</span><span class="p">,</span> <span class="n">chapter_loop</span><span class="p">,</span> <span class="n">revision_router</span>
+
+    <span class="n">units</span><span class="p">,</span> <span class="n">_ctx</span> <span class="o">=</span> <span class="n">audit_aggregate</span><span class="o">.</span><span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;x.md&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;router_blocking&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">revision_router</span><span class="o">.</span><span class="n">_SEVERITY_BLOCKING_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span>
+        <span class="s2">&quot;router_critical&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">revision_router</span><span class="o">.</span><span class="n">_SEVERITY_CRITICAL_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span>
+        <span class="s2">&quot;loop_marker&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">_BLOCKING_MARKER_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span>
+        <span class="s2">&quot;error_label&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">audit_layer</span><span class="o">.</span><span class="n">_ERROR_LABEL_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)),</span>
+        <span class="s2">&quot;consolidator_blocking&quot;</span><span class="p">:</span> <span class="n">_consolidator_blocking_equiv</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>  <span class="c1"># M-7: consolidator 传感键</span>
+        <span class="s2">&quot;aggregate_units&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">u</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">reporters</span><span class="p">)]</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">],</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">corpus</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">sensor_outputs</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;PROVENANCE.md&quot;</span>
+    <span class="p">}</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p>注（M-7）：consolidator 正则是 <code>consolidate_review_results</code>（parallel_dispatch.py:303）<strong>函数内局部编译</strong>（:375-386）——生成器以模块级等价式 <code>_consolidator_blocking_equiv(content)</code> 记录第六键 <code>consolidator_blocking</code>（与换装前 blocking_re 逐字符等价——三形态+<code>_enum_tail</code>/QUOTED_VALUE_TAIL/NEGATION_PAYLOAD_TAIL 三尾巴，import severity 单源组合）；T2 换装后该键重跑仍须逐文件一致。
+- [ ] <strong>Step 4: 冻结换装前基线</strong>——<code>uv run python tools/gen_severity_diff_baseline.py tests/fixtures/audits tests/baselines/severity-swap/baseline.json</code>，<strong>先 commit 基线</strong>：</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/gen_severity_diff_baseline.py<span class="w"> </span>tests/fixtures/audits<span class="w"> </span>tests/baselines/severity-swap/baseline.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #105 T1b — 审计语料 fixtures 扩容（union 覆盖）+五传感差分基线冻结（换装前）&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 六消费点换装</strong>（全部 import 单源，行为逐字节保持——正则文本不变，词表来源换装）：</li>
+<li><code>revision_router.py</code>:90-146——删 <code>_SEV_ENUM_TAIL</code>/<code>NEGATION_PAYLOAD_TAIL</code>/<code>QUOTED_VALUE_TAIL</code> 本地定义（:90/:102/:120），改 <code>from shenbi.contracts.severity import NEGATION_PAYLOAD_TAIL, QUOTED_VALUE_TAIL, SEV_ENUM_TAIL as _SEV_ENUM_TAIL, ROUTING_BLOCKING_BRACKET_WORDS, ROUTING_CRITICAL_BRACKET_WORDS</code>；<code>_SEVERITY_BLOCKING_RE</code> bracket 分支词组 <code>'|'.join(ROUTING_BLOCKING_BRACKET_WORDS)</code>（=单词 BLOCKING）、<code>_SEVERITY_CRITICAL_RE</code> bracket 分支 <code>'|'.join(ROUTING_CRITICAL_BRACKET_WORDS)</code>（=原文 <code>CRITICAL|ERROR</code> 逐字符一致——<strong>禁用 <code>(*ROUTING_TIERS, *ALIASES)</code> 展开：会混入 BLOCKING 致 <code>- [BLOCKING]</code> 行误命中 CRITICAL 传感=行为变更</strong>，I-1 修正）；bold/key 分支词面用 f-string 插值单条词（单词字面量非交替，不触 lint）。</li>
+<li><code>audit_aggregate.py</code>:34-79——删 <code>_SEV_WORDS</code> 本地定义，锚定族四正则（:46/:47/:51/:58-61）从 <code>AGGREGATE_VOCAB</code>/<code>SEV_ENUM_TAIL</code>/<code>QUOTED_VALUE_TAIL</code> 组合；<code>_KEY_RE</code> 的 <code>_ENUM_TAIL</code> 换源。</li>
+<li><code>chapter_loop.py</code>:672-683——<code>_BLOCKING_MARKER_RE</code> heading 分支 <code>(?:BLOCKING|CRITICAL|FAIL)</code> 改 <code>re.compile(r"(?:^#{0,3}\s*##?\s*(?:" + "|".join((*ROUTING_TIERS, "FAIL")) + r")\b)" r"|(?:\|\s*\*\*BLOCKING\*\*)" rf"|(?:^\s*-\s*\[(?:{'|'.join((*ROUTING_TIERS, *ROUTING_HARD_TIER_ALIASES))})\]" rf"{NEGATION_PAYLOAD_TAIL})", re.M)</code>——<strong>与原正则逐字符等价</strong>（拼开结果相同）；table-bold 分支单词字面量保留。</li>
+<li><code>parallel_dispatch.py</code>:365-386——<code>_enum_tail</code> 本地定义（:367）删，换 <code>SEV_ENUM_TAIL</code> import；blocking_re bracket 词组用 <code>ROUTING_BLOCKING_BRACKET_WORDS</code>、critical_re 用 <code>ROUTING_CRITICAL_BRACKET_WORDS</code>（与 router 同款 I-1 修正——禁 TIERS∪ALIASES 展开）。</li>
+<li><code>audit_layer.py</code>:38——<code>_ERROR_LABEL_RE</code> 改 <code>re.compile(r"^\s*-\s*\[(" + "|".join(ROUTING_HARD_TIER_ALIASES) + r")\]", re.M)</code>（单字标签 import 证明覆盖——lint 豁免口注记于此注释内）。</li>
+<li><code>tools/report_longitudinal.py</code>:558——节头正则改 <code>SECTION_HEADER_RE</code>（<strong>行为变更点：MINOR 修复——差分单列，见 Step 6 测试豁免注记</strong>）。</li>
+<li>[ ] <strong>Step 6: 差分测试 <code>tests/unit/pipeline/test_severity_swap_differential.py</code></strong>：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #105 T1b: six-consumer swap is behavior-preserving (differential vs frozen baseline, #99 precedent).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># r2-M6: tests/unit/pipeline/ → repo 根是 parents[3]</span>
+<span class="n">CORPUS</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tests/fixtures/audits&quot;</span>
+<span class="n">BASELINE</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tests/baselines/severity-swap/baseline.json&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_current_outputs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools/gen_severity_diff_baseline.py&quot;</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">CORPUS</span><span class="p">),</span>
+            <span class="s2">&quot;/dev/stdout&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">cwd</span><span class="o">=</span><span class="n">REPO</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_five_sensors_match_frozen_baseline</span><span class="p">():</span>
+    <span class="n">frozen</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">BASELINE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">_current_outputs</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">current</span> <span class="o">==</span> <span class="n">frozen</span><span class="p">,</span> <span class="s2">&quot;换装后五传感输出与冻结基线逐项不一致（spec T1 差分判据失败）&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_longitudinal_section_header_now_includes_minor</span><span class="p">():</span>
+    <span class="c1"># 行为变更单列（spec T1 判据(c)：longitudinal MINOR 修复=设计内行为变更，不入差分面）</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">SECTION_HEADER_RE</span>
+
+    <span class="k">assert</span> <span class="n">SECTION_HEADER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;## MINOR Findings (2)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>（生成器写 <code>/dev/stdout</code> 支持在 Step 3 落实；若 CI 环境不可写 /dev/stdout，改 <code>tempfile</code> 中转——执行期落定。）
+- [ ] <strong>Step 7: 跑差分+全量相关测试</strong>——<code>uv run pytest tests/unit/pipeline/test_severity_swap_differential.py tests/unit/contracts/test_severity.py -q</code>；<code>uv run pytest tests/unit/pipeline/ -q -k "audit or aggregate or router or dispatch"</code>（既有传感相关测试零回归）。
+- [ ] <strong>Step 8: grep 判据</strong>——<code>git grep -nE "BLOCKING\|CRITICAL" -- src/shenbi/pipeline tools/</code> 输出仅剩注释/docstring 与组合构造行（换装前 7 处代码行交替→后 0 交替）；粘贴输出进 progress.md。
+- [ ] <strong>Step 9: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/revision_router.py<span class="w"> </span>src/shenbi/pipeline/audit_aggregate.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/parallel_dispatch.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/shenbi/pipeline/audit_layer.py<span class="w"> </span>tools/report_longitudinal.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/pipeline/test_severity_swap_differential.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T1b — 六消费点 severity 传感换装（行为保持差分全绿，longitudinal MINOR 修复单列）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-ast-lintseverity-spec-t1-lint">Task 3: AST lint——severity 交替字面量单源守卫（spec T1 lint）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_severity_single_source.py</code>
+- Test: <code>tests/unit/tools/test_lint_severity_single_source.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（AST 扫描独立）。
+- Produces: <code>tools/lint_severity_single_source.py</code>（exit 0/1）；接入 <code>just check</code> lint 面（justfile 既有 lint 链追加一行，与 lint_chapter_num_single_source 同列）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——红测构造：tmp_path 写一个含 <code>re.compile(r"BLOCKING|CRITICAL")</code> 的 .py（模拟 pipeline 模块路径），断言 lint 判违例；白测：同文件仅 <code>re.compile("|".join(ROUTING_TIERS))</code> 通过；单源模块 <code>contracts/severity.py</code> 自身豁免。测试以函数级调用 lint 的 <code>check_tree</code>/<code>main</code>（参照 <code>tests/unit/tools/</code> 下 lint_chapter_num_single_source 同款测试结构——执行期读 <code>tools/lint_chapter_num_single_source.py</code> 全文与对应测试照搬骨架）。</li>
+<li>[ ] <strong>Step 2: 确认失败</strong>——<code>uv run pytest tests/unit/tools/test_lint_severity_single_source.py -q</code>（ModuleNotFoundError）</li>
+<li>[ ] <strong>Step 3: 实现 lint</strong>——骨架照 <code>lint_chapter_num_single_source.py</code>（#89 T2 先例）：<code>_pattern_arg</code> 只认 <code>ast.Constant</code> 字符串（positional 或 <code>pattern=</code>）；<code>RE_FUNCS = ("compile","search","match","fullmatch","findall","sub","subn","split")</code>；违例判据=pattern 字符串含「≥2 个 severity 词的交替」（<code>BLOCKING|CRITICAL</code> 等五词任意两词以上以 <code>|</code> 相连——精确判据：<code>re.search(r"(BLOCKING|CRITICAL|MINOR|WARNING|ERROR)(\|)+", pat)</code> 且全串提取的交替词数 ≥2）；允许文件=<code>src/shenbi/contracts/severity.py</code>；扫描域=<code>src/shenbi/pipeline</code>+<code>src/shenbi/contracts</code>+<code>tools</code>；输出违例清单 exit 1。<strong>r5-M3 自引用陷阱</strong>：lint 自身的违例探测<strong>禁用携带五词交替字面量的 re.* 调用</strong>（tools/ 在扫描域内——照抄字面式会判己违例首跑即红）——探测器用元组 join 构造或 #89 先例的纯字符串包含判定。</li>
+<li>[ ] <strong>Step 4: justfile 接线</strong>——<code>just check</code> 的 lint 链（与 lint_chapter_num_single_source 同一 recipe 行/相邻行）追加 <code>tools/lint_severity_single_source.py</code>；<code>just -n check</code> 语法自证 + 跑一次全绿。</li>
+<li>[ ] <strong>Step 5: 全量验证</strong>——<code>uv run pytest tests/unit/tools/test_lint_severity_single_source.py -q</code> + <code>just check</code>（若 check 全量慢，跑 lint 面子配方）。</li>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_severity_single_source.py<span class="w"> </span>tests/unit/tools/test_lint_severity_single_source.py<span class="w"> </span>justfile
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T1c — severity 交替字面量 AST lint（单源模块外零容忍，#88/#89 先例骨架）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-check_audit_severity_vocab-vol1-spec-t2">Task 4: check_audit_severity_vocab + 双点位接线 + vol1 回放（spec T2）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/llm_output_integrity.py</code>（新增 <code>check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -&gt; list[str]</code>）
+- Create: <code>tools/replay_severity_vocab.py</code>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:2968-2973</code>（is_audit 块追加发射）
+- Modify: <code>src/shenbi/gates/g4/generic.py:252-260</code>（G4.av. 分支按 id 三路由）
+- Test: <code>tests/unit/pipeline/test_check_audit_severity_vocab.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>AGGREGATE_VOCAB</code>/<code>CJK_SEVERITY_WORDS</code>/<code>KEY_NAME_TOKENS</code>（Task 1）。（QUOTED_VALUE_TAIL 不入本 task——r4-I1：引号防御走 gap 类，tail 前瞻在通配捕获下可回溯绕过）
+- Produces:
+  - <code>check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -&gt; list[str]</code>——issue 形态 <code>G4.av.vocab:{path.name} — 词表外严重度 "{token}"（{form} 形）：用 BLOCKING/CRITICAL/MINOR 重写本条</code>
+  - <code>tools/replay_severity_vocab.py &lt;project_dir&gt; [--pattern 'chapter-*-*.md'] [--forms all|key] [--out FILE]</code>——回放报告（命中/清洗清单/误伤候选计数）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试（红七绿十三全清单）</strong>——<code>tests/unit/pipeline/test_check_audit_severity_vocab.py</code> 用 tmp_path 写文件逐条断言（红：<code>- [MAJOR] x</code>／<code>**BLOCKER**</code>／<code>严重度: 严重</code>／<code>严重度: 高</code>／<code>严重度: 高。</code>（尾部标点——r2-M2 捕获污染剥离的验收钉：不剥则 CJK 精确等值不命中=静默漏报）／<code>- [major]</code>／<code>Severity: MAJOR</code>；绿：<code>[MINOR]</code>／<code>- [minor]</code>／prose "major"／<code>severity:BLOCKING/CRITICAL/MINOR</code>／<code>**严重度**：BLOCKING / CRITICAL / MINOR</code>／<code>**判定**</code>+<code>**章节**</code>+<code>- [读者回报]</code>+<code>- [MINOR·观察]</code>／<code>**严重度**</code> 裸 key／<code>**Severity**</code>）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #105 T2: G4.av.vocab — out-of-vocab severity is a hard, discriminated gate.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_audit_severity_vocab</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_issues</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-9-x.md&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">check_audit_severity_vocab</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;- [MAJOR] 节奏断裂&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**BLOCKER** 全章失控&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;严重度: 严重&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;严重度: 高&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;严重度: 高。&quot;</span><span class="p">,</span>  <span class="c1"># r3-I1: 尾部标点剥离红钉（进 parametrize 非 prose）</span>
+        <span class="s2">&quot;- [major] 节奏断裂&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Severity: MAJOR&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_out_of_vocab_red</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.av.vocab:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_issues</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;- [MINOR] 措辞建议&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- [minor] 措辞建议&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;本章有一点 major 问题。&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;severity:BLOCKING/CRITICAL/MINOR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**严重度**：BLOCKING / CRITICAL / MINOR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**判定**: 通过&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**章节**: 第 9 章&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- [读者回报] 回报偏弱&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;- [MINOR·观察] 观察&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**严重度**&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;**Severity**&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;&quot;severity&quot;: &quot;low&quot;&#39;</span><span class="p">,</span>  <span class="c1"># M-5: 引号值绿测（r4-I1 gap 类防御验收钉——非 QUOTED_VALUE_TAIL，r5-M2 归因更正）</span>
+        <span class="s2">&quot;严重度: ERROR（对应 BLOCKING）&quot;</span><span class="p">,</span>  <span class="c1"># r2-M2: 括注剥离——剥后 ERROR∈词表 PASS（不剥=误报）</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_in_vocab_or_exempt_green</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.av.vocab:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_issues</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 确认失败</strong>——ImportError。</li>
+<li>[ ] <strong>Step 3: 实现 checker</strong>（纯函数幂等，path 形与同族同构）：</li>
+<li>捕获正则（模块级预编译）：bracket <code>re.compile(r"^\s*-\s*\[([\w·\-]+)\]", re.M)</code>；bold <code>re.compile(r"\*\*([\w\-]+)\*\*")</code>；key <code>re.compile(r"\*{0,2}(?:severity|严重度)\*{0,2}[^\w"']{0,6}([^\s"']+)", re.IGNORECASE)</code>（<strong>r4-I1 钉死——引号防御用 gap 类排除引号而非尾部负向前瞻</strong>：tail 前瞻 <code>(?!"...)</code> 放在可回溯通配捕获组后必然被回溯绕过——<code>([^\s"]+)</code> 捕 <code>low</code> 后前瞻见 <code>"</code> 失败→回溯交还一字符捕 <code>lo</code>→<code>LO</code> 过判别器→FAIL 误伤（与 spec C1' 证伪 <code>_SEV_ENUM_TAIL</code> 照搬路径同机制）；gap 类 <code>[^\w"']{0,6}</code> 不吃引号（r5-M2 写全：防御面含单双引号）→<code>"severity": "low"</code> 全线无匹配→PASS，<code>severity: MAJOR</code>/<code>**严重度**：BLOCKING</code> 行为不变；<code>severity: "BLOCKING"</code> 引号值=传感侧 #18-1 同判（非声明）→PASS 语义一致）。</li>
+<li><strong>统一后处理管线</strong>（模块内私有函数 <code>_vocab_violation(token: str) -&gt; bool</code>；checker docstring 注记两条 r2.6 挂账：①捕获污染剥离规则 ②key-名豁免形态域[形态无关生效、动机仅 bold 裸 key——残余面 #117 收编]）：<ol>
+<li><strong>捕获污染剥离（r2.6 plan 注记落位，I-3）</strong>：<code>token = re.sub(r"[（(][^）)]*[）)]?\s*$", "", token)</code> 剥括注后缀（<code>ERROR（对应 BLOCKING）</code>→<code>ERROR</code>），再 <code>.rstrip("。．.,，;；:：!！?？")</code> 剥尾部标点（<code>严重度：高。</code>→<code>高</code>——不剥则 CJK 精确等值不命中=静默漏报，恰是本件根因形态）</li>
+<li><code>token = token.upper()</code></li>
+<li>key-名豁免：<code>if token in KEY_NAME_TOKENS: return False</code></li>
+<li>判别器：<code>ascii_hit = token.isascii() and token.isupper() and len(token) &gt;= 2</code>；<code>cjk_hit = token in CJK_SEVERITY_WORDS</code>（归一后 CJK 词 upper 不变，集合成员精确等值）；<code>if not (ascii_hit or cjk_hit): return False</code></li>
+<li>legend 拆分豁免：<code>parts = re.split(r"[/／、,，]", token)</code>；<code>if all(p in AGGREGATE_VOCAB_SET for p in parts): return False</code>（<code>AGGREGATE_VOCAB_SET</code> 已在 T1 severity.py 落定，此处 import）</li>
+<li><code>return token not in AGGREGATE_VOCAB_SET</code></li>
+</ol>
+</li>
+<li>cell 形不建；散文豁免=仅锚定形捕获（正则天然保证）。</li>
+<li>docstring 注明 spec #105 T2 与「禁从传感正则推导」原因。</li>
+<li>[ ] <strong>Step 4: 测试绿</strong>——<code>uv run pytest tests/unit/pipeline/test_check_audit_severity_vocab.py -q</code>（含补的 <code>"severity": "low"</code> 绿测）。</li>
+<li>[ ] <strong>Step 5: 回放工具 <code>tools/replay_severity_vocab.py</code></strong>——遍历 <code>&lt;project_dir&gt;/audits/</code> 章审计形——<strong>判据与 <code>_is_audit_file</code> 完全对齐（r2-I1）：<code>audits/</code> 域 + <code>chapter-NN-&lt;dim&gt;</code> 形 + 仅排除 <code>.aggregate.md</code>，不排除 <code>-resonance.md</code></strong>（生产 is_audit 块对 resonance 同样生效——completeness/line_refs 现状即跑 resonance；回放排除 resonance 则 shadow 闸门永远测不到 46 份生产触达文件=闸门完整性缺口），跑 checker，输出 markdown 报告：命中清单（file:line:token:form）+总数+分母（生产触达/aggregate 差集/escalation 差集——<code>_is_audit_file</code> 同判据本地复刻，不 import 私有）。</li>
+<li>[ ] <strong>Step 6: vol1 回放（shadow 闸门）</strong>——<code>uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --forms key --out /tmp/spec105-vocab-replay.md</code>（r2.7：生产 key 形域）；人工核命中条目全为真词表外违规（key 形预期 0——语料零命中）；<strong>零误伤→接线 FAIL；有误伤→停，记 BLOCKING deviation 报备</strong>。默认 ALL 形态回放（#116 采集面）预期 198 全误伤，属已知。报告关键数字粘贴 progress.md。</li>
+<li>[ ] <strong>Step 7: 接线双点位</strong>：</li>
+<li><code>dispatch_helper.py</code> is_audit 块（:2970-2973）追加 <code>issues += check_audit_severity_vocab(full_path, forms=PRODUCTION_VOCAB_FORMS)</code>（r2.7 key-only）（import 入既有 from-import 列表 :71-78 位置——M-8 行号修正）。</li>
+<li><code>generic.py:252</code> G4.av. 分支改按 finding id 三路由：<code>stale_line_ref</code>→check_audit_line_refs；<code>vocab</code>→check_audit_severity_vocab；<code>dispatch_integrity</code>（Task 5 落地后）→对应 checker；未识别 G4.av. 前缀→<code>return True</code>（保守放行，log warning）。<strong>M-9</strong>：现行 chapter-gone 早退（:257-259）仅 <code>stale_line_ref</code> 路由保留——vocab/dispatch_integrity 不依赖 chapter 文件，继承早退会在章文件删除后把其 finding 误判 stale 吞掉。本 task 先落前两条+未识别放行；Task 5 补第三条。</li>
+<li>[ ] <strong>Step 8: 集成测试</strong>——既有 dispatch G4 流测试（grep <code>check_audit_completeness</code> 在 tests/ 的调用面）追加一条：写含 <code>严重度: 严重</code>（r2.7 key 形）的审计文件到 tmp project → 走该集成路径断言 issue 发射；generic pwi 路由测试：构造 <code>G4.av.vocab:...</code> finding → pwi 复核命中。</li>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/llm_output_integrity.py<span class="w"> </span>tools/replay_severity_vocab.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/gates/g4/generic.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/pipeline/test_check_audit_severity_vocab.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T2 — G4.av.vocab 词表外 fail-loud（三段式判别器+双点位接线+vol1 回放 shadow 闸过）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-g4avdispatch_integrityspec-t3">Task 5: 审计派发前置预检 + G4.av.dispatch_integrity（spec T3）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_layer.py</code>（新增 <code>missing_audit_reads(project_dir, skill, chapter) -&gt; list[str]</code>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:3907+</code>（<code>_run_audit_wave_step</code> 头部预检）
+- Modify: <code>src/shenbi/pipeline/llm_output_integrity.py</code>（新增 <code>check_audit_dispatch_integrity(path: Path) -&gt; list[str]</code>）
+- Modify: <code>src/shenbi/gates/g4/generic.py</code>（Task 4 预留的第三路由落位）
+- Test: <code>tests/unit/pipeline/test_audit_readiness.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_contract(skill) -&gt; Contract</code>（contracts/loader.py:295）；<code>OPTIONAL_READS</code>（dispatch_helper.py:509）；<code>#51 ghost-chain guard</code> 控制流（chapter_loop.py:3836-3862）；escalation reads 三态语义（revision_router.py:268-303——语义复刻非代码复用）。
+- Produces:
+  - <code>missing_audit_reads(project_dir: Path, skill: str, chapter: int | None) -&gt; list[str]</code>——缺失 required reads 的 resolved 路径清单（OPTIONAL fnmatch 剔除/produces[writes∪updates] 剔除/glob 展开/其余 .exists() 判）
+  - <code>check_audit_dispatch_integrity(path: Path) -&gt; list[str]</code>——issue 形态 <code>G4.av.dispatch_integrity:{path.name} — 派发完整性签名 BLOCKING（框架 bug 非正文缺陷）：报告判无效，须修框架不应由审计员表达</code>；签名=（<code>`chapters/</code>/<code>plans/</code>/<code>truth/</code> 前缀路径 token，反引号包裹优先）∧（<code>重跑|补齐|补入</code>）合取，<strong>仅 BLOCKING 锚定行</strong>（用 severity.BRACKET_ANCHOR_RE/BOLD 锚定判定行内含 BLOCKING 词表内词）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——三组：</li>
+<li><code>missing_audit_reads</code> 单测：tmp project + stub contract（monkeypatch <code>load_contract</code> 返回 <code>{"reads": ["chapters/chapter-N.md", "truth/current_state.md", "characters/*.md"], "writes": ["audits/chapter-N-x.md"], "updates": []}</code>；OPTIONAL_READS monkeypatch 空或缺省）→ 缺 chapters 文件时返回含该路径、glob 有匹配时 characters 不缺、writes 产物（audits/...）不算缺。</li>
+<li><strong>零派发红测</strong>（<code>_must_not_dispatch</code> 先例 tests/pipeline/test_redispatch_g4_and_draft_precheck.py:113（<code>_must_not_dispatch</code> def 行——r2-M3 校准）——执行期读该文件照搬 monkeypatch <code>dispatch_helper.dispatch_skill</code> 手法）：构造 wave 内某审计技能 required read 缺失 → <code>_run_audit_wave_step</code> 不派任何 LLM（monkeypatch 派发函数断言零调用）+ escalation checkpoint 置位。</li>
+<li><code>check_audit_dispatch_integrity</code> 红绿：红=<code>- [BLOCKING] 派发完整性：请补齐 `chapters/chapter-40.md` 与 `plans/chapter-40-plan.md` 后重跑本维度</code>（chapter-40-reader-pull.md:44 原文）→ issue；红2=<code>- [BLOCKING] 输入缺失：请补入 `chapters/chapter-10.md` 后重跑</code>；绿=<code>- [BLOCKING] 字数不足，请补齐至 3200 字</code>（无路径 token）→ 无 issue；绿2=<code>- [MINOR] 派发完整性相关表述</code>（非 BLOCKING 行）→ 无 issue。</li>
+<li>[ ] <strong>Step 2: 确认失败</strong>。</li>
+<li>[ ] <strong>Step 3: 实现 <code>missing_audit_reads</code></strong>（audit_layer.py）——语义按 revision_router.py:268-303 三态复刻：<code>_entry_file</code> 剥 dict 形 read；<code>resolved = str(rel).replace("chapter-N", f"chapter-{chapter}")</code>（chapter None 时保持 N 字面——与 :276-282 同）；produces 剔除；<code>any(fnmatch(resolved, pat) for pat in OPTIONAL_READS.get(skill, []))</code> 剔除；<code>"*" in resolved</code> 时 <code>Path(project_dir).glob(...)</code> 命中即非缺；其余 <code>.exists()</code> 判缺失。docstring 注明 spec #105 T3 与 M1 作用域（仅审计派发面）。</li>
+<li>[ ] <strong>Step 4: 实现 <code>check_audit_dispatch_integrity</code></strong>（llm_output_integrity.py）——逐行扫：行含 BLOCKING 锚定（bracket <code>- [BLOCKING]</code> 或 bold 词表内 BLOCKING——用 severity 单源锚定形，r3-I2：无 key 形）∧ 行内 <code>`(chapters|plans|truth)/[^`]+`</code> 反引号路径（无反引号时裸路径 <code>(?:chapters|plans|truth)/\S+\.(?:md|yaml|json)</code> 兜底）∧ 行内 <code>重跑|补齐|补入</code> → issue（每文件首条即断——幂等）。</li>
+<li>[ ] <strong>Step 5: wave 预检接线</strong>——<code>_run_audit_wave_step</code> 函数头（state/project_dir 就绪后、任何派发前）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">missing</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">wave_skills</span><span class="p">:</span>  <span class="c1"># 该 wave 的审计技能名册（执行期以函数内实际变量名落定）</span>
+    <span class="n">gaps</span> <span class="o">=</span> <span class="n">missing_audit_reads</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gaps</span><span class="p">:</span>
+        <span class="n">missing</span><span class="p">[</span><span class="n">skill</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaps</span>
+<span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;audit_reads_missing_precheck&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">)</span>
+    <span class="n">set_checkpoint</span><span class="p">(</span>
+        <span class="n">state</span><span class="p">,</span>
+        <span class="n">CheckpointType</span><span class="o">.</span><span class="n">ESCALATION</span><span class="p">,</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;审计派发前置预检（spec #105 T3）：</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">——required reads 缺失，&quot;</span>
+        <span class="s2">&quot;禁止派发 LLM 表达输入缺失（派发完整性语义拆分）。请人工核查输入产物后重试。&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+<p>（<strong>预检名册（I-4 结构修正）</strong>：<code>_run_audit_wave_step</code>（:3916）为双 wave 结构——预检圈定=core wave 名册 ∪ <code>get_active_genre_audits(genre_config)</code>（genre 圈——签名收 Mapping 非 project_dir，r2-M4 校准；genre-config.json 现由 chapter_loop:4009-4011 加载——<strong>须将该加载+名册装配上提到 wave-1 派发之前</strong>）∪ 串行分区成员（<code>_partition_review_wave</code> 输出）；预检置于<strong>名册装配完成后、任一 <code>dispatch_*</code> 调用前</strong>；<strong>零派发红测两变体</strong>（core 技能缺 read + genre 圈技能缺 read——I-4 自认「只圈 core 不被测试捕获」，genre 变体即钉住该结构）；<strong>bundle 模式</strong>：<code>bundle_chapters</code>（:1472）可返 <code>[N, N+1]</code>——预检循环按 <code>wave_chapters</code> 展开逐章查（r2-M7：follower 章输入缺失不漏检）——只圈 core wave 会漏 genre 审计派发的欠覆盖且不被任何测试捕获。<code>set_checkpoint</code> 签名 machine.py:69（chapter/context kwargs）；#51 同款 <code>return True</code> 停步语义。）
+- [ ] <strong>Step 6: generic 第三路由落位</strong>——<code>G4.av.dispatch_integrity</code> → <code>check_audit_dispatch_integrity</code>（Task 4 的未识别放行分支前插入）。
+- [ ] <strong>Step 7: 全部测试绿</strong>——<code>uv run pytest tests/unit/pipeline/test_audit_readiness.py tests/unit/pipeline/test_check_audit_severity_vocab.py -q</code> + <code>uv run pytest tests/pipeline -q</code>（零派发红测所在既有套件零回归）。
+- [ ] <strong>Step 8: vol1 回放差集</strong>——<code>uv run python tools/replay_severity_vocab.py novel-xinghuo-vol1 --out /tmp/spec105-di-replay.md</code>（工具扩展：同时跑 dispatch_integrity checker 或单独小跑）——预期命中 ch10/12/14/16/20/40 实弹族（这些是历史框架 bug 产物，非误伤）；<strong>非实弹族命中=误伤→停，记 BLOCKING deviation 报备</strong>（r3-M4：与 T4 Step 6 同款停机分支）；粘贴计数进 progress.md。
+- [ ] <strong>Step 9: Commit</strong></p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_layer.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/shenbi/pipeline/llm_output_integrity.py<span class="w"> </span>src/shenbi/gates/g4/generic.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/pipeline/test_audit_readiness.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T3 — 审计派发前置预检（#51 控制流先例）+G4.av.dispatch_integrity 签名合取兜底&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-g4_format_examples-spec-t4a">Task 6: G4_FORMAT_EXAMPLES 名册差集 + 补键（spec T4a）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:882+</code>（G4_FORMAT_EXAMPLES 补三键）
+- Test: <code>tests/unit/pipeline/test_g4_format_examples_roster.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: g4 checker 名册（<code>src/shenbi/gates/g4/</code> 各 checker 的 id 发射面）；<code>_enrich_g4_feedback</code>（chapter_loop.py:1120）。
+- Produces: EXAMPLES 新键 <code>G4.cp.scene_budget</code>/<code>G4.av.vocab</code>/<code>G4.av.dispatch_integrity</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: 名册差集盘点（一次性 diff）</strong>——<code>grep -rhoE "G4\.[a-z0-9_.]+" src/shenbi/gates/g4/ | sort -u</code>（M-12：<strong>不带闭引号</strong>——f-string 连续形 id 后随 <code>:</code> 非引号，带闭引号低估差集） vs <code>uv run python -c "from shenbi.pipeline.chapter_loop import G4_FORMAT_EXAMPLES; print('\n'.join(sorted(G4_FORMAT_EXAMPLES)))"</code>——差集落 plan deviation/progress.md（哪些族无示例=known gap，本 task 只补首批三键，其余登记不强补）。</li>
+<li>[ ] <strong>Step 2: 失败测试</strong>——<code>test_g4_format_examples_roster.py</code>：断言三键在册 + 示例文案含期望格式关键词（scene_budget 例含「场景预算节」与表格/带域形态——文案从 <code>src/shenbi/gates/g4/chapter_planning.py:612-706</code> checker 期望结构提炼：<code>| 场景 | 类型 | 字数带 | 配对性 |</code> 型行）；断言示例非空字符串。</li>
+<li>[ ] <strong>Step 3: 补三键</strong>——<code>G4.cp.scene_budget</code>（对照 escalation-35-report.md:33-37 兜底行形态写「期望格式」）；<code>G4.av.vocab</code>（示例：「严重度条目改写：<code>- [BLOCKING]</code>/<code>- [CRITICAL]</code>/<code>- [MINOR]</code> 三选一锚定形，禁用词表外语」）；<code>G4.av.dispatch_integrity</code>（示例：「该 finding 属框架 bug——不写派发完整性 BLOCKING，输入缺失由框架预检拦截；审计员只审计正文」）。</li>
+<li>[ ] <strong>Step 4: 判据验证</strong>——<code>git grep -n "scene_budget" src/shenbi/pipeline/chapter_loop.py</code> 命中 EXAMPLES；<code>uv run pytest tests/unit/pipeline/test_g4_format_examples_roster.py -q</code> 绿。</li>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_g4_format_examples_roster.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T4a — G4_FORMAT_EXAMPLES 补 scene_budget/vocab/dispatch_integrity 三键+名册差集盘点&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-aggregate-severity-longitudinal-parser-spec-t4b">Task 7: aggregate 条目级 severity + longitudinal parser 同步（spec T4b）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_aggregate.py:167-176</code>（render 条目行）
+- Modify: <code>tools/report_longitudinal.py:547-567</code>（<code>_parse_aggregate_sections</code> 双格式容差）
+- Test: <code>tests/pipeline/test_audit_aggregate.py</code>（既有套件追加——integration 目录，M-8 修正）/<code>tests/unit/tools/test_report_longitudinal.py</code>（追加或新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>SECTION_HEADER_RE</code>（Task 1）；<code>write_audit_aggregate</code>（audit_aggregate.py:195+——r2-M3 校准：:157 是 render_aggregate）。
+- Produces: render 条目行 <code>- **{sev}** · {text}</code>；parser 兼容新旧两格式。</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>——render 测试：构造 FindingUnit(severity="MINOR", text="x") → 输出含 <code>- **MINOR** · x</code> 且节头保留 <code>## MINOR Findings</code>；parser 红绿：新格式 <code>- **BLOCKING** · 文本</code> → FindingUnit("BLOCKING", "文本")（前缀剥离）；旧格式 <code>- 文本</code> 在 BLOCKING 节 → FindingUnit("BLOCKING", "文本")（双格式容差）；<code>- 报告方: ...</code> 行仍跳过。</li>
+<li>[ ] <strong>Step 2: 实现 render</strong>——:175 <code>parts.append(f"- {u.text}")</code> →（r2-M3 校准：:174 是 for 行） <code>parts.append(f"- **{u.severity}** · {u.text}")</code>（报告方行不变）。</li>
+<li>[ ] <strong>Step 3: 实现 parser 双格式</strong>——<code>_parse_aggregate_sections</code> 条目行解析：<code>m = re.match(r"^-\s*\*\*([A-Z]+)\*\*\s*·\s*(.+)$", s)</code> 命中→（校验 m.group(1)==sev 或以其为准——<strong>以条目级为准</strong>，与节头不一致时条目级胜出并保留）；未命中→现行为 <code>s.lstrip("- ").strip()</code>；节头判定换 <code>SECTION_HEADER_RE</code>（已在 Task 2 换装——此处仅确认行为）。</li>
+<li>[ ] <strong>Step 4: 下游消费差分</strong>——<code>git grep -rn "aggregate.md" -- src/ tools/ tests/ | grep -v test_</code> 列全消费面；对每面确认新旧格式兼容（report_longitudinal 已改；其余面 grep 确认无 <code>- {text}</code> 形态解析依赖——若发现新解析点，同批改并加测试）。</li>
+<li>[ ] <strong>Step 5: 全绿</strong>——<code>uv run pytest tests/pipeline/test_audit_aggregate.py tests/unit/tools/test_report_longitudinal.py -q</code>。</li>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_aggregate.py<span class="w"> </span>tools/report_longitudinal.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/pipeline/test_audit_aggregate.py<span class="w"> </span>tests/unit/tools/test_report_longitudinal.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T4b — aggregate 条目级 severity 渲染+longitudinal parser 双格式容差同步&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-ending_constraints-310spec-t4c">Task 8: ending_constraints 注入窗 3→10（spec T4c）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/review_checklist.py:530-548</code>（窗口+守卫+docstring+注释）
+- Test: 既有 <code>tests/</code> 中 <code>_get_recent_ending_types</code>/ending_constraints 相关测试（grep 定位，追加/更新断言）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无新依赖。
+- Produces: 注入块 ending_constraints 列表长度 10（SKILL.md:166 文案零改动即重新为真）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 定位既有测试</strong>——<code>grep -rn "_get_recent_ending_types\|ending_constraints" tests/</code>——更新断言（M-6 修正）：chapter≥11 且前章全在盘时长度 10；chapter=10 返回 []（守卫 <code>&lt; 11</code> 先挡）；chapter=11 缺一章时长度 10 含一个 <code>"missing"</code>（:546-547 现行为）。</li>
+<li>[ ] <strong>Step 2: 实现</strong>——<code>if chapter &lt; 4</code> → <code>if chapter &lt; 11</code>（注释 <code>(need 3 prior chapters)</code> → <code>(need 10 prior chapters)</code>）；<code>range(3, 0, -1)</code> → <code>range(10, 0, -1)</code>；docstring <code>last 3 chapters</code> → <code>last 10 chapters</code>。<strong>SKILL.md 零改动</strong>（判据：文案零改动即重新为真）。</li>
+<li>[ ] <strong>Step 3: 绿</strong>——<code>uv run pytest -q -k "ending"</code>（或定位到的测试文件）。</li>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/review_checklist.py<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #105 T4c — ending_constraints 注入窗 3→10（chapter&lt;11 守卫连带，SKILL 文案零改动归真）&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<ol>
+<li><strong>Spec coverage</strong>：spec T1（T1a 登记+模块/T1b 换装+差分三层/T1c lint）✓；T2（T4：判别器三段式+双点位+回放 shadow）✓；T3（T5：预检+dispatch_integrity+零派发红测）✓；T4（T6 EXAMPLES/T7 渲染+parser/T8 ending 窗）✓；验收 2 差分（T2b）/验收 3 bug-hunt 由 T4 红测+T5 零派发承载/验收 4 G3.4 ≥94 由阶段 6 收官评分承载。</li>
+<li><strong>Placeholder scan</strong>：两处「执行期落定」均为<strong>事实锚定指令</strong>（T5 wave 技能名册变量/T2 gen stdout 中转——r5-M1 更正：parallel_dispatch 函数名一项已随 r4-M1 空桩删除而消亡），非行为留白——实现时 grep 落定并记 deviation。</li>
+<li><strong>Type consistency</strong>：<code>check_audit_severity_vocab(path: Path, forms: tuple[str, ...] = PRODUCTION_VOCAB_FORMS) -&gt; list[str]</code> 与 dispatch_helper/generic 调用面一致；<code>missing_audit_reads(project_dir, skill, chapter)</code> 与 wave 预检调用一致；severity.py 符号名在 T1/T2/T4/T5/T7 间一致（<code>AGGREGATE_VOCAB_SET</code>/<code>ROUTING_*_BRACKET_WORDS</code> 在 T1 Interfaces/Step 3 落定——r2 修正：初稿 Self-Review 误称「已含」，实为漏列，已在 T1 补齐）。</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

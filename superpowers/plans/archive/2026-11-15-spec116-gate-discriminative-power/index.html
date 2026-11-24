@@ -1,0 +1,2220 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec116-gate-discriminative-power/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #116 门禁判别力仪表 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #116 门禁判别力仪表 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec116-gate-discriminative-power.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec116-gate-discriminative-power/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #116 门禁判别力仪表 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec116-gate-discriminative-power.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-116-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #116 门禁判别力仪表 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 逐字复制——每 task 隐含包含）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixture-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试层级与 fixture 声明（plan 加项）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键源码事实（审查已核——实现者不得偏离）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="关键源码事实（审查已核——实现者不得偏离）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-toolsgate_power_replaypy-just-gate-power" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 回放仪表 tools/gate_power_replay.py ＋ just gate-power
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-hookprotagonisttransition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 变异引擎＋最低子集三红测（hook/protagonist/transition）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-in-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 其余 in-scope 门变异负例全覆盖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-lint-toolslint_gate_power_baselinepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 恒真登记＋哨兵 lint tools/lint_gate_power_baseline.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 标定提案文档＋50 章回放回填
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AC 覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test_kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        复杂度/test_kind 总表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-116-implementation-plan">Spec #116 门禁判别力仪表 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 为 G4 确定性门禁建判别力仪表——离线回放工具＋恒真登记＋WARN→FAIL 哨兵＋七项标定提案＋真实章变异负例红测，全程不改任何门行为。</p>
+<p><strong>Architecture:</strong> 四件新增（tools/ 三脚本＋docs/ 两文档＋fixtures/ 变异负例）＋两处既有文件小改（justfile 配方、invariants.md 分工行）。回放工具克隆 <code>tools/replay_severity_vocab.py</code> 形态（argparse＋<code>--out</code>＋只读）；归因/变异共用一个「叙事窗口提取」helper（复刻门的三重预处理——测量面=执法面）；登记 lint 持 CHECK_REGISTRY 单源（chapter_drafting.py 单文件 AST 扫描＋显式补充项，#88 inventory 仅作交叉参考）；哨兵只读已提交 baseline 文档（CI 无语料依赖）；变异器维护者侧生成裁片 fixture（G0.9 provenance 头）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+（stdlib only：argparse/ast/json/re/pathlib/datetime）、pytest、just。零 LLM、零新依赖。</p>
+<h2 id="global-constraintsspec-task">Global Constraints（spec 逐字复制——每 task 隐含包含）</h2>
+<ul>
+<li>「本件只建仪表与提案，<strong>不改任何门行为</strong>——T3 的每项标定提案交用户逐项裁定；不考虑在飞项目（vol1 只回放报告，不重跑不改产物）；零付费派发（确定性回放零成本）」（用户裁定 2026-11-15）</li>
+<li>「纯确定性、零 LLM、<strong>不写被测项目目录</strong>（报告经 <code>--out</code> 落 <code>reports/</code>）」（T1）</li>
+<li>「<strong>分类标签必须人工裁定，不得由仪表自动断言</strong>」（§3 风险）</li>
+<li>「单书语料（B5 边界）：baseline 只对 vol1 成立」（§3 风险）</li>
+<li>「变异前后文件 mtime 不变（项目只读）；G0.9 provenance 头合规；变异副本只进测试目录，不得写项目」（T4）</li>
+<li>「禁止用 full 口径做判别力结论」（§3 风险）</li>
+<li>无代码行为改动：<code>git diff</code> 仅 tools/tests/docs/justfile（T3 判据）——<strong>src/shenbi/ 零改动</strong></li>
+<li>域约束：SDD 全流程禁为「验证」目的触发真实 LLM dispatch（<code>shenbi-dispatch</code>/<code>pipeline init|resume|review</code>）</li>
+<li>commit pathspec 保护：所有 commit 显式列文件路径，禁 <code>git add -A</code>/<code>git add .</code></li>
+</ul>
+<h2 id="fixture-plan">测试层级与 fixture 声明（plan 加项）</h2>
+<ul>
+<li>全部测试 = <strong>T1 层</strong>（unit/structural）；验收 2 的 50 章回放为维护者侧实跑（证据贴 progress.md <code>## 验收证据</code>），不进 CI——CI 无 <code>novel-*</code> 语料（<code>.gitignore</code> <code>/novel-*</code>）</li>
+<li>结构性 unit 输入（合成章/窗口布局）按 AGENTS.md 允许 inline/tmp_path 构造；<strong>真实章变异 fixture</strong>（Task 2/3 产物）带 G0.9 provenance 头，只进 <code>tests/fixtures/gate-power/</code></li>
+<li>F947：无任何验收依赖真实 LLM dispatch 或手写 mock——全部确定性可离线复验</li>
+</ul>
+<h2 id="_1">关键源码事实（审查已核——实现者不得偏离）</h2>
+<ul>
+<li><code>passed()</code> JSON <strong>无 <code>must_fix</code> 键</strong>（shared.py:652-667；仅 <code>fail()</code> 有）→ 一切 <code>res["must_fix"]</code> 必须写 <code>res.get("must_fix", [])</code>（C1）</li>
+<li>protagonist FAIL 真名 <code>G4.cd.protagonist_absent</code>（chapter_drafting.py:478）；无 <code>characters/protagonist.md</code> 时 check 行 <strong>SKIP</strong>（:1243-1252）；<code>cd.major_chars</code>/<code>cd.minor_chars</code> 属 character_design.py（他门），<code>cd.micro_hook_run</code> 需 memo_v3＋project_dir（:1352, :1552）（C2）</li>
+<li>门叙事窗口预处理序（:728-731）：剥 <code>&lt;!--HOOK-*-&gt;</code> 块 → <code>META_BLOCK_RE.sub</code>（shared.py:42 公开）→ <code>strip_scene_markers</code>（shared.py:56 公开）→ split 段 → <code>[-8:]</code>——归因/变异必须走同一序（C3）</li>
+<li><code>tests/fixtures/g4-id-inventory.json</code> 是扁平清单（含 character_design 的 <code>cd.major_chars</code> 等、缺变量发射的 <code>cd.protagonist_absent</code>）——<strong>不得作 registry 集合等式的一源</strong>，仅交叉参考（C4）</li>
+<li><code>TRANSITION_SPECIFIC = ["不过","此时","突然","终于","于是"]</code>（shared.py:911）；计数先数「然」再减化合物（:914-934）——注入词必须取自此面（I5）</li>
+<li><code>META_NARRATIVE</code> 7 词闭集（shared.py:902-910：让人感悟/引人深思/由此可见/综上所述/值得注意的是/不禁感慨/不由得想到）——meta 注入载荷取闭集词（I1）</li>
+<li><code>cd.post_wordcount_precision</code> 只有 WARN 臂（post_declarations.py:133-155 返回 warns；:950-953 固定 WARN 行）（I2）</li>
+<li><code>_check_content_uniqueness</code> 对 <code>Path(rd)/"project-output"/"chapters"</code> 跨章比对＋指纹是集合（:1084-1113, :443-457）——章内复制不可见（I3）</li>
+<li>voice_density must_fix 需 <code>ctx.memo_v2</code>（:1410；memo 来自 <code>project_dir/plans/chapter-N-plan.md</code> :699-702）；scene_hook_match 需 plan 文本（:717-722）；hook_type_rotation 需 <code>declared_history(project_dir)</code>（:555-569）（I4）</li>
+<li><code>check_prop_handoffs</code> 实签名 <code>(text: str, memo_text: str, props, known_names=None, owner_aliases=None)</code>（:149-155）（M5）；<code>check_counter_reconciliation(text, memo_text, counters, *, fp="")</code>（:255）</li>
+</ul>
+<hr />
+<h3 id="task-1-toolsgate_power_replaypy-just-gate-power">Task 1: 回放仪表 <code>tools/gate_power_replay.py</code> ＋ <code>just gate-power</code></h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/gate_power_replay.py</code>
+- Modify: <code>justfile</code>（新配方 <code>gate-power</code>，置于 <code>lint:</code> 配方之后独立段落）
+- Test: <code>tests/unit/tools/test_gate_power_replay.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>g4_chapter_drafting(fps: list[str], rd: str | None, project_dir: str | None, repo_root: str | None) -&gt; str</code>（chapter_drafting.py:1505；JSON 顶层 <code>{gate, status, timestamp, checks}</code>，FAIL 时另有 <code>blocked_action/must_fix</code>）；<code>shared.py</code> 公开件：<code>count_transition_words(content: str) -&gt; int</code>（:914）、<code>strip_narrative_body</code>（:398）、<code>count_similes(content: str) -&gt; dict[str, Any]</code>（:449）、<code>META_BLOCK_RE</code>（:42）、<code>strip_scene_markers</code>（:56）；<code>ending_archetype_of(text: str) -&gt; str | None</code>（chapter_drafting.py:519）
+- Produces（Task 4/5 消费）:
+  - CLI：<code>uv run python tools/gate_power_replay.py PROJECT_DIR [--out PATH] [--pattern "chapter-*.md"] [--state-free-only]</code> → markdown 报告（同输入同输出；<code>timestamp</code> 字段不入报告）
+  - 模块级：<code>collect(project_dir: Path, pattern: str) -&gt; list[dict]</code>、<code>summarise(rows) -&gt; dict[str, dict]</code>（含 <code>_firing</code>）、<code>narrative_window(content: str) -&gt; list[str]</code>（<strong>共用叙事窗口 helper</strong>——C3 修订核心，Task 2 变异器 import 复用）、<code>hook_window_attribution(content: str) -&gt; dict</code>、<code>ARM_TO_CANONICAL: dict[str, str]</code>（M2 回射表）、<code>STATE_FREE_IDS</code>/<code>TRUTH_DEPENDENT_IDS</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（<code>tests/unit/tools/test_gate_power_replay.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #116 T1: gate-power replay tool unit tests (structural inputs).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.gate_power_replay</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ARM_TO_CANONICAL</span><span class="p">,</span>
+    <span class="n">STATE_FREE_IDS</span><span class="p">,</span>
+    <span class="n">TRUTH_DEPENDENT_IDS</span><span class="p">,</span>
+    <span class="n">collect</span><span class="p">,</span>
+    <span class="n">hook_window_attribution</span><span class="p">,</span>
+    <span class="n">narrative_window</span><span class="p">,</span>
+    <span class="n">summarise</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 结构性合成章（AGENTS.md 允许：tmp_path 内联合法，非 fixture 冒充技能产物）</span>
+<span class="n">CH_WITH_HOOK</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;---</span>
+<span class="s2">name: 测试章</span>
+<span class="s2">---</span>
+
+<span class="s2">## PRE_WRITE_CHECK</span>
+
+<span class="s2">- 本章字数: 200</span>
+
+<span class="s2">## 第一章　测试</span>
+
+<span class="s2">他推开门，看见院子里堆着柴。她还站在原地没动。</span>
+
+<span class="s2">「你还欠着账。」他说。</span>
+
+<span class="s2">门外的风吹进来，烛火晃了一下。到底谁在撒谎？41 人失踪，82 户报官。</span>
+
+<span class="s2">&lt;!--META-BEGIN--&gt;</span>
+<span class="s2">## POST_WRITE_SELF_CHECK</span>
+
+<span class="s2">- [x] 自检完成: 是</span>
+<span class="s2">- [x] 实际字数: 200</span>
+<span class="s2">&lt;!--META-END--&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mk_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">chapters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCollect</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_collect_all_pass_chapter_no_must_fix_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;C1 钉：passed() 无 must_fix 键——collect 不得 KeyError。&quot;&quot;&quot;</span>
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">_mk_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">})</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span>  <span class="c1"># 不抛 KeyError 即通过</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="c1"># NB1：合成章短于 3000 字下限且无场景标记——must_fix 必非空；只钉键存在性</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;must_fix&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_collect_passed_shape_json_without_must_fix_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;C1 病灶路径直测：monkeypatch g4 返回 passed() 形 JSON（无 must_fix 键）。&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">tools.gate_power_replay</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpr</span>
+
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">_mk_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">})</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="n">gpr</span><span class="p">,</span>
+            <span class="s2">&quot;g4_chapter_drafting&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">fps</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;gate&quot;</span><span class="p">:</span> <span class="s2">&quot;G4-chapter-drafting&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;t&quot;</span><span class="p">}</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">gpr</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;must_fix&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_collect_skips_non_pure_chapter_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">_mk_project</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">,</span> <span class="s2">&quot;chapter-1-pre-rev.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNarrativeWindow</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_window_excludes_meta_and_hook_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;C3 钉：窗口=三重预处理后的叙事段，POST 块不占窗口位。&quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;第一段但在这里。</span><span class="se">\n\n</span><span class="s2">第二段他还欠着账。</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">&quot;&lt;!--HOOK-BEGIN--&gt;钩子台账&lt;!--HOOK-END--&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;&lt;!--META-BEGIN--&gt;</span><span class="se">\n</span><span class="s2">## POST_WRITE_SELF_CHECK</span><span class="se">\n\n</span><span class="s2">- [x] 项</span><span class="se">\n</span><span class="s2">&lt;!--META-END--&gt;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">paras</span> <span class="o">=</span> <span class="n">narrative_window</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">paras</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;第一段但在这里。&quot;</span><span class="p">,</span> <span class="s2">&quot;第二段他还欠着账。&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_window_matches_gate_preprocessing_on_real_fixture</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;真实 fixture 章上窗口归因与门判定双向一致（C3/I6 修订）。&quot;&quot;&quot;</span>
+        <span class="n">fixture</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/chapters/chapter-1.md&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fixture</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;fixture chapters/chapter-1.md 不在盘&quot;</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="n">fixture</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">hook_window_attribution</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="n">g4_chapter_drafting</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fixture</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">fixture</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">fixture</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">hook_rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">]</span>
+        <span class="n">no_hook</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.no_hook:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">hit</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;has_q&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s2">&quot;singles&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;multi&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;has_ledger&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">attr</span><span class="p">[</span><span class="s2">&quot;window_cjk&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">hook_rows</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_hook</span>  <span class="c1"># 窗口质量不足→两口径都不判</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">hook_rows</span><span class="p">)</span> <span class="o">!=</span> <span class="n">no_hook</span>  <span class="c1"># PASS 行与 no_hook mf 互斥</span>
+            <span class="k">if</span> <span class="n">hook_rows</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">hit</span>  <span class="c1"># PASS ⟺ 三臂任一命中</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSummarise</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_counts_and_arm_canonical_fold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.voice_density&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">},</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;G4.cd.voice_density:chapter-1.md:1&lt;2&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-2.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.protagonist_presence&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">},</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;G4.cd.no_hook:chapter-2.md:窗口未检出&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">summarise</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">][</span><span class="s2">&quot;PASS&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="c1"># M2：mf arm 回射 canonical 后计 FAIL（no_hook→chapter_end_hook）</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">][</span><span class="s2">&quot;FAIL&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">ARM_TO_CANONICAL</span><span class="p">[</span><span class="s2">&quot;G4.cd.no_hook&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span>
+        <span class="k">assert</span> <span class="n">ARM_TO_CANONICAL</span><span class="p">[</span><span class="s2">&quot;G4.cd.protagonist_absent&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G4.cd.protagonist_presence&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_must_fix_without_fail_row_counted_once</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">}],</span>
+                <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;X:c1:m&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">summarise</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">][</span><span class="s2">&quot;FAIL&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># 同章同 id 去重</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_firing_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">summarise</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;c1&quot;</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">}],</span> <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+                <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;c2&quot;</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">}],</span> <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;X:c2:m&quot;</span><span class="p">]},</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;_firing&quot;</span><span class="p">][</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCaliberSplit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_state_free_and_truth_sets_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s2">&quot;G4.cd.prop_handoff&quot;</span> <span class="ow">in</span> <span class="n">TRUTH_DEPENDENT_IDS</span>
+        <span class="k">assert</span> <span class="s2">&quot;cd.balance_value_drift&quot;</span> <span class="ow">in</span> <span class="n">TRUTH_DEPENDENT_IDS</span>
+        <span class="k">assert</span> <span class="s2">&quot;G4.cd.hook_type_rotation&quot;</span> <span class="ow">in</span> <span class="n">TRUTH_DEPENDENT_IDS</span>  <span class="c1"># M3：读 plans 历史</span>
+        <span class="k">assert</span> <span class="s2">&quot;G4.cd.payoff_density&quot;</span> <span class="ow">in</span> <span class="n">STATE_FREE_IDS</span>  <span class="c1"># M3：与 registry 对齐</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">STATE_FREE_IDS</span> <span class="o">&amp;</span> <span class="n">TRUTH_DEPENDENT_IDS</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDeterminism</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_same_input_same_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">tools.gate_power_replay</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpr</span>
+
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">_mk_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="n">gpr</span><span class="o">.</span><span class="n">render_report</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">gpr</span><span class="o">.</span><span class="n">render_report</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_write_into_project_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">tools.gate_power_replay</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpr</span>
+
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">_mk_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;chapter-1.md&quot;</span><span class="p">:</span> <span class="n">CH_WITH_HOOK</span><span class="p">})</span>
+        <span class="n">before</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+        <span class="n">gpr</span><span class="o">.</span><span class="n">render_report</span><span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span> <span class="o">==</span> <span class="n">before</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_gate_power_replay.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'tools.gate_power_replay'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>tools/gate_power_replay.py</code></strong></li>
+</ul>
+<p>克隆 <code>tools/replay_severity_vocab.py</code> 形态（shebang＋docstring 引用 spec＋argparse＋<code>--out</code>＋stderr 报告去向）。核心骨架（实现者照抄后补全报告排版与注释）：</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Spec #116 T1: offline G4 discriminative-power replay (zero LLM, read-only).</span>
+
+<span class="sd">克隆 tools/replay_severity_vocab.py 形态（#105 先例）。对项目章集逐章调用</span>
+<span class="sd">g4_chapter_drafting，聚合 per-check PASS/WARN/FAIL/SKIP 计数、firing rate、</span>
+<span class="sd">触发归因；双口径（state-free / truth 依赖，附录 A 口径列锚）＋ simile</span>
+<span class="sd">narrative-only 对照列（r2/M7）。不写被测项目目录；报告经 --out 落盘或 stdout。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ending_archetype_of</span><span class="p">,</span>
+    <span class="n">g4_chapter_drafting</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">META_BLOCK_RE</span><span class="p">,</span>
+    <span class="n">count_similes</span><span class="p">,</span>
+    <span class="n">count_transition_words</span><span class="p">,</span>
+    <span class="n">strip_narrative_body</span><span class="p">,</span>
+    <span class="n">strip_scene_markers</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 附录 A 口径列（spec r2）＋ M3 对齐（hook_type_rotation 读 plans 历史 → truth 依赖）</span>
+<span class="n">TRUTH_DEPENDENT_IDS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;G4.cd.prop_handoff&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.balance_value_drift&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.balance_value_drift.bundle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.counter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.counter.plan_conflict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.counter.base_mismatch&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.counter.prose_mismatch&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.hook_type_rotation&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">STATE_FREE_IDS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;G4.pre_check&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.post_check&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.transition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.fatigue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.meta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.word_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.scene_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.scene_concreteness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.scene_hook_match&quot;</span><span class="p">,</span>  <span class="c1"># NB5：回 state-free——对齐附录 A（读 plans 声明，非 truth oracle）</span>
+        <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.protagonist_presence&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.surge&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.simile_band&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.voice_density&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.golden_slot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.quote_verbatim&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.payoff_density&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.post_quote_verbatim&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.post_transition_cross&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cd.post_wordcount_precision&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.cd.ending_diversity&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># M2：mf-only 失败臂 → canonical 门行回射（Task 4 registry fail_arms 同源）</span>
+<span class="n">ARM_TO_CANONICAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;G4.cd.no_hook&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.chapter_end_hook&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.cd.protagonist_absent&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.protagonist_presence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.cd.no_visual_scene&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.scene_concreteness&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.cd.content_overlap&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.cd.content_uniqueness&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># 归因再推导（锚：chapter_drafting.py:728-731 预处理序＋:1178-1235 三臂——</span>
+<span class="c1"># narrative_window 与门同序是 C3 修订核心；漂移由一致性测试双向校验兜底）</span>
+<span class="n">HOOK_TENSION_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)&quot;</span>
+<span class="p">)</span>
+<span class="n">SINGLE_CHAR_TENSION</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s2">&quot;但却还仍瞒藏账欠谜&quot;</span><span class="p">)</span>
+<span class="n">_Q_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[？?]&quot;</span><span class="p">)</span>
+<span class="n">_CJK_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\u4e00-\u9fff\u3400-\u4dbf]&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">narrative_window</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;与门同序的叙事段面（剥 HOOK 块→META 块→场景标记→split）。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;!--HOOK-BEGIN--&gt;.*?&lt;!--HOOK-END--&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">META_BLOCK_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">strip_scene_markers</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hook_window_attribution</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-derive the end-hook window arms (diagnostic only, gate verdict 不变).&quot;&quot;&quot;</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="n">narrative_window</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="c1"># NB3：与门同滤（chapter_drafting.py:1179——[-8:] 后再滤标题/引用/清单行）</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paras</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;##&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="s2">&quot;- [ ]&quot;</span><span class="p">))]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">HOOK_TENSION_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="n">has_q</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_Q_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="n">has_ledger</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;window_cjk&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">_CJK_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)),</span>
+        <span class="s2">&quot;has_q&quot;</span><span class="p">:</span> <span class="n">has_q</span><span class="p">,</span>
+        <span class="s2">&quot;multi&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hits</span> <span class="o">-</span> <span class="n">SINGLE_CHAR_TENSION</span><span class="p">),</span>
+        <span class="s2">&quot;singles&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hits</span> <span class="o">&amp;</span> <span class="n">SINGLE_CHAR_TENSION</span><span class="p">),</span>
+        <span class="s2">&quot;has_ledger&quot;</span><span class="p">:</span> <span class="n">has_ledger</span><span class="p">,</span>
+        <span class="s2">&quot;single_char_only&quot;</span><span class="p">:</span> <span class="p">(</span><span class="ow">not</span> <span class="n">has_q</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">has_ledger</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">hits</span> <span class="o">&amp;</span> <span class="n">SINGLE_CHAR_TENSION</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">hits</span> <span class="o">-</span> <span class="n">SINGLE_CHAR_TENSION</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pure_chapter</span><span class="p">(</span><span class="n">stem</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapter-\d+&quot;</span><span class="p">,</span> <span class="n">stem</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">collect</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span> <span class="k">if</span> <span class="n">_pure_chapter</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stem</span><span class="p">))</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># C1：passed() 无 must_fix 键</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">],</span> <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])})</span>
+    <span class="k">return</span> <span class="n">rows</span>
+</code></pre></div>
+<p><code>summarise(rows)</code>：per id 聚合 <code>checks</code> 行 s 计数；must_fix 行 id（首 <code>:</code> 前缀）先经 <code>ARM_TO_CANONICAL</code> 回射再计入 canonical 行 FAIL（同章同 id 与 check 行 FAIL 去重）；<code>_firing[id] = (FAIL+WARN 非 0 章数)/总章数</code>。<code>render_report(project_dir, pattern)</code>：markdown——per-check 表（canonical id｜口径｜PASS｜WARN｜FAIL｜SKIP｜firing rate）＋归因节（hook：<code>narrative_window</code> 尾 8 段统计 single_char_only 章数、<code>还</code>/<code>账</code> 命中章数；protagonist：<code>characters/protagonist.md</code> frontmatter <code>name:</code>＋<code>他</code> 再推导、总数中位/最小；transition：<code>count_transition_words(strip_narrative_body(content))</code> 中位；ending：<code>ending_archetype_of</code> None 计数；simile 双口径 <code>count_similes(content)</code> vs <code>count_similes(strip_narrative_body(content))</code> per_1000 均值）；<code>--state-free-only</code> 剔除 TRUTH_DEPENDENT_IDS 行。<code>main()</code> 同 replay_severity_vocab（project_dir＋<code>--out</code>＋<code>--pattern</code>＋<code>--state-free-only</code>）。</p>
+<ul>
+<li>[ ] <strong>Step 4: justfile 配方</strong></li>
+</ul>
+<p>在 <code>lint:</code> 配方定义之后（<code>type:</code> 之前）加：</p>
+<div class="highlight"><pre><span></span><code># Spec #116 T1: offline gate discriminative-power replay (zero LLM, read-only)
+gate-power DIR *ARGS:
+    uv run python tools/gate_power_replay.py {{DIR}} {{ARGS}}
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_gate_power_replay.py -v</code>
+Expected: 全 PASS（含 <code>test_window_matches_gate_preprocessing_on_real_fixture</code>——若 SKIP 须在 task report 记原因，不许静默）</p>
+<ul>
+<li>[ ] <strong>Step 6: 真实章冒烟（维护者侧，CI 外）</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/gate_power_replay.py novel-xinghuo-vol1 --out /tmp/gate-power-smoke.md &amp;&amp; head -30 /tmp/gate-power-smoke.md</code>
+Expected: 报告生成；<code>G4.cd.chapter_end_hook</code> 50 PASS；<code>G4.cd.voice_density</code> FAIL=14；<code>find novel-xinghuo-vol1 -newer /tmp/gate-power-smoke.md | wc -l</code> = 0（项目只读）</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/gate_power_replay.py<span class="w"> </span>tests/unit/tools/test_gate_power_replay.py<span class="w"> </span>justfile
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #116 T1 gate-power 离线判别力回放仪表+just 配方&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-hookprotagonisttransition">Task 2: 变异引擎＋最低子集三红测（hook/protagonist/transition）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/gen_gate_power_fixtures.py</code>
+- Create: <code>tests/fixtures/gate-power/chapter-1-hook-killed.md</code>（生成产物，提交）
+- Create: <code>tests/fixtures/gate-power/chapter-1-protagonist-vanished.md</code>
+- Create: <code>tests/fixtures/gate-power/chapter-1-transition-flooded.md</code>
+- Create: <code>tests/fixtures/gate-power/characters/protagonist.md</code>（frontmatter <code>name: 那罕</code>——C2 前置物；provenance 头注明衍生自真实 protagonist.md 的 name 行）
+- Create: <code>tests/fixtures/gate-power/README.md</code>（provenance 说明＋公开 repo 内容政策声明）
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>narrative_window</code>（C3：变异与归因共用窗口面）；源章 = 维护者盘上 <code>novel-xinghuo-vol1/chapters/chapter-1.md</code>（生成时一次性读）
+- Produces（Task 3/4 消费）: CLI <code>uv run python tools/gen_gate_power_fixtures.py SOURCE OUT --mutation NAME [--full]</code>；<code>MUTATIONS: dict[str, Callable[[str], str]]</code>（Task 3 扩展同注册表）；裁片算子 <code>excerpt_tail(text, keep=3)</code>（I7：frontmatter＋叙事尾窗段）；fixture 头部 G0.9 provenance 格式：</p>
+<div class="highlight"><pre><span></span><code>&lt;!--
+provenance: real-output-mutation (G0.9)
+source: novel-xinghuo-vol1/chapters/chapter-1.md (章 1, gitignored 项目)
+mutation: hook_killed (tools/gen_gate_power_fixtures.py, spec <span class="ni">#116</span> T4)
+excerpt: frontmatter + 叙事尾窗 (M4 裁片; --full 时记全章裁定)
+generated: 2026-11-19 (维护者侧一次性; 确定性: 同源同输出)
+--&gt;
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（<code>tests/unit/gates/g4/test_gate_power_negatives.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #116 T4: real-chapter mutation → gate FAIL red tests (prose face).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">FIX_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span> <span class="o">/</span> <span class="s2">&quot;gate-power&quot;</span>  <span class="c1"># NB2：parents[3]=tests/</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_g4</span><span class="p">(</span><span class="n">fixture_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">FIX_DIR</span> <span class="o">/</span> <span class="n">fixture_name</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_drafting</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="n">fp</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">FIX_DIR</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">FIX_DIR</span><span class="p">),</span> <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hook_killed_real_chapter_fails_hook_gate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;真实章变异→FAIL：章尾窗口张力全部抹除（spec 验收 5 最低子集之一）。&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-1-hook-killed.md&quot;</span><span class="p">)</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.no_hook:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">),</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_protagonist_vanished_real_chapter_fails_presence_gate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C2：真臂=protagonist_absent（major_chars 属他门；SKIP 需 characters 前置物）。&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-1-protagonist-vanished.md&quot;</span><span class="p">)</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.cd.protagonist_absent:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">),</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_transition_flooded_real_chapter_fails_transition_gate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_g4</span><span class="p">(</span><span class="s2">&quot;chapter-1-transition-flooded.md&quot;</span><span class="p">)</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.transition:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">),</span> <span class="n">mf</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -v</code>
+Expected: FAIL with <code>FileNotFoundError</code>（fixture 未生成）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现变异引擎 <code>tools/gen_gate_power_fixtures.py</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Spec #116 T4: deterministic real-chapter mutator → negative-example fixtures.</span>
+
+<span class="sd">维护者侧一次性运行（源=gitignored 项目章）；产物提交 tests/fixtures/gate-power/。</span>
+<span class="sd">确定性：同源同输出（无 RNG）；裁片（M4/I7）：frontmatter＋被测叙事尾窗段。</span>
+<span class="sd">窗口面与门同序（import Task 1 narrative_window——测量面=执法面，C3）。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+<span class="p">)</span>  <span class="c1"># repo 根——统一 tools. 包身份（NB 系）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tools.gate_power_replay</span><span class="w"> </span><span class="kn">import</span> <span class="n">narrative_window</span>  <span class="c1"># noqa: E402 (同目录工具互引)</span>
+
+<span class="n">PROVENANCE_TMPL</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;&lt;!--</span><span class="se">\n</span><span class="s2">provenance: real-output-mutation (G0.9)</span><span class="se">\n</span><span class="s2">source: </span><span class="si">{source}</span><span class="s2"> (gitignored 项目真实产物)</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;mutation: </span><span class="si">{name}</span><span class="s2"> (tools/gen_gate_power_fixtures.py, spec #116 T4)</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;excerpt: </span><span class="si">{excerpt_note}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;generated: </span><span class="si">{today}</span><span class="s2"> (维护者侧一次性; 确定性: 同源同输出)</span><span class="se">\n</span><span class="s2">--&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">_TENSION_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待|没说|没答|瞒|藏|账|欠|谜|未完|代价)&quot;</span>
+<span class="p">)</span>
+<span class="c1"># I5：注入词必须取自 count_transition_words 计数面（shared.py:911 TRANSITION_SPECIFIC）</span>
+<span class="n">_TRANSITION_FILLERS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;不过，&quot;</span><span class="p">,</span> <span class="s2">&quot;此时，&quot;</span><span class="p">,</span> <span class="s2">&quot;突然，&quot;</span><span class="p">,</span> <span class="s2">&quot;终于，&quot;</span><span class="p">,</span> <span class="s2">&quot;于是，&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frontmatter_end</span><span class="p">(</span><span class="n">paras</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">paras</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">paras</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paras</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;---&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">excerpt_tail</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keep_after</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;I7 裁片：frontmatter＋叙事尾窗段（变异落点在尾窗内）。&quot;&quot;&quot;</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fm</span> <span class="o">=</span> <span class="n">paras</span><span class="p">[:</span> <span class="n">_frontmatter_end</span><span class="p">(</span><span class="n">paras</span><span class="p">)]</span>
+    <span class="n">narrative</span> <span class="o">=</span> <span class="n">narrative_window</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="n">narrative</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="n">keep_after</span><span class="p">)</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fm</span> <span class="o">+</span> <span class="n">tail</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hook_killed</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;章尾窗口（narrative_window 尾 8 段）张力词→中性、删？与数字串。&quot;&quot;&quot;</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="n">narrative_window</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">paras</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="n">paras</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tail</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_TENSION_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;就&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[？?]&quot;</span><span class="p">,</span> <span class="s2">&quot;。&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="s2">&quot;数&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">protagonist_vanished</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;主角名→术赤；「他」全替换（含「」归属位）→ total &lt; 3。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;那罕&quot;</span><span class="p">,</span> <span class="s2">&quot;术赤&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;他&quot;</span><span class="p">,</span> <span class="s2">&quot;此人&quot;</span><span class="p">)</span>  <span class="c1"># C2：归属位一并替换（「他」单独即 ≥3）</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">transition_flooded</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;narrative 段首注入计数面连接词（不过/此时/突然/终于/于是）。&quot;&quot;&quot;</span>
+    <span class="n">paras</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paras</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="s2">&quot;- [&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;!--&quot;</span><span class="p">)):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_TRANSITION_FILLERS</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">_TRANSITION_FILLERS</span><span class="p">)]</span> <span class="o">+</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<span class="n">MUTATIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;hook_killed&quot;</span><span class="p">:</span> <span class="n">hook_killed</span><span class="p">,</span>
+    <span class="s2">&quot;protagonist_vanished&quot;</span><span class="p">:</span> <span class="n">protagonist_vanished</span><span class="p">,</span>
+    <span class="s2">&quot;transition_flooded&quot;</span><span class="p">:</span> <span class="n">transition_flooded</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--mutation&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">MUTATIONS</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--full&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;不裁片（默认裁片 M4）&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">mutated</span> <span class="o">=</span> <span class="n">MUTATIONS</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">mutation</span><span class="p">](</span><span class="n">src</span><span class="p">)</span>
+    <span class="n">note</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;全章（裁片不足以承载该变异——README 记裁定）&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">full</span>
+        <span class="k">else</span> <span class="s2">&quot;frontmatter + 叙事尾窗 (M4 裁片)&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">full</span><span class="p">:</span>
+        <span class="n">mutated</span> <span class="o">=</span> <span class="n">excerpt_tail</span><span class="p">(</span><span class="n">mutated</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">PROVENANCE_TMPL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">source</span><span class="p">),</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mutation</span><span class="p">,</span>
+        <span class="n">excerpt_note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+        <span class="n">today</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="n">mutated</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="si">}</span><span class="s2"> &lt;- </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">mutation</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p><strong>裁片×变异顺序</strong>：变异先作用全文、再 <code>excerpt_tail</code> 裁片——hook/transition 变异落点恰在尾窗；protagonist 变异影响全文计数，若裁片后残留计数仍 ≥3（前文未进裁片即无所谓——裁片即全文的可判面：<code>g4_chapter_drafting</code> 只见裁片文本，计数=裁片内计数）——<strong>protagonist/transition 默认 <code>--full</code> 生成</strong>（裁片截断会破坏「全章计数」语义），hook 默认裁片；README 记此裁定。</p>
+<ul>
+<li>[ ] <strong>Step 4: 维护者侧生成 fixture（含 C2 前置物）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>novel-xinghuo-vol1/chapters/chapter-1.md<span class="w"> </span>tests/fixtures/gate-power/chapter-1-hook-killed.md<span class="w"> </span>--mutation<span class="w"> </span>hook_killed
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>novel-xinghuo-vol1/chapters/chapter-1.md<span class="w"> </span>tests/fixtures/gate-power/chapter-1-protagonist-vanished.md<span class="w"> </span>--mutation<span class="w"> </span>protagonist_vanished<span class="w"> </span>--full
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>novel-xinghuo-vol1/chapters/chapter-1.md<span class="w"> </span>tests/fixtures/gate-power/chapter-1-transition-flooded.md<span class="w"> </span>--mutation<span class="w"> </span>transition_flooded<span class="w"> </span>--full
+</code></pre></div>
+<p><code>tests/fixtures/gate-power/characters/protagonist.md</code> 手工落盘（C2：<code>_load_protagonist_names</code> 非 SKIP 前提）：</p>
+<div class="highlight"><pre><span></span><code>---
+provenance: real-output-derivative (G0.9)
+<span class="gu">source: novel-xinghuo-vol1/characters/protagonist.md name 行</span>
+<span class="gu">---</span>
+name: 那罕
+</code></pre></div>
+<p><strong>红测必须真实红三查</strong>（每 fixture 生成后逐个执行并贴输出）：
+1. hook：g4 于 fixture → must_fix 含 <code>G4.cd.no_hook</code>；若仍 PASS＝裁片后窗口 &lt;30 CJK → <code>--full</code> 重生成（记裁定）
+2. protagonist：must_fix 含 <code>G4.cd.protagonist_absent</code>（SKIP＝characters/ 前置物未落；PASS＝裁片内残留计数——<code>--full</code>）
+3. transition：<code>uv run python -c "from shenbi.gates.shared import count_transition_words, strip_narrative_body; print(count_transition_words(strip_narrative_body(open('&lt;fixture&gt;').read())))"</code> → 计数 &gt; max(5, wc//1000)（I5：先验计数面，不猜）</p>
+<p>只读验证：生成前后 <code>find novel-xinghuo-vol1 -newermt "$(date -v-1M '+%Y-%m-%d %H:%M:%S')" | wc -l</code> 一致。写 <code>tests/fixtures/gate-power/README.md</code>：来源/算子/再生成命令/裁片与 <code>--full</code> 裁定说明＋<strong>公开 repo 内容政策声明（M4/I7）</strong>——「本 repo 为 public；变异 fixture 为真实章（frontmatter＋被测窗或全章，逐 fixture 注明）的确定性变换，不脱敏——对齐 <code>tests/fixtures/</code> 既有 vol1 衍生先例（cross-chapter-regression 等）；若用户裁定需脱敏，后续批占位符替换非被测文本再生成（本 README 即该出口的登记位）」。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -v</code>
+Expected: 3 PASS</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>tests/fixtures/gate-power/<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #116 T4 变异引擎+hook/protagonist/transition 真实章负例红测（验收5最低子集）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-in-scope">Task 3: 其余 in-scope 门变异负例全覆盖</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/gen_gate_power_fixtures.py</code>（MUTATIONS 扩展）
+- Create: <code>tests/fixtures/gate-power/</code>（下表每变异一 fixture＋前置物：<code>plans/chapter-1-plan.md</code>（v4 memo——voice_density/scene_hook/quote_verbatim/hook_type_rotation 消费）、<code>project-output/chapters/chapter-0.md</code>＋被测 <code>chapter-1-duplicated.md</code> 本体入驻同目录（I3：<code>_check_content_uniqueness</code> 基数门槛 <code>len(project-output/chapters/*.md) &gt; 1</code>——被测章＋比对章共 2 文件，glob 排除自身后与 chapter-0 比对；红测的 <code>_g4("project-output/chapters/chapter-1-duplicated.md")</code> 传 FIX_DIR 为 rd））
+- Test: <code>tests/unit/gates/g4/test_gate_power_negatives.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 <code>MUTATIONS</code>/<code>_g4</code>/<code>--full</code>；Task 1 <code>narrative_window</code>
+- Produces: 覆盖矩阵（Task 4 CHECK_REGISTRY <code>t4_evidence</code> 列引用测试名）</p>
+<p><strong>plans fixture</strong>（v4 形：<code>plan_format: v4</code>＋『』锚定引句＋voice_density 声口要求行＋场景钩声明——先 grep <code>_check_scene_hook</code>（:1070）与 <code>voice_density_min</code>（:1403）实际读取行形再落盘；provenance 头注明衍生自真实 plan 的行形）。</p>
+<p><strong>FAIL 组变异规格</strong>（确定性变换→期望 mf id；行号已核）：</p>
+<table>
+<thead>
+<tr>
+<th>mutation</th>
+<th>变换</th>
+<th>期望 mf id</th>
+<th>前置物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scene_visuals_stripped</code></td>
+<td>尾窗段视觉动词/对白删（→静态陈述）</td>
+<td><code>G4.cd.no_visual_scene</code>（:1149）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>scene_markers_removed</code></td>
+<td>删场景标记行</td>
+<td><code>G4.cd.scene_count:…&lt;2</code>（:1058）</td>
+<td><strong>默认 <code>--full</code></strong>（NB6 同因）</td>
+</tr>
+<tr>
+<td><code>fatigue_flooded</code></td>
+<td>narrative 段尾追加「他心中暗道。」×9</td>
+<td><code>G4.fatigue:…&gt;8</code>（:997，阈值 8）</td>
+<td>—（实词 grep <code>_fatigue_word_list</code> :968-989 核对，避开 #93 erratum 子串碰撞）</td>
+</tr>
+<tr>
+<td><code>meta_injected</code></td>
+<td>插入「由此可见：这一切早有注定。」＋「综上所述」段</td>
+<td><code>G4.meta:…</code>（:1022；载荷取 META_NARRATIVE 7 词闭集——I1）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>word_count_truncated</code></td>
+<td>正文截断至 &lt;带下限</td>
+<td><code>G4.word_count</code>（mf 形态 grep :1027-1052）</td>
+<td>—（带值 grep genre-config word_band）</td>
+</tr>
+<tr>
+<td><code>post_removed</code></td>
+<td>删 META 块（含 POST）</td>
+<td><code>G4.post_check:…</code>（:911）</td>
+<td><strong>默认 <code>--full</code></strong>（NB6：裁片本身不含 POST——裁片模式红来自副作用非变异；README 注因果）</td>
+</tr>
+<tr>
+<td><code>pre_removed</code></td>
+<td>删 <code>## PRE_WRITE_CHECK</code> 段</td>
+<td><code>G4.pre_check:…</code>（:902）</td>
+<td><strong>默认 <code>--full</code></strong>（同 NB6）</td>
+</tr>
+<tr>
+<td><code>voice_stripped</code></td>
+<td>口癖短语（这笔我先记下/折旧完了/此账必有还之日/行，先算账）→中性语</td>
+<td><code>G4.cd.voice_density:…</code></td>
+<td><code>plans/chapter-1-plan.md</code> v2+（memo_v2 声口要求行——:1410/:1397-1424；实弹 14/50 已 FAIL，变异证下界）</td>
+</tr>
+<tr>
+<td><code>hookdecl_mismatched</code></td>
+<td>plan 场景钩声明改「悬念」vs 章尾实拍</td>
+<td><code>G4.cd.scene_hook_match:…</code>（:1077）</td>
+<td>plans fixture 钩声明行（grep :717-722 读取形）</td>
+</tr>
+<tr>
+<td><code>post_quote_broken</code></td>
+<td>POST 引句改一字</td>
+<td>mf 组合形（grep <code>_pq_id</code> 邻 :884-910）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>post_transition_lied</code></td>
+<td>POST 转折申报与正文不符</td>
+<td>mf 组合形（:956 邻 <code>_ptc_id</code>）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>content_duplicated</code></td>
+<td><strong>从 chapter-0 复制段落 append 至章尾</strong>、段数按 <code>k/(m+k) &gt; 0.40</code> 指纹占比取（实现时按 fixture 实际段数 m 计算 k，先跑三查验证）</td>
+<td><code>G4.cd.content_overlap:…</code>（:1104）</td>
+<td>被测章落 <code>project-output/chapters/chapter-1-duplicated.md</code>＋比对章 <code>chapter-0.md</code> 同目录（I3：跨章＋集合指纹＋基数门槛 len&gt;1 三条件齐；复制段必须 append 章尾否则被裁片截掉）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>WARN-only 组（负例=断言 check 行 s==WARN；surge/post_wordcount 实勘无 mf 臂）</strong>：<code>surge_killed</code>（长句切短→<code>G4.cd.surge</code> WARN——:1261-1288）、<code>simile_flooded</code>（堆比喻 per_1000&gt;4→<code>G4.cd.simile_band</code> WARN）、<code>golden_emptied</code>（金句位值→无→WARN）、<code>post_wordcount_lied</code>（POST 实际字数改半→<code>cd.post_wordcount_precision</code> WARN——I2）、<code>ending_repeated</code>（helper 级：<code>ending_archetype_of</code> 三连续同型断言——fixture 两前置章＋被测章）。</p>
+<p><strong>helper 级红测</strong>（需 truth/历史上下文，调公共函数；构造性输入 inline）：</p>
+<table>
+<thead>
+<tr>
+<th>gate</th>
+<th>调用（实签名）</th>
+<th>期望</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prop_handoff</td>
+<td><code>check_prop_handoffs(text, memo_text, props, known_names=None, owner_aliases=None)</code>（:149）</td>
+<td>声明交接而 prose 无交接语境 → issue 含 <code>cd.prop_handoff</code></td>
+</tr>
+<tr>
+<td>counter 家族</td>
+<td><code>check_counter_reconciliation(text, memo_text, counters, *, fp="")</code>（:255）</td>
+<td>plan/prose 数值矛盾 → issue</td>
+</tr>
+<tr>
+<td>balance</td>
+<td>实勘：facts oracle 缺席即 WARN skip（:642-656/:773-781）——红测断言 SKIP 路径＋登记「负例=附录 A 实弹 7 FAIL 已证」</td>
+<td>SKIP 路径断言</td>
+</tr>
+<tr>
+<td>quote_verbatim</td>
+<td>全管线：plans fixture <code>plan_format: v4</code>＋缺『』锚定</td>
+<td><code>G4.cd.quote_verbatim:…</code>（:1195-1206）</td>
+</tr>
+<tr>
+<td>hook_type_rotation</td>
+<td>全管线：<code>declared_history(project_dir)</code> 需 hooks 历史——fixture 目录落最小 hooks 台账（grep :555-569 读取形后构造）＋两章同钩型</td>
+<td><code>G4.cd.hook_type_rotation:…</code>（:577-582）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 1: 逐门 grep 实锚</strong>（每变异：消息形态/读取行形 grep 输出贴 task report——先验自检如实）</li>
+<li>[ ] <strong>Step 2: 每变异=失败测试→生成 fixture＋前置物→红测转绿</strong>（Task 2 循环复用；每 4-5 个一组 commit；<strong>红测必须真实红检查同 Task 2 Step 4 三查</strong>）</li>
+<li>[ ] <strong>Step 3: 全量跑</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_gate_power_negatives.py -v</code>
+Expected: 全 PASS（预计 20+ 用例）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit（分组）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/gen_gate_power_fixtures.py<span class="w"> </span>tests/fixtures/gate-power/<span class="w"> </span>tests/unit/gates/g4/test_gate_power_negatives.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #116 T4 全门变异负例覆盖（散文面+声明面+WARN-only 触发）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-lint-toolslint_gate_power_baselinepy">Task 4: 恒真登记＋哨兵 lint <code>tools/lint_gate_power_baseline.py</code></h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_gate_power_baseline.py</code>
+- Create: <code>docs/framework/gate-power-baseline.md</code>
+- Modify: <code>justfile</code>（<code>lint:</code> 配方内 <code>lint_invariant_coverage</code> 行后加一行）
+- Modify: <code>docs/framework/invariants.md</code>（门检列段加分工声明）
+- Test: <code>tests/unit/tools/test_lint_gate_power_baseline.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>ARM_TO_CANONICAL</code>/口径常量（registry 与之同源对齐——M3；import 防双源漂移）；Task 2/3 红测名（evidence 列）；#88 <code>tests/fixtures/g4-id-inventory.json</code> <strong>仅交叉参考</strong>（C4：不作集合等式一源）
+- Produces: 退出码契约 0=绿／1=FAIL（registry↔AST 漂移、baseline 行缺/多、分类值域外、非 discriminating 缺证据、ESCALATION_DATE 后 unclassified-0-点火）；WARN 级=stderr 行＋exit 0；<code>CHECK_REGISTRY: dict[str, dict]</code>（canonical→{fail_arms, warn_only, 口径}）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #116 T2: vacuity registry sentinel lint tests.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tools.lint_gate_power_baseline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lint</span>
+
+<span class="n">HEADER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;# t</span><span class="se">\n\n</span><span class="s2">| check | 口径 | 期望点火带 | 分类 | 证据 | 最近回放数 | 归因 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_baseline</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;gate-power-baseline.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_registry_matches_static_sources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C4 修订：registry∪arms == chapter_drafting.py 单文件扫描 ∪ 显式补充。&quot;&quot;&quot;</span>
+    <span class="n">drift</span> <span class="o">=</span> <span class="n">lint</span><span class="o">.</span><span class="n">registry_drift</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">drift</span> <span class="o">==</span> <span class="p">[],</span> <span class="n">drift</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_baseline_row_is_fail</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_write_baseline</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">HEADER</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">lint_file</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="n">lint</span><span class="o">.</span><span class="n">PRE_ESCALATION</span><span class="p">,</span> <span class="n">require_full_registry</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unclassified_zero_firing_warns_before_escalation</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">HEADER</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot;| `G4.cd.surge` | state-free | 0% | unclassified | — | 50 章 @ d (r) 0 点火 | — |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_write_baseline</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">lint</span><span class="o">.</span><span class="n">lint_file</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="n">lint</span><span class="o">.</span><span class="n">PRE_ESCALATION</span><span class="p">,</span> <span class="n">require_full_registry</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># WARN 级：exit 0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unclassified_zero_firing_fails_after_escalation</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">HEADER</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot;| `G4.cd.surge` | state-free | 0% | unclassified | — | 50 章 @ d (r) 0 点火 | — |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_write_baseline</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">lint_file</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="n">lint</span><span class="o">.</span><span class="n">ESCALATION_DATE</span><span class="p">,</span> <span class="n">require_full_registry</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_decorative_without_evidence_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">HEADER</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot;| `G4.cd.meta` | state-free | 0% | decorative |  | 50 章 @ d (r) 0 点火 | — |</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_write_baseline</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">lint_file</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="n">lint</span><span class="o">.</span><span class="n">PRE_ESCALATION</span><span class="p">,</span> <span class="n">require_full_registry</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_classification_vocab_closed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">VALID_CLASSIFICATIONS</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;unclassified&quot;</span><span class="p">,</span> <span class="s2">&quot;floor-untested&quot;</span><span class="p">,</span> <span class="s2">&quot;decorative&quot;</span><span class="p">,</span> <span class="s2">&quot;discriminating&quot;</span><span class="p">,</span> <span class="s2">&quot;retired&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escalation_anchor_documented</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;M1：升格锚=回填日+30 天（2026-11-19+30），模块常量注释与 baseline 头节同时声明。&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">ESCALATION_DATE</span> <span class="o">==</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint</span><span class="o">.</span><span class="n">PRE_ESCALATION</span> <span class="o">==</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_gate_power_baseline.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 lint＋registry＋baseline 骨架</strong></li>
+</ul>
+<p><code>registry_drift()</code>（C4 修订）：对 <code>src/shenbi/gates/g4/chapter_drafting.py</code> <strong>单文件</strong>双扫描——(a) <code>re.findall(r'"id":\s*"(G4\.[a-zA-Z0-9_.]+)"', src)</code>（check 行 dict id）∪ (b) <code>re.findall(r'(?:mf|c)\.(?:append|extend)\(\s*f"(G4\.[a-zA-Z0-9_.]+):', src)</code>（mf 首常量 id）；<strong>前缀归一</strong>：扫描产出统一剥 <code>G4.</code> 前缀后与裸形 registry 比较。<strong>显式补充面（NB4 预列，免 drift 测试烧实现者一轮）</strong>：<code>EXPLICIT_SUPPLEMENT</code>（扫描不可见的组合/变量发射臂）= <code>{cd.protagonist_absent, cd.prop_handoff, cd.counter, cd.counter.plan_conflict, cd.counter.base_mismatch, cd.counter.prose_mismatch, cd.balance_value_drift, cd.balance_value_drift.bundle, cd.post_quote_verbatim, cd.post_transition_cross}</code>；<code>SCAN_EXCLUDE</code>（非检查的错误/杂臂）= <code>{file_not_found}</code>；扫描侧多出的 <code>cd.quote_type</code>/<code>cd.micro_hook_run</code> <strong>进 registry 行</strong>（真实 in-scope 检查——micro_hook_run 需 memo_v3，回放面记 SKIP；quote_type 为引号型检查行）。两侧集合相等（多=未登记→FAIL；少=死键→FAIL）。<strong>不</strong>读 g4-id-inventory.json 作等式源（含 character_design 交叉污染且缺 protagonist_absent——C4 实证）；存在时打印交叉参考 diff 到 stderr（信息行，不执法）。</p>
+<p><code>ESCALATION_DATE = date(2026, 12, 19)</code>（注释：锚=baseline 回填日 2026-11-19＋30 天=一个完整裁定周期，spec r2/I5「分类义务清偿后」以该日历日近似；若 Task 5 实跑日晚于 11-19，按「实跑日＋30 天」改此常量并在 task report 记录）。<code>PRE_ESCALATION = date(2026, 11, 19)</code>。</p>
+<p><code>lint_file(path, today, require_full_registry=True)</code>：解析 baseline 表——<code>require_full_registry</code> 时行集==registry canonical 集；分类值域 <code>VALID_CLASSIFICATIONS</code>；非 discriminating 行证据列非空（<code>—</code> 仅 unclassified 允许，unclassified 证据列允许填红测链接供裁定参考）；unclassified 且「最近回放数」列含 <code>0 点火</code>：today≥ESCALATION_DATE → exit 1，否则 stderr WARN＋exit 0。</p>
+<p><code>CHECK_REGISTRY</code> 骨架（18 逻辑行=附录 A 全行＋content_uniqueness/quote_type/micro_hook_run 附录外行（NB4：后两者为扫描侧真实 in-scope 检查，回放面记 SKIP/0 观测）；canonical 集=STATE_FREE_IDS∪TRUTH_DEPENDENT_IDS（import Task 1 常量）；fail_arms=ARM_TO_CANONICAL 反转＋EXPLICIT_SUPPLEMENT 归并；warn_only=True：surge/simile_band/golden_slot/ending_diversity/post_wordcount_precision/post_quote_verbatim）。</p>
+<p><code>docs/framework/gate-power-baseline.md</code> 骨架：头节（义务声明＋口径定义＋分类四值语义＋「分类必须人工裁定」＋升格锚声明「2026-11-19 回填＋30 天→2026-12-19」）＋全 registry 行表（分类全 <code>unclassified</code>、最近回放数 <code>—</code>——Task 5 回填；hook/protagonist/transition 三行证据列填 Task 2 红测路径）。</p>
+<p><code>justfile</code> <code>lint:</code> 内 <code>uv run python tools/lint_invariant_coverage.py</code> 行后加 <code>uv run python tools/lint_gate_power_baseline.py</code>。</p>
+<p><code>docs/framework/invariants.md</code> 门检列段加：「点火率/恒真分类登记见 <code>docs/framework/gate-power-baseline.md</code>（spec #116）——本表管不变量维度覆盖，彼表管判别力，check-id 对账由 <code>tools/lint_gate_power_baseline.py</code> 执行（分母=chapter_drafting.py AST 单源，非本表）」。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试＋lint 本体冒烟</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_gate_power_baseline.py -v &amp;&amp; uv run python tools/lint_gate_power_baseline.py; echo "exit=$?"</code>
+Expected: 测试全 PASS；lint 本体在骨架（全 unclassified＋回放数 <code>—</code>）下 exit 0（<code>—</code> 不触发 WARN——WARN 只对显式 <code>0 点火</code> 行；回填后进入 WARN 首态）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_gate_power_baseline.py<span class="w"> </span>docs/framework/gate-power-baseline.md<span class="w"> </span>docs/framework/invariants.md<span class="w"> </span>justfile<span class="w"> </span>tests/unit/tools/test_lint_gate_power_baseline.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #116 T2 恒真登记+哨兵 lint（单文件 AST registry+分类证据义务+升格日期锚）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-50">Task 5: 标定提案文档＋50 章回放回填</h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/framework/gate-calibration-proposals.md</code>
+- Create: <code>reports/2026-11-19-gate-power-vol1.md</code>（Task 1 工具实跑产物）
+- Modify: <code>docs/framework/gate-power-baseline.md</code>（「最近回放数」列回填）
+- Modify: <code>tools/lint_gate_power_baseline.py</code>（仅当 Step 3 校正升格锚时）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>just gate-power</code>；Task 2/3 红测；附录 A＋两份 Goodhart 报告数字
+- Produces: 提案文档（用户裁定入口）；baseline 回填后哨兵进入 WARN 首态</p>
+<ul>
+<li>[ ] <strong>Step 1: 维护者侧 50 章回放（验收 2 实跑）</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/gate_power_replay.py novel-xinghuo-vol1 --out reports/2026-11-19-gate-power-vol1.md</code>
+Expected: 报告数字与附录 A 一致（10 散文门 50/50、voice_density FAIL=14、prop_handoff=11、simile WARN=28、ending None=47）；命令与输出摘录贴 progress.md <code>## 验收证据</code></p>
+<ul>
+<li>[ ] <strong>Step 2: 写提案文档</strong>（七项×四栏；每项现状数字必须来自 Task 1 报告/附录 A/两 Goodhart 报告——逐项带数字，禁空泛）</li>
+</ul>
+<p>结构：每项 <code>### &lt;门名&gt;</code>＋四栏表（现状（数字）/提案（≥1 具体选项）/红测（指向 Task 2/3 测试或「落地批补」）/回滚（单 commit 条件））；voice_density 首项（vol1 14/50 must_fix＋Goodhart r2 15/18——阈值重标定或「逐字口癖在场」与「密度下限」两级拆分）；hook（15/50 单字-only＋<code>还</code>=38/<code>账</code>=38 与账房腔同词表——多字/结构臂或词表不相交）；protagonist（中位 93 vs 阈值 3＋名字表重复 <code>:495</code>/<code>:508</code>——去重＋重标定）；transition（中位 0 vs 阈值 5——retire 或重标定；化合物 3 次负结果）；scene_concreteness/surge/fatigue/meta（逐项分类＋负例链接）；simile（56% WARN——路由/降报告行）；ending archetype（47/50 None——扩分类器或退役哨兵）。</p>
+<ul>
+<li>[ ] <strong>Step 3: baseline 回填</strong></li>
+</ul>
+<p>「最近回放数」列填 <code>50 章 @ 2026-11-19（reports/2026-11-19-gate-power-vol1.md）</code>＋0 点火行加 <code>0 点火</code> 标记；Run: <code>uv run python tools/lint_gate_power_baseline.py; echo exit=$?</code> → exit 0＋stderr 多行 WARN（首态设计内——分类待用户裁定）；输出贴 task report。<strong>升格锚校正</strong>：若本 Step 实跑日≠2026-11-19，同步改 lint <code>ESCALATION_DATE</code> 注释与 baseline 头节锚声明（M1）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 全量验收（AC1 实跑=M4 修订）</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: 全绿（含新 lint 行；哨兵 WARN 行在 stderr 不影响 exit 0）</p>
+<p>Run: <code>uv run pytest tests/unit/tools/test_gate_power_replay.py tests/unit/tools/test_lint_gate_power_baseline.py tests/unit/gates/g4/test_gate_power_negatives.py -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/framework/gate-calibration-proposals.md<span class="w"> </span>reports/2026-11-19-gate-power-vol1.md<span class="w"> </span>docs/framework/gate-power-baseline.md<span class="w"> </span>tools/lint_gate_power_baseline.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: spec #116 T3 七项标定提案+T1/T2 50 章回放回填（哨兵进入 WARN 首态）&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="ac">AC 覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. T1-T4 判据全绿</td>
+<td>1-5</td>
+<td>各 task 测试＋Task 5 Step 4 <code>just check</code></td>
+</tr>
+<tr>
+<td>2. gate-power 50 章可复现＋双口径＋simile 对照列</td>
+<td>1（实现）＋5（实跑）</td>
+<td>reports/2026-11-19-gate-power-vol1.md</td>
+</tr>
+<tr>
+<td>3. 登记覆盖分母＋WARN 哨兵＋升格判据测试</td>
+<td>4</td>
+<td>test_lint_gate_power_baseline.py（7 用例含升格/证据义务/分母漂移）</td>
+</tr>
+<tr>
+<td>4. 七项提案＋回滚条件交裁</td>
+<td>5</td>
+<td>gate-calibration-proposals.md</td>
+</tr>
+<tr>
+<td>5. hook/protagonist/transition 三项真实章可捕获</td>
+<td>2</td>
+<td>test_gate_power_negatives.py 首三测</td>
+</tr>
+</tbody>
+</table>
+<h2 id="test_kind">复杂度/test_kind 总表</h2>
+<table>
+<thead>
+<tr>
+<th>task</th>
+<th>复杂度</th>
+<th>test_kind</th>
+<th>层级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 回放仪表</td>
+<td>leaf（tools/ 单文件，非 infra 模块）</td>
+<td>tdd_red_green</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>2 变异引擎＋三红测</td>
+<td>leaf</td>
+<td>tdd_red_green（负例=红即 FAIL 证明）</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>3 全门覆盖</td>
+<td>leaf（大；逐门 grep 实锚后小步循环）</td>
+<td>regression_guard（红测钉住「能失败」）</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>4 登记＋哨兵</td>
+<td>leaf</td>
+<td>tdd_red_green</td>
+<td>T1</td>
+</tr>
+<tr>
+<td>5 提案＋回填</td>
+<td>leaf（docs 为主）</td>
+<td>characterization（报告数字对齐附录 A）</td>
+<td>T1</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

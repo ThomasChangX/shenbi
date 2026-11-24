@@ -1,0 +1,1877 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec92-test-ci-hygiene/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #92 test-ci-hygiene Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #92 test-ci-hygiene Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec92-test-ci-hygiene.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-15-spec92-test-ci-hygiene/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #92 test-ci-hygiene Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-15-spec92-test-ci-hygiene.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-92-test-ci-hygiene-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #92 test-ci-hygiene Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t1-_tool_hashes-deletion-dual-role-script-slim-down-rename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T1 — _tool_hashes deletion + dual-role script slim-down &amp; rename
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t2a-typed-loader-load_deps-six-reader-conversion-thin-wrapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T2a — typed loader load_deps + six-reader conversion + thin wrapper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t2b-repo_root-constant-parentsn-purge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T2b — REPO_ROOT constant + parents[N] purge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-t3-unit-marker-retirement-option-b-testtest-all-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: T3 — unit marker retirement (option b) + test/test-all merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t4-threshold-single-source-just-linttypetest-ci-hook-constructive-subset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T4 — threshold single-source + just lint/type/test-ci + hook constructive subset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t5-sediment-purge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T5 — sediment purge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-t6-dispatch-payload-constructor-first-5-conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: T6 — dispatch payload constructor + first-5 conversion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-final-verification-battery-spec-2-acceptance-1-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Final verification battery (spec §2 acceptance 1-5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-92-test-ci-hygiene-implementation-plan">Spec #92 test-ci-hygiene Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Remove the dead <code>_tool_hashes</code> block (keeping the calibration half of the dual-role script), consolidate deps loading and REPO_ROOT, retire the <code>unit</code> marker, single-source the coverage threshold with just sub-recipes, purge test sediment, and add a dispatch-payload constructor.</p>
+<p><strong>Architecture:</strong> Eight tasks mapping 1:1 to spec T1-T6 plus a final verification task. All changes are test/CI infrastructure — no pipeline behavior changes. T1 is a same-commit surgical delete+rename; T2 introduces one typed loader consumed by six call sites; T3-T6 are mechanical sweeps; T8 runs the full acceptance battery.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic v2 / pytest 9 / just / ruff / mypy / basedpyright / uv.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Every commit lists explicit file paths (pathspec commit; <code>git add -A</code> forbidden — user unstaged docs changes must survive untouched).</li>
+<li>Before EVERY commit: <code>git branch --show-current</code> must print <code>chore/spec-92-test-ci-hygiene</code> (D-1 incident lesson).</li>
+<li><code>just</code>/<code>uv run</code> only for verification (CI-isomorphic); system python results are not evidence.</li>
+<li>No <code>print()</code> in <code>src/shenbi/</code> (ruff T20); structlog for logging; pathlib for I/O.</li>
+<li>Spec acceptance criteria are the definition of done (spec §2, items 1-5).</li>
+<li>T1's data-key + schema-field deletion and the rename sweep land in ONE commit (extra:"forbid" makes split commits permanently red — spec §3).</li>
+<li>pytest-randomly stays installed; <code>just test</code> recipe gains <code>-p no:randomly</code> (T4); other legs' exposure is pre-existing (spec r3.2 note).</li>
+</ul>
+<hr />
+<h3 id="task-1-t1-_tool_hashes-deletion-dual-role-script-slim-down-rename">Task 1: T1 — <code>_tool_hashes</code> deletion + dual-role script slim-down &amp; rename</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/lock-tool-hashes.sh</code> → <strong>rename</strong> to <code>tests/lock-calibration-hash.sh</code> (git mv), delete lines 1-32 (tool-hash half), keep :34-59 (calibration half)
+- Modify: <code>tests/tiers/deps.json</code> (delete <code>"_tool_hashes"</code> key, lines 205-422, 217 entries)
+- Modify: <code>src/shenbi/contracts/schemas/deps.py:62</code> (delete <code>tool_hashes</code> field) and <code>:7-11</code> docstring (remove <code>_tool_hashes</code> from keys enumeration)
+- Modify: <code>tools/lint_registry_reconcile.py</code> (delete R3 face :420-437, docstring :23-25 R3 paragraph, main wiring :492)
+- Modify: <code>src/shenbi/gates/g0.py</code> (:187 comment, :218/:232/:251 must_fix strings, :235 comment — name swap + wording)
+- Modify: <code>tests/unit/test_lint_registry_reconcile.py</code> (delete two R3 cases :182-193 <code>test_r3_hash_byte_flip_fails</code>, :195-209 <code>test_r3_absent_targets_skipped</code>)
+- Modify: <code>tests/unit/gates/test_g0_calibration_hash.py</code> (:14 docstring name, :37 fixture base, :86/:109 assertion strings)
+- Modify: <code>tests/unit/contracts/schemas/test_deps.py</code> (:68, :106, :149 — tool_hashes assertions/roundtrip key)
+- Modify: <code>justfile:56</code> (shellcheck list name swap)
+- Modify: <code>goal-prompt.md:28/:88</code>, <code>command-to-give.md:24</code>, <code>tests/fixtures/calibration/README.md:61-65</code> (live docs)
+- Test: existing <code>tests/unit/gates/test_g0_calibration_hash.py</code> (kept green = G0.14 survival proof)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing (first task)
+- Produces: <code>tests/lock-calibration-hash.sh</code> (calibration-only re-lock script — referenced by g0.py must_fix strings and calibration README); deps.json without <code>_tool_hashes</code>; <code>DepsDoc</code> without <code>tool_hashes</code> field (Task 2's <code>load_deps</code> returns this shape)</p>
+<ul>
+<li>[ ] <strong>Step 1: Characterize current G0.14 green baseline</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_calibration_hash.py tests/unit/contracts/schemas/test_deps.py -q</code>
+Expected: all PASS (baseline before surgery).</p>
+<ul>
+<li>[ ] <strong>Step 2: Slim and rename the script</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/lock-tool-hashes.sh<span class="w"> </span>tests/lock-calibration-hash.sh
+</code></pre></div>
+<p>Edit <code>tests/lock-calibration-hash.sh</code>: delete everything from the header comment "Lock current SHA256 hashes of tool scripts..." through the end of the first python3 block (original :1-32, including the <code>echo "=== Locking tool hashes ==="</code> line). New header:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># Lock the combined SHA256 of calibration anchors into deps.json.</span>
+<span class="c1"># Run after any intentional tests/fixtures/calibration change (G0.14 re-lock).</span>
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+</code></pre></div>
+<p>Keep the second block (<code>echo "=== Locking calibration anchor hashes ==="</code> onward) unchanged.</p>
+<ul>
+<li>[ ] <strong>Step 3: Delete the data key and schema field (same commit as Step 2-8)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">import json</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">p = Path(&quot;tests/tiers/deps.json&quot;)</span>
+<span class="s">d = json.loads(p.read_text(encoding=&quot;utf-8&quot;))</span>
+<span class="s">del d[&quot;_tool_hashes&quot;]</span>
+<span class="s">p.write_text(json.dumps(d, indent=2, ensure_ascii=False) + &quot;\n&quot;, encoding=&quot;utf-8&quot;)</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<p>In <code>src/shenbi/contracts/schemas/deps.py</code>: delete line 62 (<code>tool_hashes: dict[str, str] = Field(default_factory=dict, alias="_tool_hashes")</code>); in the module docstring key enumeration replace <code>(</code>t2-phases<code>,</code>t3-pipelines<code>,</code>_tool_hashes<code>,</code>_out_of_pipeline<code>,</code> <code>with</code> (<code>t2-phases</code>, <code>t3-pipelines</code>, <code>_out_of_pipeline</code>, <code>_calibration_hashes</code> `` (also add the calibration key — it IS stored and now the only underscored hash key).</p>
+<ul>
+<li>[ ] <strong>Step 4: Delete R3 face in lint_registry_reconcile.py</strong></li>
+</ul>
+<p>Delete function <code>_r3_hash_freshness</code> (:420-437), the R3 paragraph in module docstring (:23-25), and its <code>main()</code> wiring line (:492). Grep first to confirm exact current spans: <code>grep -n "_r3_hash_freshness\|R3 invariant" tools/lint_registry_reconcile.py</code>.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: g0.py name swap + comment wording</strong></p>
+</li>
+<li>
+<p>:187 <code>Mirrors the existing</code>_tool_hashes<code>integrity pattern.</code> → <code>Mirrors the calibration lock in tests/lock-calibration-hash.sh.</code></p>
+</li>
+<li>:218/:232/:251: <code>tests/lock-tool-hashes.sh</code> → <code>tests/lock-calibration-hash.sh</code> (three must_fix strings)</li>
+<li>
+<p>:235 <code># Accept both bare hex and the "sha256:&lt;hex&gt;" envelope used by _tool_hashes.</code> → <code># Accept both bare hex and the "sha256:&lt;hex&gt;" envelope.</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Test edits</strong></p>
+</li>
+<li>
+<p><code>tests/unit/test_lint_registry_reconcile.py</code>: delete <code>test_r3_hash_byte_flip_fails</code> (:182-193) and <code>test_r3_absent_targets_skipped</code> (:195-209) — verify by function name, not line, before deleting.</p>
+</li>
+<li><code>tests/unit/gates/test_g0_calibration_hash.py</code>: :14 docstring <code>hint: run tests/lock-tool-hashes.sh</code> → new name; :37 <code>deps: dict[str, Any] = {"_tool_hashes": {}}</code> → <code>deps: dict[str, Any] = {}</code>; :86/:109 <code>"lock-tool-hashes.sh" in m</code> → <code>"lock-calibration-hash.sh" in m</code>.</li>
+<li>
+<p><code>tests/unit/contracts/schemas/test_deps.py</code>: delete <code>:68</code> (<code>assert d.tool_hashes</code> line — locate exact by grep <code>d.tool_hashes</code>), remove <code>"_tool_hashes": {...}</code> entry from the :106 roundtrip payload, delete <code>:149</code> <code>assert d.tool_hashes == {}</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 7: justfile + live docs</strong></p>
+</li>
+<li>
+<p><code>justfile:56</code>: <code>tests/lock-tool-hashes.sh</code> → <code>tests/lock-calibration-hash.sh</code> in the shellcheck list.</p>
+</li>
+<li><code>goal-prompt.md:28/:88</code>, <code>command-to-give.md:24</code>: replace instructions to run the old script with <code>tests/lock-calibration-hash.sh</code>; DELETE the false claims that G0.13/G7.17 verify tool hashes (G0.13 = independence markers; G7.17 does not exist); say G0.14 locks calibration anchors.</li>
+<li>
+<p><code>tests/fixtures/calibration/README.md:64</code>: <code>tests/lock-tool-hashes.sh</code> → <code>tests/lock-calibration-hash.sh</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 8: Verify criteria + G0.14 survival</strong></p>
+</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;_tool_hashes&quot;</span><span class="w"> </span>--<span class="w"> </span>src<span class="w"> </span>tools<span class="w"> </span>tests<span class="w"> </span>justfile<span class="w"> </span>goal-prompt.md<span class="w"> </span>command-to-give.md<span class="w"> </span><span class="s1">&#39;:!tests/fixtures&#39;</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;rc=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+git<span class="w"> </span>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;lock-tool-hashes&quot;</span><span class="w"> </span>--<span class="w"> </span>src<span class="w"> </span>tools<span class="w"> </span>tests<span class="w"> </span>justfile<span class="w"> </span>goal-prompt.md<span class="w"> </span>command-to-give.md<span class="w"> </span><span class="s1">&#39;:!tests/fixtures&#39;</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;rc=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/gates/test_g0_calibration_hash.py<span class="w"> </span>tests/unit/contracts/schemas/test_deps.py<span class="w"> </span>tests/unit/test_lint_registry_reconcile.py<span class="w"> </span>-q
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_registry_reconcile.py<span class="w"> </span>--allow-missing<span class="w"> </span>shenbi-score-arc,shenbi-score-stratum,shenbi-score-volume
+wc<span class="w"> </span>-l<span class="w"> </span>tests/tiers/deps.json
+</code></pre></div>
+Expected: both greps rc=1 (zero hits); tests PASS; lint rc=0; deps.json &lt;230 lines.</p>
+<ul>
+<li>[ ] <strong>Step 9: Rehearsal acceptance (spec §2.1)</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;\n# rehearsal probe\n&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>src/shenbi/exceptions.py
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--stat<span class="w"> </span>--<span class="w"> </span>tests/tiers/deps.json<span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;diff-rc lines: </span><span class="k">$(</span>git<span class="w"> </span>diff<span class="w"> </span>--<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span><span class="s2">&quot;</span>
+git<span class="w"> </span>checkout<span class="w"> </span>--<span class="w"> </span>src/shenbi/exceptions.py<span class="w"> </span>tests/tiers/deps.json
+</code></pre></div>
+Expected: <code>git diff -- tests/tiers/deps.json</code> empty (0 lines) — post-R3-deletion, no src edit can dirty deps.json.</p>
+<ul>
+<li>[ ] <strong>Step 10: Commit (single commit for the whole T1 surface)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current<span class="w">   </span><span class="c1"># MUST print chore/spec-92-test-ci-hygiene</span>
+git<span class="w"> </span>add<span class="w"> </span>tests/lock-calibration-hash.sh<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>src/shenbi/contracts/schemas/deps.py<span class="w"> </span>tools/lint_registry_reconcile.py<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/test_lint_registry_reconcile.py<span class="w"> </span>tests/unit/gates/test_g0_calibration_hash.py<span class="w"> </span>tests/unit/contracts/schemas/test_deps.py<span class="w"> </span>justfile<span class="w"> </span>goal-prompt.md<span class="w"> </span>command-to-give.md<span class="w"> </span>tests/fixtures/calibration/README.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: spec #92 T1 — delete _tool_hashes block, slim lock script to calibration-only (renamed lock-calibration-hash.sh)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-t2a-typed-loader-load_deps-six-reader-conversion-thin-wrapper">Task 2: T2a — typed loader <code>load_deps</code> + six-reader conversion + thin wrapper</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/schemas/deps.py</code> (add <code>load_deps</code>)
+- Modify: <code>src/shenbi/phase_runner.py:38-54</code> (thin wrapper), <code>:295-305</code>, <code>:382-390</code> (attribute access)
+- Modify: <code>src/shenbi/scoring.py:284-305</code> (loader + attribute access)
+- Modify: <code>src/shenbi/gates/g5.py:82-90</code>, <code>src/shenbi/gates/g6.py:39-47</code> (loader + attribute access)
+- Modify: <code>src/shenbi/gates/g0.py:210-221</code> (loader in check_calibration_integrity + attribute access)
+- Modify: <code>tests/unit/test_phase_runner.py</code> (5 monkeypatch lambdas at :476/:492/:512/:529/:638)
+- Test: <code>tests/unit/contracts/schemas/test_deps.py</code> (new loader tests)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1's <code>DepsDoc</code> (without <code>tool_hashes</code>)
+- Produces: <code>def load_deps(deps_path: Path) -&gt; DepsDoc</code> in <code>shenbi.contracts.schemas.deps</code> (raises <code>OSError</code>/<code>pydantic.ValidationError</code> — callers own error mapping; pydantic v2 wraps malformed JSON in ValidationError). NOTE: spec says <code>load_deps(repo_root)</code>; plan pins <code>load_deps(deps_path: Path)</code> taking the deps.json <strong>file path</strong> — all six call sites already hold/construct the full path (g0 receives it as a parameter), file-path is strictly more general. Recorded as deviation.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing loader tests</strong></li>
+</ul>
+<p>Append to <code>tests/unit/contracts/schemas/test_deps.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_load_deps_roundtrip</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;load_deps reads the real deps.json shape into DepsDoc.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_deps</span>
+
+    <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">load_deps</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">DepsDoc</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">d</span><span class="o">.</span><span class="n">calibration_hashes</span>  <span class="c1"># real file carries the G0.14 lock</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_load_deps_corrupt_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Malformed JSON surfaces as pydantic ValidationError (v2 contract).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_deps</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+    <span class="n">bad</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;{not json&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
+        <span class="n">load_deps</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_load_deps_extra_key_rejected</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_deps</span>
+
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+    <span class="n">bad</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;_tool_hashes&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
+        <span class="n">load_deps</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify they fail</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/schemas/test_deps.py -q -k load_deps</code>
+Expected: FAIL (ImportError: load_deps).</p>
+<ul>
+<li>[ ] <strong>Step 3: Implement loader in deps.py</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_deps</span><span class="p">(</span><span class="n">deps_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DepsDoc</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and validate tests/tiers/deps.json as :class:`DepsDoc`.</span>
+
+<span class="sd">    Raises OSError / pydantic.ValidationError — callers own the error</span>
+<span class="sd">    surface (CLI exit, gate fail tuple, marker list). NOTE: pydantic v2</span>
+<span class="sd">    ``model_validate_json`` raises ValidationError for malformed JSON too</span>
+<span class="sd">    (repo precedent: state_settling.py:867 catches ValueError around it).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">DepsDoc</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">deps_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>Callers' catch-tuples become <code>(OSError, ValidationError)</code> — drop <code>json.JSONDecodeError</code> from new catch sites (ValidationError subsumes it for this loader).</p>
+<ul>
+<li>[ ] <strong>Step 4: Convert the six readers</strong></li>
+</ul>
+<p>For each reader: replace <code>json.loads(...)</code>/<code>jload(...)</code> with <code>from shenbi.contracts.schemas.deps import load_deps</code>, catch <code>(OSError, ValidationError)</code> (import ValidationError from pydantic — the 2-tuple is the loader's contract; see Step 3 note), and convert dict access to attribute access:</p>
+<ul>
+<li><code>phase_runner.py:295-305</code> &amp; <code>:382-390</code>: <code>deps.get("t2-phases", {}).get(phase, {})</code> → <code>deps.t2_phases.get(phase)</code>; <code>phase_data.get("prerequisites", [])</code> → <code>phase_data.prerequisites if phase_data else []</code>. Thin wrapper <code>:38-54</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_deps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">DepsDoc</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load tests/tiers/deps.json; exit structured on corruption (F145).&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">deps_load</span><span class="p">(</span><span class="n">TESTS</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;t2_deps_json_corrupt&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">TESTS</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span><span class="p">),</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="n">emit_json</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">CommandStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;t2 deps.json unreadable&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<p>Keep the module-level name <code>load_deps</code> (monkeypatch target!) — i.e. rename existing <code>load_deps</code> body to call <code>deps_load</code> (alias import <code>from shenbi.contracts.schemas.deps import load_deps as deps_load</code>). Both <code>cmd_pre_score</code> and the <code>:384</code> site keep calling <code>load_deps()</code> with zero args.</p>
+<ul>
+<li><code>scoring.py:284-305</code>: loader + <code>phase_name in deps.t2_phases</code> + <code>deps.t2_phases[phase_name].prerequisites</code>; keep the fail-closed <code>return [f"t2_deps_json_corrupt:..."]</code> on the same exception tuple. (The t3 branch :303-309 never reads deps — only the G6 marker file — so no t3 conversion exists; verified in plan review.)</li>
+<li><code>g5.py:82-90</code>: <code>deps.t2_phases.get(phase_name)</code>; keep <code>fail("G5", ...)</code> mapping.</li>
+<li><code>g6.py:39-47</code>: <code>deps.t3_pipelines.get(pipeline_name)</code> (drop the <code>, {}</code> default — attribute is a dict already); <code>min_ratio = pipe_data.min_chapter_ratio if pipe_data else 0.5</code> (preserve current default 0.5 exactly). Add one comment at the site: PipelineDeps.min_chapter_ratio schema default is 0.0 — a future hand-added pipeline entry omitting the key would silently get 0.0 (gate passes anything); all 3 real entries carry explicit values (long-form 0.5 / short-form 1.0 / import-form 1.0) — verified in plan review.</li>
+<li>
+<p><code>g0.py:210-221</code>: <code>deps = load_deps(deps_path)</code> inside the existing try; <code>deps.calibration_hashes.get("combined")</code>; keep the FAIL tuple mapping (except tuple becomes the 2-tuple <code>(OSError, ValidationError)</code>).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Adapt the 5 monkeypatch lambdas</strong></p>
+</li>
+</ul>
+<p>In <code>tests/unit/test_phase_runner.py</code>, each <code>monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)</code> where <code>deps</code> is a plain dict — convert the dict literal to <code>DepsDoc</code> construction. Read each site first; the canonical conversion:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">DepsDoc</span><span class="p">,</span> <span class="n">PhaseDeps</span>
+
+<span class="o">...</span>
+<span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+    <span class="n">phase_runner</span><span class="p">,</span>
+    <span class="s2">&quot;load_deps&quot;</span><span class="p">,</span>
+    <span class="k">lambda</span><span class="p">:</span> <span class="n">DepsDoc</span><span class="p">(</span><span class="n">t2_phases</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pre-score&quot;</span><span class="p">:</span> <span class="n">PhaseDeps</span><span class="p">(</span><span class="n">prerequisites</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">])}),</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>(Match each dict's actual keys — use <code>PhaseDeps</code>/<code>PipelineDeps</code> per key; run the file and fix per AttributeError until green.)</p>
+<ul>
+<li>[ ] <strong>Step 6: Run affected suites</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/schemas/test_deps.py tests/unit/test_phase_runner.py tests/unit/test_scoring*.py tests/unit/gates/test_g5*.py tests/unit/gates/test_g6*.py tests/unit/gates/test_g0*.py -q</code>
+Expected: all PASS (locate exact test files by <code>ls tests/unit/gates | grep -E "g0|g5|g6"</code> first).</p>
+<ul>
+<li>[ ] <strong>Step 7: Loader-convergence criterion</strong></li>
+</ul>
+<p>Run: <code>git grep -nE 'json\.loads\(.*deps_path|jload\(.*deps\.json|read_text.*deps\.json' -- src/shenbi/ | grep -v contracts/schemas/deps.py | grep -v sync_contracts.py</code>
+Expected: zero hits (sync_contracts RMW excluded by design; log literals excluded — verify output manually).</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/schemas/deps.py<span class="w"> </span>src/shenbi/phase_runner.py<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>src/shenbi/gates/g5.py<span class="w"> </span>src/shenbi/gates/g6.py<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/test_phase_runner.py<span class="w"> </span>tests/unit/contracts/schemas/test_deps.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #92 T2a — typed load_deps loader + six-reader conversion + phase_runner thin wrapper&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-t2b-repo_root-constant-parentsn-purge">Task 3: T2b — <code>REPO_ROOT</code> constant + parents[N] purge</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/paths.py</code> (add constant)
+- Modify: <code>src/shenbi/phase_runner.py:34</code>, <code>src/shenbi/scoring.py:286</code>, <code>src/shenbi/gates/shared.py:31</code>, <code>src/shenbi/gates/g0_purity.py:105</code>, <code>src/shenbi/pipeline/dispatch_helper.py:87</code>, <code>src/shenbi/plugins/generate.py:22</code>, <code>src/shenbi/dispatcher/modes/codex.py:282-283</code>
+- Modify: <code>src/shenbi/sync_contracts.py:24</code> (importer — no PROJECT redefinition; stays via shared)
+- Test: new <code>tests/unit/test_paths_repo_root.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2's loader (scoring.py site rewrite folds into its parents-purge)
+- Produces: <code>REPO_ROOT: Final[Path]</code> in <code>shenbi.paths</code> — single definition; <code>gates.shared.PROJECT</code>, <code>dispatch_helper._PROJECT_ROOT</code>, <code>plugins.generate.REPO_ROOT</code> become aliases of it (keep the public names as <code>PROJECT = REPO_ROOT</code> re-exports to avoid touching their downstream consumers; the CODomain is the definitions count, not the names).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<p><code>tests/unit/test_paths_repo_root.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #92 T2b: REPO_ROOT single-source + parents[N] purge.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_repo_root_points_at_repo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">REPO_ROOT</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;pyproject.toml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;justfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_parents_magic_in_src</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;parents[2|3|4] outside paths.py is forbidden (spec T2 criterion).&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;grep&quot;</span><span class="p">,</span> <span class="s2">&quot;-nE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;parents\[[234]\]&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="s2">&quot;src/shenbi/&quot;</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="s2">&quot;paths.py&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">hits</span> <span class="o">==</span> <span class="p">[],</span> <span class="sa">f</span><span class="s2">&quot;parents[N] survivors: </span><span class="si">{</span><span class="n">hits</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_paths_repo_root.py -q</code>
+Expected: <code>test_no_parents_magic_in_src</code> FAIL with 8 survivors (7 code points + codex comment).</p>
+<ul>
+<li>[ ] <strong>Step 3: Add the constant and convert the 7 sites + comment</strong></li>
+</ul>
+<p>In <code>src/shenbi/paths.py</code> (top, after imports):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span>
+
+<span class="n">REPO_ROOT</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Single source for the repository root (spec #92 T2b).</span>
+
+<span class="sd">Replaces the four same-value definitions (gates.shared.PROJECT,</span>
+<span class="sd">dispatch_helper._PROJECT_ROOT, plugins.generate.REPO_ROOT, codex local) and</span>
+<span class="sd">the per-file parents[N] derivations. sync_contracts imports PROJECT from</span>
+<span class="sd">gates.shared and stays a consumer, not a definer.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p>Conversions (each file: <code>from shenbi.paths import REPO_ROOT</code> where needed; ANCHOR BY SYMBOL not line — Task 2 shifts scoring.py line numbers before Task 3 runs, so grep <code>parents\[[234]\]</code> per file first):
+- <code>phase_runner.py:34</code>: <code>TESTS = REPO_ROOT / "tests"</code>
+- <code>scoring.py:286</code>: fold into Task 2's rewrite — <code>deps_path = REPO_ROOT / "tests" / "tiers" / "deps.json"</code>
+- <code>gates/shared.py:31</code>: <code>PROJECT = REPO_ROOT</code> (keep name PROJECT — downstream importers unchanged)
+- <code>g0_purity.py:105</code>: <code>baseline_path = REPO_ROOT / "tests/fixtures/provenance-baseline.json"</code>
+- <code>dispatch_helper.py:87</code>: <code>_PROJECT_ROOT = REPO_ROOT</code>
+- <code>plugins/generate.py:22</code>: <code>REPO_ROOT = paths.REPO_ROOT</code> — import as <code>from shenbi.paths import REPO_ROOT as _ROOT</code> then <code>REPO_ROOT: Final[Path] = _ROOT</code> (or simply switch its internal uses to the import; keep the module attribute for its consumers — grep <code>from shenbi.plugins.generate import</code> first)
+- <code>codex.py:282-283</code>: DELETE the comment line :282, change :283 to <code>repo_root = REPO_ROOT</code> (import)</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_paths_repo_root.py -q &amp;&amp; uv run mypy src/shenbi/ &amp;&amp; uv run basedpyright 2&gt;&amp;1 | tail -3</code>
+Expected: 2 PASS; type checks clean.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>src/shenbi/paths.py<span class="w"> </span>src/shenbi/phase_runner.py<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>src/shenbi/gates/shared.py<span class="w"> </span>src/shenbi/gates/g0_purity.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/plugins/generate.py<span class="w"> </span>src/shenbi/dispatcher/modes/codex.py<span class="w"> </span>tests/unit/test_paths_repo_root.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #92 T2b — REPO_ROOT single-source in paths.py, purge parents[N] magic (7 sites + comment)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-t3-unit-marker-retirement-option-b-testtest-all-merge">Task 4: T3 — <code>unit</code> marker retirement (option b) + test/test-all merge</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml:583-589</code> (markers: delete <code>unit</code> + <code>slow</code>), <code>justfile:72-78</code> (test recipe), <code>tests/test_justfile_injection.py:87-93</code>
+- Modify: ~197 test files (sweep <code>@pytest.mark.unit</code> decorators + <code>pytestmark</code> entries)
+- Modify: <code>AGENTS.md:36</code>, <code>goal-prompt.md</code>, <code>command-to-give.md</code> (just test description)
+- Test: sweep verified by collection count + grep</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing
+- Produces: <code>just test</code> = <code>-m "not last" --no-cov -p no:randomly</code> (merged fast path); markers registry without <code>unit</code>/<code>slow</code></p>
+<p><strong>Decision (plan-pinned): option (b)</strong> — same-batch sweep of all 1,296 annotations (35 <code>pytestmark</code> form + ~1,261 decorator form). Rationale: spec-recommended; zero marker-count assertions exist in tests (verified); leaves no dead weight. Baseline: not-last collection = <strong>6,396</strong>; <code>-m unit</code> = 2,054 (fast path drops 67.9% today).</p>
+<ul>
+<li>[ ] <strong>Step 1: Pin the baseline</strong></li>
+</ul>
+<p>Run: <code>uv run pytest --collect-only -q -m "not last" 2&gt;/dev/null | tail -1</code>
+Expected: <code>6396/6399 tests collected (3 deselected)</code> — record exact number.</p>
+<ul>
+<li>[ ] <strong>Step 2: Sweep script (one-shot, run via uv run python)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;One-shot marker sweep (spec #92 T3b). Run once; verify with git diff.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">DECORATOR</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*@pytest\.mark\.unit\s*$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+<span class="n">ASSIGN_FULL</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^pytestmark = pytest\.mark\.unit\s*$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+<span class="n">ASSIGN_LIST_ITEM</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^(\s*)pytestmark = \[\s*\n(?:\s*pytest\.mark\.unit,\s*\n)+\s*\]\s*$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span>
+<span class="p">)</span>
+<span class="n">IN_LIST</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*pytest\.mark\.unit,?\s*$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+
+<span class="n">changed</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;test_*.py&quot;</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">orig</span> <span class="o">=</span> <span class="n">t</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">ASSIGN_LIST_ITEM</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">ASSIGN_FULL</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">IN_LIST</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>  <span class="c1"># unit inside pytestmark = [...] lists</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">DECORATOR</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>  <span class="c1"># standalone decorator lines</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">orig</span><span class="p">:</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">changed</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;files changed: </span><span class="si">{</span><span class="n">changed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Then run <code>uv run ruff check --fix tests/ &amp;&amp; uv run ruff format tests/</code> — the sweep strands ~110 files whose only remaining <code>pytest</code> reference was the marker (unused-import F401; NOT covered by the tests/** per-file-ignores amnesty), and re-format absorbs the blank lines the regex removal leaves behind. Then ALSO delete the dead marker smoke test <code>test_unit_marker_works</code> (tests/unit/test_pytest_framework.py:23-26 — its docstring carries the literal <code>@pytest.mark.unit</code>, which the grep would otherwise count; the marker's retirement makes the test meaningless). Then: <code>git diff --stat -- tests/ | tail -1</code> (expect ~197 files), <code>git grep -c "pytest.mark.unit" -- tests/ | wc -l</code> (expect 0 files).</p>
+<ul>
+<li>[ ] <strong>Step 3: Delete marker registrations</strong></li>
+</ul>
+<p><code>pyproject.toml</code> markers list: delete the <code>unit</code> and <code>slow</code> lines (:584/:588-ish; locate by grep <code>markers =</code> then read the block).</p>
+<ul>
+<li>[ ] <strong>Step 4: Merge recipes</strong></li>
+</ul>
+<p>justfile:</p>
+<div class="highlight"><pre><span></span><code># Run the fast test suite (all not-last tests)
+test *args:
+    uv run pytest -n auto --dist loadscope -m &quot;not last&quot; --no-cov -p no:randomly &quot;$@&quot;
+</code></pre></div>
+<p>Delete the <code>test-all</code> recipe. In <code>tests/test_justfile_injection.py</code> EXPECTED_CALLS delete the <code>"test-all": [["-q"]],</code> line (:93).</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: Doc sync</strong></p>
+</li>
+<li>
+<p><code>AGENTS.md:36</code>: <code>- just test — Fast unit tests only</code> → <code>- just test — Fast suite (all \</code>not last` tests, no coverage)`</p>
+</li>
+<li>
+<p>grep <code>just test</code> in goal-prompt.md / command-to-give.md and align wording.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Verify (collection identity + strict markers + speed)</strong></p>
+</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>-q<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1<span class="w">   </span><span class="c1"># == 6395 collected, ZERO errors</span>
+<span class="nb">time</span><span class="w"> </span>just<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-q<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-3<span class="w">                                       </span><span class="c1"># &lt;60s, all pass</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/test_justfile_injection.py<span class="w"> </span>-q
+</code></pre></div>
+Expected: <strong>6395/6398</strong> collected (baseline 6396 minus the deleted dead <code>test_unit_marker_works</code> — the ONLY test removal in this spec, authorized by plan review I3); <code>just test</code> green &lt;60s; injection test PASS.</p>
+<ul>
+<li>[ ] <strong>Step 7: Full-suite sanity</strong></li>
+</ul>
+<p>Run: <code>uv run pytest -n auto --dist loadscope -m "not last" --no-cov -q 2&gt;&amp;1 | tail -2</code>
+Expected: 0 failed (same set as check's first leg minus coverage).</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>tests/<span class="w"> </span>pyproject.toml<span class="w"> </span>justfile<span class="w"> </span>tests/test_justfile_injection.py<span class="w"> </span>AGENTS.md<span class="w"> </span>goal-prompt.md<span class="w"> </span>command-to-give.md
+<span class="c1"># NOTE: `git add tests/` is scoped to tests/ only (sweep touched ~197 files); all other paths explicit.</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: spec #92 T3 — retire unit marker (sweep 1296 annotations), merge test/test-all, -p no:randomly pin&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-t4-threshold-single-source-just-linttypetest-ci-hook-constructive-subset">Task 5: T4 — threshold single-source + just lint/type/test-ci + hook constructive subset</h3>
+<p><strong>Files:</strong>
+- Modify: <code>justfile</code> (check recipe split; :61 cov flag; :63 last-leg timeout)
+- Modify: <code>tools/pre-push-check.sh</code> (call just recipes; drop hand-copied flags)
+- Modify: <code>.github/workflows/nightly.yml:43</code>
+- Test: <code>tests/unit/test_hook_subset.py</code> (new)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 4's merged test recipe shape
+- Produces: <code>just lint</code> (28 lint tools + ruff check + ruff format --check), <code>just type</code> (mypy + basedpyright + shellcheck), <code>just test-ci</code> (two pytest legs + module-coverage); check = lockfile + <code>just lint</code> + <code>just type</code> + codegen face inline + <code>just test-ci</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing hook-subset test</strong></li>
+</ul>
+<p><code>tests/unit/test_hook_subset.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #92 T4: pre-push hook is a constructive subset of just check faces.</span>
+
+<span class="sd">Asserts: (1) hook invokes the just sub-recipes (not hand-copied tool lines),</span>
+<span class="sd">(2) no copy of the retired --cov-fail-under flag anywhere in the hook,</span>
+<span class="sd">(3) the documented exception faces (pip-audit, mkdocs, dead-code warn)</span>
+<span class="sd">appear in the hook and are absent from justfile.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">HOOK</span> <span class="o">=</span> <span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;pre-push-check.sh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<span class="n">JUST</span> <span class="o">=</span> <span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;justfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hook_calls_just_recipes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+    <span class="k">for</span> <span class="n">recipe</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;lint&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;test-ci&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;^\s*just </span><span class="si">{</span><span class="n">recipe</span><span class="si">}</span><span class="s2">\s*$&quot;</span><span class="p">,</span> <span class="n">HOOK</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;hook missing constructive call line: just </span><span class="si">{</span><span class="n">recipe</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hook_has_no_copied_threshold_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="s2">&quot;--cov-fail-under&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">HOOK</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_exception_faces_are_hook_only</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># &quot;mkdocs build --strict&quot; (not bare &quot;mkdocs&quot; — justfile&#39;s docs: serve</span>
+    <span class="c1"># recipe legitimately contains that word)</span>
+    <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pip-audit&quot;</span><span class="p">,</span> <span class="s2">&quot;mkdocs build --strict&quot;</span><span class="p">,</span> <span class="s2">&quot;dead code check&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">HOOK</span>
+        <span class="k">assert</span> <span class="n">face</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">JUST</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">face</span><span class="si">}</span><span class="s2"> leaked into justfile&quot;</span>
+    <span class="c1"># pip-audit/mkdocs/dead-code are hook(+CI security.yml)-only by design (spec exception table)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_justfile_has_sub_recipes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">recipe</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;^lint:&quot;</span><span class="p">,</span> <span class="s2">&quot;^type:&quot;</span><span class="p">,</span> <span class="s2">&quot;^test-ci:&quot;</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+        <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">recipe</span><span class="p">,</span> <span class="n">JUST</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;justfile missing recipe </span><span class="si">{</span><span class="n">recipe</span><span class="si">!r}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_hook_subset.py -q</code>
+Expected: FAIL (recipes don't exist; hook still hand-copies).</p>
+<ul>
+<li>[ ] <strong>Step 3: Split justfile recipes</strong></li>
+</ul>
+<p>Extract from <code>check:</code> into three recipes (copy the exact lines; check then references them):</p>
+<div class="highlight"><pre><span></span><code># Lint face: 28 lint tools + ruff (spec #92 T4)
+# NOTE: spec #93 will later add --strict to lint_threshold_reconciliation here (batch-A re-anchor hook).
+lint:
+    uv run python tools/lint_status_strings.py
+    &lt;...the REMAINING 26 `uv run python tools/` lines + `just lint-contracts`, copied verbatim from the pre-split check recipe...&gt;
+    uv run ruff check .
+    uv run ruff format --check .
+
+# Type face (spec #92 T4)
+type:
+    uv run mypy src/shenbi/
+    uv run basedpyright
+    uv run shellcheck run_pipeline.sh tools/pre-push-check.sh tests/round-exec.sh tests/lock-calibration-hash.sh tests/test-gates.sh
+
+# CI-shaped test face: two pytest legs + module coverage (spec #92 T4)
+test-ci:
+    uv run pytest -n auto --dist loadscope -m &quot;not last&quot; --hypothesis-profile=ci --timeout=120 --cov=shenbi --cov-branch --cov-report=json:coverage.json --cov-report=xml:tests/coverage/coverage.xml --cov-report=term-missing
+    uv run python tools/check_module_coverage.py coverage.json
+    uv run pytest -p no:xdist -m &quot;last&quot; --no-cov --hypothesis-profile=ci --timeout=60
+</code></pre></div>
+<p><code>check</code> becomes:</p>
+<div class="highlight"><pre><span></span><code>check:
+    uv lock --check
+    just lint
+    just type
+    uv run shenbi-sync-contracts &gt;/dev/null
+    uv run python tools/generate_autocheck_docs.py
+    uv run shenbi-generate-plugins
+    git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ .codex-plugin/
+    just test-ci
+</code></pre></div>
+<p>Notes: <code>--cov-fail-under=85</code> is GONE from justfile (pyproject <code>[tool.coverage.report] fail_under = 85</code> at :601 is the single source); last leg gains <code>--timeout=60</code> (alignment, kills a diff source — redundant with addopts but harmless); shellcheck list uses the Task-1 renamed script.</p>
+<p>Lossless-split check (M5 guard): before splitting, save the old check body (<code>git show HEAD:justfile | sed -n '/^check:/,/^[a-z]/p' &gt; /tmp/check-before.txt</code>); after splitting, extract the union (<code>just -n check</code> plus the three recipe bodies) and diff the sorted non-echo command lines — expect zero lines lost (only reordering + the two intended deltas: cov flag drop, timeout add).</p>
+<ul>
+<li>[ ] <strong>Step 4: Rewrite hook to constructive subset</strong></li>
+</ul>
+<p><code>tools/pre-push-check.sh</code> — replace sections 2/3/4/5 with:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 2-4. Lint + type faces: constructive (just recipes, spec #92 T4)</span>
+just<span class="w"> </span>lint
+just<span class="w"> </span><span class="nb">type</span>
+<span class="c1"># 5. Tests: constructive (just test-ci = both legs + module coverage)</span>
+just<span class="w"> </span>test-ci
+</code></pre></div>
+<p>Keep: section 1 (lockfile), 4b pip-audit (exception face), 4c mkdocs conditional (exception face), 6 dead-code warn (exception face). DELETE section 7 outright (serial <code>-m last</code> leg — <code>just test-ci</code> already contains it; keeping it would run the leg twice). KEEP sections 8/9 (codegen/autocheck idempotency) but re-comment them as "command-level copies of check's inline codegen face (spec #92 T4 — constructive ⊆ check by identical commands)". Delete the <code>uv sync --frozen --group dev</code> restore dance ONLY if no remaining hook section needs the docs group (mkdocs section does its own sync/restore internally — verify by reading the full mkdocs block before deleting anything).</p>
+<ul>
+<li>[ ] <strong>Step 5: nightly.yml</strong></li>
+</ul>
+<p>Delete <code>--cov-fail-under=85</code> from <code>.github/workflows/nightly.yml:43</code> (keep the rest of the invocation; pyproject governs).</p>
+<ul>
+<li>[ ] <strong>Step 6: Verify</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/test_hook_subset.py<span class="w"> </span>-q
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;cov-fail-under&quot;</span><span class="w"> </span>justfile<span class="w"> </span>tools/pre-push-check.sh<span class="w"> </span>.github/workflows/<span class="w"> </span>pyproject.toml<span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;rc=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+<span class="nb">time</span><span class="w"> </span>just<span class="w"> </span>lint<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-2
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/test_justfile_injection.py<span class="w"> </span>-q
+</code></pre></div>
+Expected: 4 PASS; grep rc=1 (zero); <code>just lint</code> &lt;3min; injection PASS.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>justfile<span class="w"> </span>tools/pre-push-check.sh<span class="w"> </span>.github/workflows/nightly.yml<span class="w"> </span>tests/unit/test_hook_subset.py<span class="w"> </span>tests/test_justfile_injection.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #92 T4 — cov threshold single-source, just lint/type/test-ci split, hook constructive subset&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-t5-sediment-purge">Task 6: T5 — sediment purge</h3>
+<p><strong>Files:</strong>
+- Delete: <code>tests/skill-behavior/</code>, <code>tests/skill-triggering/</code> (git rm -r)
+- Modify: <code>pyproject.toml:566-574</code> (norecursedirs), <code>pyproject.toml:123-504</code> (per-file-ignores consolidation)
+- Move: <code>tests/unit/contract/*.py</code> → <code>tests/unit/contracts/</code> (git mv, 2 test files; delete the subdir + its <code>__init__.py</code>)
+- Modify: moved <code>test_loader_extractors.py:3</code> path comment</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing
+- Produces: consolidated per-file-ignores (directory-level where rule-sets are identical)</p>
+<ul>
+<li>[ ] <strong>Step 1: Delete the two archive dirs + phantom norecursedirs</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>rm<span class="w"> </span>-r<span class="w"> </span>tests/skill-behavior<span class="w"> </span>tests/skill-triggering
+</code></pre></div>
+pyproject norecursedirs: delete the <code>"tests/dispatcher"</code>, <code>"tests/skill-behavior"</code>, <code>"tests/skill-triggering"</code> lines.</p>
+<ul>
+<li>[ ] <strong>Step 2: Merge contract twin dir</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/unit/contract/test_dict_reads.py<span class="w"> </span>tests/unit/contracts/test_dict_reads.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/unit/contract/test_loader_extractors.py<span class="w"> </span>tests/unit/contracts/test_loader_extractors.py
+git<span class="w"> </span>rm<span class="w"> </span>tests/unit/contract/__init__.py
+</code></pre></div>
+Fix <code>test_loader_extractors.py:3</code> header comment (references <code>tests/unit/contract/test_dict_reads.py</code> → new path). Check <code>tests/unit/contracts/__init__.py</code> exists (create if missing — match sibling package convention; grep first).</p>
+<ul>
+<li>[ ] <strong>Step 3: Analyze per-file-ignores for consolidation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">import tomllib</span>
+<span class="s">from collections import defaultdict</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">cfg = tomllib.loads(Path(&quot;pyproject.toml&quot;).read_text(encoding=&quot;utf-8&quot;))</span>
+<span class="s">pfi = cfg[&quot;tool&quot;][&quot;ruff&quot;][&quot;lint&quot;][&quot;per-file-ignores&quot;]</span>
+<span class="s">groups = defaultdict(list)</span>
+<span class="s">for k, v in pfi.items():</span>
+<span class="s">    groups[tuple(v)].append(k)</span>
+<span class="s">for rules, keys in sorted(groups.items(), key=lambda kv: -len(kv[1])):</span>
+<span class="s">    if len(keys) &gt; 1:</span>
+<span class="s">        print(f&quot;{len(keys)} entries share {list(rules)}: {keys[:6]}{&#39;...&#39; if len(keys)&gt;6 else &#39;&#39;}&quot;)</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<p>Consolidate: entries whose rule-sets are IDENTICAL and whose globs share a directory prefix become one directory glob. Entries with unique rules stay individual lines. Apply by hand with the analysis output as the guide; keep every comment that documents a specific entry (move it under the consolidated line when it covers the group, duplicate when it covers one file).</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">rc</span><span class="o">=</span><span class="nv">$?</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/contracts/<span class="w"> </span>-q
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>-q<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1
+</code></pre></div>
+Expected: ruff clean (consolidation lost no exemption); contracts tests PASS; collection unchanged (6,399 total).</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>tests/skill-behavior<span class="w"> </span>tests/skill-triggering<span class="w"> </span>tests/unit/contract<span class="w"> </span>tests/unit/contracts<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: spec #92 T5 — purge sediment dirs, phantom norecursedirs, merge contract twin, consolidate per-file-ignores&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-t6-dispatch-payload-constructor-first-5-conversion">Task 7: T6 — dispatch payload constructor + first-5 conversion</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/support/dispatch_payload.py</code>
+- Modify (first-5 by combined score, tests/unit scope): <code>tests/unit/pipeline/test_scene_splitter.py</code> (10 <code>===</code> blocks), <code>tests/unit/gates/test_g4_decisions.py</code> (9 dispatch dicts), <code>tests/unit/tools/test_observe_report.py</code> (7), <code>tests/unit/gates/g4/test_g4_ss_facts.py</code> (7), <code>tests/unit/gates/g4/test_chapter_revision.py</code> (6)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing
+- Produces: <code>file_block(path: str, body: str) -&gt; str</code> (renders <code>=== &lt;path&gt; ===\n&lt;body&gt;</code> block) and <code>payload(skill: str, files: dict[str, str], **extra) -&gt; dict</code> (hand-written dispatch dict constructor)</p>
+<ul>
+<li>[ ] <strong>Step 1: Create the constructor module</strong></li>
+</ul>
+<p><code>tests/support/dispatch_payload.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Dispatch payload constructors for tests (spec #92 T6).</span>
+
+<span class="sd">Replaces hand-written ``=== path ===`` blocks and dispatch dicts. First</span>
+<span class="sd">consumers: the five highest-frequency files (see spec); adopt gradually</span>
+<span class="sd">elsewhere — do NOT mass-migrate.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">file_block</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render one ``=== &lt;path&gt; ===`` file block as skills emit them.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;=== </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> ===</span><span class="se">\n</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">payload</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">extra</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a dispatch payload dict (``skill`` + file blocks + extras).&quot;&quot;&quot;</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="n">skill</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">}</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+</code></pre></div>
+<p>(Read 2-3 real <code>===</code> blocks in <code>tests/unit/pipeline/test_scene_splitter.py</code> first and match the EXACT separator form — <code>===</code>, count, trailing newline — byte-for-byte; adjust <code>file_block</code> before converting.)</p>
+<ul>
+<li>[ ] <strong>Step 2: Convert the five files</strong></li>
+</ul>
+<p>In each: replace literal <code>=== ... ===\n...</code> strings with <code>file_block(...)</code> calls and literal <code>{"skill": "shenbi-...", ...}</code> dicts with <code>payload(...)</code>. Import: <code>from tests.support.dispatch_payload import file_block, payload</code>. Convert only mechanical literals; leave assertions untouched.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_scene_splitter.py tests/unit/gates/test_g4_decisions.py tests/unit/tools/test_observe_report.py tests/unit/gates/g4/test_g4_ss_facts.py tests/unit/gates/g4/test_chapter_revision.py -q</code>
+Expected: all PASS (byte-identical rendering proven by existing assertions).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>--show-current
+git<span class="w"> </span>add<span class="w"> </span>tests/support/dispatch_payload.py<span class="w"> </span>tests/unit/pipeline/test_scene_splitter.py<span class="w"> </span>tests/unit/gates/test_g4_decisions.py<span class="w"> </span>tests/unit/tools/test_observe_report.py<span class="w"> </span>tests/unit/gates/g4/test_g4_ss_facts.py<span class="w"> </span>tests/unit/gates/g4/test_chapter_revision.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: spec #92 T6 — dispatch_payload constructors + first-5 file conversion&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-final-verification-battery-spec-2-acceptance-1-5">Task 8: Final verification battery (spec §2 acceptance 1-5)</h3>
+<p><strong>Files:</strong> none (verification only; fixes if any surface)</p>
+<ul>
+<li>[ ] <strong>Step 1: Acceptance 1</strong> — <code>git grep -n "_tool_hashes" -- src tools tests justfile goal-prompt.md command-to-give.md ':!tests/fixtures'</code> rc=1; <code>git grep -n "lock-tool-hashes" -- ...</code> rc=1; <code>uv run pytest tests/unit/gates/test_g0_calibration_hash.py -q</code> PASS; rehearsal diff=0 (repeat Task 1 Step 9).</li>
+<li>[ ] <strong>Step 2: Acceptance 2</strong> — <code>uv run pytest tests/unit/test_paths_repo_root.py -q</code> PASS; loader-convergence grep (Task 2 Step 7) zero.</li>
+<li>[ ] <strong>Step 3: Acceptance 3</strong> — <code>just test</code> collection == 6,395 not-last (6,396 baseline − 1 dead marker test, Task 4); &lt;60s; <code>--strict-markers</code> collection zero errors (<code>uv run pytest --collect-only -q 2&gt;&amp;1 | grep -ci error</code> == 0); <code>grep -rn "cov-fail-under" justfile tools/pre-push-check.sh .github/workflows/ pyproject.toml</code> rc=1.</li>
+<li>[ ] <strong>Step 4: Acceptance 4</strong> — <code>uv run pytest tests/unit/test_hook_subset.py -q</code> PASS (exceptions annotated in-test).</li>
+<li>[ ] <strong>Step 5: Acceptance 5</strong> — <code>just check</code> exit 0; <code>time just lint</code> &lt;3min.</li>
+<li>[ ] <strong>Step 6: Record outputs</strong> into <code>.superpowers/sdd/progress.md</code> 验收证据 section (full command + output per item).</li>
+<li>[ ] <strong>Step 7: Commit progress</strong> (working-state file, no repo commit needed — <code>.superpowers/</code> is gitignored).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

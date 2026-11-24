@@ -1,0 +1,1251 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-11-15-spec112-chapter-loop-properties/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-11-15-spec112-chapter-loop-properties.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-11-15-spec112-chapter-loop-properties/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-11-15-spec112-chapter-loop-properties.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-112-chapter_loop-chapter-loop-propertiesresumehypothesis" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 根因
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 任务分解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 任务分解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T1 · 不变量清单文档化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t2-hypothesis-rulebasedstatemachine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T2 · hypothesis RuleBasedStateMachine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T3 · 已知反例回归收编
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t4-auto-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T4 · auto 模式 G4 语义裁定件
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 验收
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 风险
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-112-chapter_loop-chapter-loop-propertiesresumehypothesis">Spec #112 · chapter_loop 状态机性质测试（chapter-loop-properties）：resume/重试/升级不变量清单文档化、hypothesis 状态机、已知反例回归收编</h1>
+<p><strong>日期</strong>：2026-11-15｜ <strong>系列</strong>：多专家审计批（expert-audit）｜ <strong>状态</strong>：Design（r2，2026-11-24 Revised）｜ <strong>优先级</strong>：🟠 P1
+<strong>动机证据</strong>（2026-11-15 状态机审计，标注〔亲验〕/〔代理枚举待性质测试钉死〕）：<code>chapter_loop.py:3996-4004</code>〔亲验〕（core wave savepoint <code>_wave_savepoint(state, project_dir, chapter)(core_wave)</code> <strong>漏传 wave_chapters</strong>——genre 波 <code>:4040-4042</code> 传了；core 波 savepoint 只落 leader 章 ChapterState，与 <code>:539-540</code> docstring 的 cluster 契约相悖）；<code>error_handler.py:126</code>〔亲验，grep 全仓〕（<code>cs.status = SETTLING_FAILED</code> 唯一写者、<strong>全仓无复位者</strong>——「已修复待重跑」与「仍坏」不可区分，操作面盲）；<code>chapter_loop.py:4728-4749</code>〔亲验〕（<code>--auto</code> 模式 G4 硬失败 <code>count&lt;=1</code> 重试、<code>&gt;1</code> <code>reset_retry</code> 后<strong>直落成功路径放行</strong>；per_chapter_review 模式同点走 <code>_handle_failure</code>——同因异果，语义未文档化未裁定）；<code>cli.py:563/:584</code>〔亲验〕（trigger 后 <code>cl.step_index = 1</code> 防再触发——若 step 0 为 pipeline-volume-align，新章跳过对齐面）；<code>chapter_loop.py:3107</code>〔代理〕（revision_count wave/serial 双路径调用面——resume 重放 wave 可再 +1，cap 检查 <code>:3119</code> 可被虚假触发）；<code>chapter_loop.py:587-615</code>〔代理〕（<code>_clamp_resume_cursor</code> 只回卷「零 steps_done」游标章——wave 已批量标 done 的 runaway 章拒绝回卷）；<code>machine.py:131-139</code>〔代理〕（escalation resolve <code>cp.chapter is None</code> → <strong>全清所有章 retry budget</strong>——跨章 durable 史一键抹平）；<code>chapter_loop.py:1951-1970</code>〔代理〕（scene-split 熔断预算记 drafting 键 vs checkpoint 挂当前章——前缀清理错键风险）；<code>state_heal.py:36-64</code>〔代理〕（revision_count heal 0/1 floor 与重放双计交互）；<code>cli.py:507+</code>〔代理〕（<code>_cleanup_residual_staging</code> 与 <code>_mark_staged_for_checkpoint</code> 的时序窗——CHAPTER_MEMO auto-commit 失败分支后崩溃可清掉待审 staged 计划）；历史反例在册（spec #91 归档：re-settle 死锁 P0/两锁窗口；probe20 恢复路径死亡；fixcheck ch2 整维消失——<code>:4083-4085</code> 注释自认）。</p>
+<p><strong>触及的不变量维度</strong>：无（状态机基建——约束的是管线自身状态一致性）</p>
+<p><strong>r2 修订（2026-11-24 · 实现审计回写；证据＝八席实现审计之状态机席，协调者逐条亲验）</strong>：
+- <strong>主张复核</strong>（原动机 10 条代理枚举，逐条在 HEAD 重开文件核对）：
+  - <strong>仍成立</strong>：E-3（核心波存档点漏传 <code>wave_chapters</code>——现 <code>chapter_loop.py:4317</code>；genre 波 <code>:4356</code> 传了）；E-9（<code>SETTLING_FAILED</code> 唯一写者 <code>error_handler.py:126</code>、无复位者；<code>_complete_chapter</code> 仍会把状态改写为 COMPLETE〔<code>:2462/:2474</code>〕，影响面待性质测试钉死）；E-11（<code>--auto</code> 第二次硬失败放行——现 <code>:5040-5051</code>）；E-26（trigger 后 <code>step_index = 1</code>——<code>cli.py:563/:584</code> 行号未漂；影响很小，<code>CHAPTER_STEPS[0]</code>〔pipeline-volume-align〕在 <code>chapter_loop.py</code> 只有定义〔<code>:165</code>〕没有处理分支）；E-24（<code>chapter=None</code> 全清预算——<code>machine.py:131-139</code> 行号未漂）。
+  - <strong>不成立，从 T3 清单删除</strong>：E-10「scene-split 熔断预算键与检查点章号不一致」——三处用的是同一个 <code>chapter</code>（<code>chapter_loop.py:4696/:4717/:4728</code>）。
+  - <strong>改定性</strong>：E-16「备忘自动提交失败后崩溃会清掉待审计划」在人审模式下字面不成立——先 <code>set_checkpoint</code> 再打标记（<code>:2735-2742</code>），resume 清理保留已标记产物（<code>:3879</code>）；真缺陷在 <code>--auto</code> 的提交失败分支（<code>:2677-2682</code> 与 <code>:2726-2727</code>：缺文件只告警 → <code>clear_staging</code> → 步骤照常前进）。T3 改为收编此形态。
+  - <strong>未证实，悬置</strong>：E-18（<code>revision_count</code> 的非幂等 <code>+= 1</code> 存在〔<code>:3368</code>〕，但没找到重放路径）。
+- <strong>I6 须先对账再立</strong>：原拟不变量 I6「escalation resolve 只清其章」与 <code>src/shenbi/pipeline/machine.py:93-95</code> 文档化的既有设计（C33／spec #47 R3：升级裁决后<strong>故意</strong>清全部重试计数——有事故背景，「只清一部分会让预算在第一次新失败时就误报耗尽」）方向相反；且 <code>:124-126</code> 对三个 <code>retry_counts</code> 表的清理本就不看章号。I6 不是修 bug，是改一条有事故背景的规则——<strong>执行前须用户裁定</strong>以哪个为准；若保留 C33，I6 改写为「显式登记的设计内行为」，并以性质测试钉住「清全部之后不会立即误报耗尽」。
+- <strong>E-11 的现实范围</strong>：vol1 运行配置为 <code>per_chapter_review_enabled: true</code>——auto 放行分支在真实项目上不走，T4 裁定件优先级最低；它与 #114 T1（同门三振分诊）改的是同一段代码的两个分支，两件须一起裁（#114 原文未知会本件）。
+- <strong>性质测试必须绑真代码</strong>：T2 原文「复用 <code>state.py</code> 真实类」——但反例所在全是 <code>chapter_loop.py</code>／<code>cli.py</code> 的函数（<code>_wave_savepoint</code> <code>:547</code>、<code>_clamp_resume_cursor</code> <code>:605</code>、<code>_handle_failure</code> <code>:1985</code>、<code>_escalate_step_failure</code> <code>:2063</code>）。增补判据：I1–I12 每条在测试里点名它所约束的真实函数；mutation 演示从「至少 3 条」提到「每条现状成立的不变量各一次」；绑不到真实函数的不变量标「仅模型层」，不计入覆盖。
+- <strong>新增不变量 I13 · FAILED 相位可达性</strong>：<code>src/shenbi/pipeline/transitions.py:76</code>（<code>transition_to_failed</code>，FAILED 相位的唯一写者）全仓零调用，<code>cli.py:518/:873</code> 的 FAILED 分支恒不可达（架构席发现，协调者复核）——归 T3：接线或删相位，与 #122 T3 的零引用清偿同批。
+- <strong>I14 候选（仅核代码、未实跑）· 收尾异常后的游标卡死</strong>：步骤全部跑完后若 <code>_complete_chapter</code> 抛异常（<code>chapter_loop.py:2456</code> 的 <code>ProductContractError</code>），此时 <code>step_index</code> 已被 <code>_advance</code> 推到末尾（<code>:2649</code>、<code>:2745</code>）；退出钩子把内存态原样存盘（<code>src/shenbi/pipeline/crash_recovery.py:174-185</code>，注释自述「内存态权威于磁盘」），此后每次恢复在 <code>chapter_loop.py:4077</code> 直接返回，不再补跑收尾——游标永不前进、无检查点。plan 期先写一条能红的复现（确认 <code>cmd_next</code>／<code>cmd_resume</code> 的异常处理不会先行存盘），再决定归入 I 清单与 T3。
+- <strong>行号重锚</strong>：<code>:3996-4004</code>→<code>:4317</code>；<code>:4040-4042</code>→<code>:4356</code>；<code>:4728-4749</code>→<code>:5034-5051</code>；<code>:587-615</code>→<code>:605-633</code>；其余 plan 首步 re-anchor。
+- <strong>依赖</strong>：#109 已归档——原「#109 后链尾」解除；现排 #121／#101／#122 之后（三者先改 <code>chapter_loop.py</code>／<code>cli.py</code> 的重派、bundle、修订路由面）。</p>
+<hr />
+<h2 id="0">0. 根因</h2>
+<p><strong>单测盖路径、性质层缺席</strong>：chapter_loop 的失败/恢复/升级交叠面靠历史事故逐点修补（每处注释都是一座墓碑），但「任意 kill 点后 resume 的状态一致性」「游标跳跃 ≡ bundle 快照」「done 集 ⊆ 实产物存在」这类<strong>不变量从未被声明</strong>，更没有被自动化断言。E 审计 27 条缺口中 8 条集中在「崩溃/恢复/升级的三方交叠」，每条都是下一次长跑的停机面候选。</p>
+<p><strong>用户裁定（2026-11-15）</strong>：<code>--auto</code> 模式 G4 二次失败放行（E-11）语义<strong>挂账待裁定</strong>——本件 T4 出示证据后由用户定「设计内（文档化+披露行）」或「缺陷（改 escalate）」，本件不预裁。</p>
+<p><strong>备选案已评估并否决</strong>：「全量 TLA+/模型检查形式化」——状态空间含 LLM 派发结果不可枚举，hypothesis 性质测试是可达边界内的最大覆盖；「只补单测不建性质层」——历史反例证明单测只盖已见路径，性质层才是反例发生器。</p>
+<h2 id="1">1. 任务分解</h2>
+<h3 id="t1">T1 · 不变量清单文档化</h3>
+<ul>
+<li><code>docs/framework/chapter-loop-invariants.md</code>：10-15 条声明式不变量（首版草案）：
+  I1 游标跳跃 ≡ <code>bundle_chapters</code> 快照（完成时刻与 done 集成员一致）；I2 steps_done ⊆ 盘上产物存在（或 invalid 感知——引 #109 T4/T5）；I3 SETTLING_FAILED 可复位（存在转移至可重跑态）；I4 resume 重放幂等（revision_count/audit_retry_count/budget 不双计）；I5 retry budget 键章号 ≡ checkpoint 章（前缀清理可达）；I6 escalation resolve 只清其章（chapter=None 全清须显式授权语义）；I7 staging 清理不吞 checkpointed 标记物；I8 cascade streak 只数 valid 产物（引 #109）；I9 wave savepoint 覆盖 bundle 全员；I10 emergency 注记在 read 模式锁下不丢（或文档化丢失面）；I11 trigger step_index 推进不跳过对新章的 mandatory 步；I12 clamp 与 done 集一致（runaway 章可回收）。</li>
+<li>每条注「现状：成立/悬置（挂 #109/挂账）」——本件只测现状成立者，悬置者标依赖。</li>
+</ul>
+<p><strong>判据</strong>：文档落盘且 12 条各含现状标注；<code>lint_invariant_coverage</code> 不涉及（非 13 维面）——独立文档无 lint 义务，plan 期定是否入 lint。</p>
+<h3 id="t2-hypothesis-rulebasedstatemachine">T2 · hypothesis RuleBasedStateMachine</h3>
+<ul>
+<li><code>tests/property/test_chapter_loop_machine.py</code>：状态 = {游标, step_index, per-章 ChapterState 摘要, checkpoint, budget/feedback 键集}；规则族 = {step 成功推进, dispatch 失败(classify 分类), G4 硬失败(auto/per-chapter 两模式), escalation resolve(带/无章号), crash-resume(任意点快照→重载), volume_map 外改}；对 I1-I12 现状成立者逐条断言；</li>
+<li>模型层用纯状态转移动词（不真派发——LLM 派发以 mock 结果枚举 {success, g4_hard, no_files, empty}），复用 <code>state.py</code> 真实类（非影子模型——测真代码）。</li>
+</ul>
+<p><strong>判据</strong>：性质测试入 <code>just test</code>（fast 面）；hypothesis profile 对齐 pre-push（#97 先例）；至少 3 条不变量被规则破坏时红（mutation 抽查演示）。</p>
+<h3 id="t3">T3 · 已知反例回归收编</h3>
+<ul>
+<li>每反例一红测（转绿或xfail 哨兵——按修复态）：E-3 savepoint 漏参（修：core 波补传 wave_chapters）；E-9 SETTLING_FAILED 复位通道（修：approve/修复路径复位为可重跑态）；E-10 budget 键章号一致性；E-16 staging 清理时序；E-18 revision_count 重放双计；E-26 trigger 后 mandatory 步不跳（修或文档化）；E-24 chapter=None 全清改显式；</li>
+<li>修复与收编分离：本 task 只收编<strong>测试</strong>，修复按反例危险度排序（E-3/E-9 P1 级先修；其余 xfai 哨兵挂账）。</li>
+</ul>
+<p><strong>判据</strong>：<code>pytest tests/property/ -k regression</code> 12 反例条目在册；E-3/E-9 修复版红转绿。</p>
+<h3 id="t4-auto-g4">T4 · auto 模式 G4 语义裁定件</h3>
+<ul>
+<li>出示 <code>chapter_loop.py:4728-4749</code> 行为差分证据（auto: 二次硬失败放行 vs per-chapter: escalation）+ 放行率估算（vol1 trace 中 auto 模式 g4 连败事件计数）→ 用户裁定 → 文档化（<code>--auto</code> 语义节）或改 escalate（改动入 T3 回归）。</li>
+</ul>
+<p><strong>判据</strong>：裁定记录入 spec-deviations 或 docs；两分支各有测试钉死。</p>
+<h2 id="2">2. 验收</h2>
+<ol>
+<li>T1-T4 判据全绿；</li>
+<li>mutation 演示：故意破坏 I4（重放双计）→ 性质测试红；</li>
+<li>E-3/E-9 修复后全量 <code>just check</code> 绿（无行为回归——差分：对 vol1 状态文件重放 resume 路径，前后状态一致面不含 savepoint/status 面）。</li>
+</ol>
+<h2 id="3">3. 风险</h2>
+<ul>
+<li>hypothesis 状态机维护成本——规则面收敛在游标/重试/checkpoint 三族，每规则 ≤5 分支；</li>
+<li>xdist 假 flake 先例（束7 随机序 6 失败）——profile 钉死 + no:xdist 证据路径备忘；</li>
+<li><strong>共享文件面</strong>：<code>chapter_loop.py</code> 与 #105/#106/#109 最热文件链——施工序 <strong>#109 → #112</strong>（#112 收编 #109 修复面反例；plan 首步 re-anchor）；<code>error_handler.py</code>/<code>cli.py</code> 无在飞 spec 冲突；</li>
+<li>性质测试发现新反例的熔断纪律（发现即停批升级用户——#112 自身不扩面修）。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

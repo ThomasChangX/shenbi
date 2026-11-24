@@ -1,0 +1,2091 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-01-spec93-threshold-authority/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Spec #93 阈值权威化 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #93 阈值权威化 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-01-spec93-threshold-authority.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-11-01-spec93-threshold-authority/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #93 阈值权威化 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-11-01-spec93-threshold-authority.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-93-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #93 阈值权威化 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraintsspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints（spec 项目级约束逐字）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-spec-ac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task ↔ Spec AC 覆盖表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task ↔ Spec AC 覆盖表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t1a-pacing-infra-characterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T1a · pacing 契约带宽常量提取（infra · characterization）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t1b-lint-boundskeyword-leaf-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T1b · lint 读常量+删 bounds+包含式+keyword 必填+测试重写（leaf · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t1c-strict-just-lint-leaf-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T1c · --strict 模式+just lint 接线（leaf · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-t3-pricing-infra-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: T3 · pricing 模型契约单源倒置（infra · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t4-executor-stat-infra-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T4 · executor 派生集缓存 stat 键失效（infra · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t5-trend_columns-infra-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T5 · TREND_COLUMNS 列契约单源（infra · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-t6-infra-tdd_red_green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: T6 · 疲劳词门-契约键形接线（infra · tdd_red_green）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-t2-gatesmd-g4-leaf-characterization-task-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: T2 · gates.md 裕度节+g4 双向回指（leaf · characterization · 依赖 Task 7）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        收尾（阶段 7 用，非独立 task）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-93-implementation-plan">Spec #93 阈值权威化 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 对账 lint 读执法器常量真执法（strict 进 just lint）、散文↔门裕度成文、pricing/executor 缓存/trend 列契约三处小型漂移清偿、疲劳词门-契约键形接线。</p>
+<p><strong>Architecture:</strong> 六个独立修复面共用「阈值权威单源」主题：常量提取→lint import→strict 翻转三段递进（门保护前序修复）；pricing 倒置（dispatch_helper 从 pricing import，方向已确立）；executor 派生集去冻结（委托 stat 键缓存的 bootstrap_registry）；TREND_COLUMNS 落 pipeline/_shared 叶（三消费者 import）；疲劳词门改读契约 camel 形状。全部离线可验，零 SKILL.md 散文改动。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic contract models / pytest + hypothesis / just task runner / ruff+mypy 门禁。</p>
+<h2 id="global-constraintsspec">Global Constraints（spec 项目级约束逐字）</h2>
+<ul>
+<li>不改任何 SKILL.md 指令散文（T2 豁免：纯注释性 docs）；SKILL.md 改动属 prompt 变更，另立内容批</li>
+<li>T2 与 T6 同批合入或 T6 先行（禁 gates.md 先行描述未接线门语义）——本 plan 排序 Task 7 (T6) → Task 8 (T2)</li>
+<li>gate 检查器纯函数幂等（AGENTS.md）；<code>src/shenbi/</code> 无 <code>print()</code>（structlog，ruff T20 零豁免）</li>
+<li>所有 commit 显式列文件路径，禁 <code>git add -A</code> / <code>git add .</code></li>
+<li>验收全部离线可复验（F947：零真实 LLM dispatch / 零手写 mock 冒充技能产物）</li>
+<li>G0.9：scenario 输入引用 <code>tests/fixtures/</code> 真实产物（genre-config-example.json 原样）；结构单测可 inline / tmp_path 构造</li>
+<li>deps.json 等生成物禁手改（改契约源头 + <code>just generate</code>）</li>
+<li>常量命名对齐 gates/shared.py band 元组先例（<code>SCENE_INDEPENDENT_BAND</code> 式全大写下划线）</li>
+</ul>
+<h2 id="task-spec-ac">Task ↔ Spec AC 覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>Spec AC</th>
+<th>Task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AC1 T1a 常量化行为零变化</td>
+<td>Task 1</td>
+<td>现存 pacing 测试全绿（边界已由 :78-92 既有测试锁死）+常量断言</td>
+</tr>
+<tr>
+<td>AC1 T1b 删 bounds 仍判越界+keyword 缺省 WARN</td>
+<td>Task 2</td>
+<td>tmp SKILL 注入 50%/10-20 WARN+keyword_missing WARN（strict FAIL 态在 Task 3）</td>
+</tr>
+<tr>
+<td>AC1 T1c strict 进 just lint FAIL 态可触发</td>
+<td>Task 3</td>
+<td>常量临时 (18,45) → just lint 红（回滚）+strict 5 用例（50%/10-20/keyword/repo-clean/非 strict 回归）</td>
+</tr>
+<tr>
+<td>AC1 lint 测试重写 strict 语义全绿</td>
+<td>Task 2/3</td>
+<td>test_lint_threshold_reconciliation 重写</td>
+</tr>
+<tr>
+<td>AC2 gates.md 裕度节+g4 双向回指</td>
+<td>Task 8</td>
+<td>grep 双向锚</td>
+</tr>
+<tr>
+<td>AC3 T3 grep=0</td>
+<td>Task 4</td>
+<td><code>grep -rn "dispatch_helper" src/shenbi/cost/</code> = 0</td>
+</tr>
+<tr>
+<td>AC3 T4 红测绿</td>
+<td>Task 5</td>
+<td>同进程改 YAML 派生集刷新</td>
+</tr>
+<tr>
+<td>AC3 T5 三消费者 import+property</td>
+<td>Task 6</td>
+<td>往返 writer→bridge+SKILL 表头对账</td>
+</tr>
+<tr>
+<td>AC4 T6 红绿+无 snake 注入</td>
+<td>Task 7</td>
+<td>眸光一凝×9 真 fixture 形状</td>
+</tr>
+<tr>
+<td>AC5 just check exit 0</td>
+<td>Task 8 末步+阶段 7</td>
+<td>全量门禁</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-t1a-pacing-infra-characterization">Task 1: T1a · pacing 契约带宽常量提取（infra · characterization）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/skills/pacing_design.py:51-56</code>
+- Test: <code>tests/unit/contracts/test_pacing_design_contract.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（既有 <code>_constellation_range</code> validator）
+- Produces: <code>CONSTELLATION_HARD_BAND: tuple[int, int] = (15, 40)</code>（模块级公共常量，Task 2 lint import 消费）</p>
+<ul>
+<li>[ ] <strong>Step 1: 追加常量 characterization 测试</strong></li>
+</ul>
+<p>（边界行为已由现存 <code>test_constellation_hard_band_covers_kaijuan_upper</code> / <code>test_constellation_hard_band_lower_edge</code>（本文件 :78-92，<code>_const_payload</code> 形状，锁 38/40/41/15/14+<code>[15, 40]</code> 报文）覆盖——本 task 只补常量存在性与值断言；行为零变化由现存测试在本 task 提交点复跑证明。）</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contracts/test_pacing_design_contract.py 追加</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_constellation_hard_band_constant</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spec #93 T1a — 带宽常量存在且为 (15, 40)（lint 单源消费锚点）。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills.pacing_design</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONSTELLATION_HARD_BAND</span>
+
+    <span class="k">assert</span> <span class="n">CONSTELLATION_HARD_BAND</span> <span class="o">==</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认 import 红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_pacing_design_contract.py -k hard_band_constant -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'CONSTELLATION_HARD_BAND'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: 提取常量（validator 改用，行为零变化）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/skills/pacing_design.py — model 类之前、import 之后插入：</span>
+<span class="c1">#: CONSTELLATION hard-fail band, in percent (spec #93 T1a). Single source —</span>
+<span class="c1">#: the reconciliation lint (tools/lint_threshold_reconciliation.py) imports</span>
+<span class="c1">#: this instead of carrying a hand-copied third copy in the allowlist JSON.</span>
+<span class="n">CONSTELLATION_HARD_BAND</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+
+
+<span class="c1"># _constellation_range validator 改用常量（docstring 的 [15, 40] 报文保持逐字不变）：</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_constellation_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PacingDesign</span><span class="p">:</span>
+        <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_ratios</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CONSTELLATION&quot;</span><span class="p">)</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">CONSTELLATION_HARD_BAND</span>
+        <span class="k">if</span> <span class="n">const</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="n">const</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONSTELLATION ratio </span><span class="si">{</span><span class="n">const</span><span class="si">}</span><span class="s2"> outside [</span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+<p>注意：报文 f-string 从字面量 <code>[15, 40]</code> 改为 <code>[{lo}, {hi}]</code>——输出逐字节相同（<code>f"[{lo}, {hi}]"</code> == <code>"[15, 40]"</code> 当 lo=15/hi=40）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑新测+现存 pacing 全绿（行为零变化）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_pacing_design_contract.py tests/unit/gates/g4/test_pacing_design.py -v</code>
+Expected: 全 PASS（含既有全部）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/skills/pacing_design.py<span class="w"> </span>tests/unit/contracts/test_pacing_design_contract.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #93 T1a — 提取 CONSTELLATION_HARD_BAND 常量（validator 改用，行为零变化）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-t1b-lint-boundskeyword-leaf-tdd_red_green">Task 2: T1b · lint 读常量+删 bounds+包含式+keyword 必填+测试重写（leaf · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_threshold_reconciliation.py</code>（全文语义改写）
+- Modify: <code>tools/threshold_allowlist.json</code>（删 4 条 <code>bounds</code> 字段）
+- Test: <code>tests/unit/tools/test_lint_threshold_reconciliation.py</code>（全文重写）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>CONSTELLATION_HARD_BAND</code>（Task 1 产出；<code>from shenbi.contracts.skills.pacing_design import CONSTELLATION_HARD_BAND</code>——tools import src 先例 check_severity_vocab.py:18）
+- Produces: <code>main(argv: list[str] | None = None) -&gt; int</code>（语义变更：bounds 不再读自 allowlist；keyword 缺省产出 <code>keyword_missing</code> 行；判定式包含；<strong>本 task 保持 WARN-only exit 0</strong>，strict 在 Task 3）</p>
+<ul>
+<li>[ ] <strong>Step 1: 重写测试（红：新语义未实现）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/tools/test_lint_threshold_reconciliation.py 全文替换</span>
+<span class="sd">&quot;&quot;&quot;Spec #93 T1b/T1c — threshold reconciliation lint: constant-reading,</span>
+<span class="sd">containment test, mandatory keyword, --strict FAIL mode.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">LINT</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;lint_threshold_reconciliation.py&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">LINT</span><span class="p">),</span> <span class="o">*</span><span class="n">argv</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;allowlist.json&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;entries&quot;</span><span class="p">:</span> <span class="n">entries</span><span class="p">}),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">constellation</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;| 卷 | QUEST% | FIRE% | CONSTELLATION% | 检查结果 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;| 标准卷: QUEST 40 FIRE 30 CONSTELLATION </span><span class="si">{</span><span class="n">constellation</span><span class="si">}</span><span class="s2"> |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_entry</span><span class="p">(</span><span class="n">skill_md</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">overrides</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-pacing-design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;标准卷: QUEST&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keyword&quot;</span><span class="p">:</span> <span class="s2">&quot;CONSTELLATION&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">skill_md</span><span class="p">),</span>  <span class="c1"># 绝对路径：REPO_ROOT / abs 保持原值</span>
+        <span class="s2">&quot;checker&quot;</span><span class="p">:</span> <span class="s2">&quot;src/shenbi/contracts/skills/pacing_design.py&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">entry</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_out_of_band_50_warns</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;50-60%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)]))])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># WARN-only（--strict 在 Task 3 接线）</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">and</span> <span class="s2">&quot;50-60&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_partial_overlap_10_20_rejected</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># SKILL 写 10-20 与硬带 [15,40] 相交但不包含 —— 旧相交式放行，包含式必拒</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;10-20%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)]))])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">and</span> <span class="s2">&quot;10-20&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_in_band_contained_no_warn</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;15-25%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)]))])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_keyword_warns</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;15-25%&quot;</span><span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;keyword&quot;</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">entry</span><span class="p">]))])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="s2">&quot;keyword_missing&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_bounds_field_ignored</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># bounds 已从 schema 删除 —— 即便残留旧字段也不得参与判定（deletion test）</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;50-60%&quot;</span><span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">entry</span><span class="p">]))])</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">and</span> <span class="s2">&quot;50-60&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>  <span class="c1"># 常量带赢，残留 bounds 失效</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v</code>
+Expected: FAIL（partial_overlap/keyword_missing/bounds 用例红——现实现相交式+keyword 可选+读 bounds）</p>
+<ul>
+<li>[ ] <strong>Step 2: 改写 lint 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/lint_threshold_reconciliation.py 语义改写要点（保留 file_missing/checker_missing/no_range_found 面）：</span>
+<span class="c1"># 1) 顶部加 import（sys.path 不需处理——tools 由 REPO_ROOT 下 uv run 执行，src 布局经 just/uv 环境 import shenbi 已确立）：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills.pacing_design</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONSTELLATION_HARD_BAND</span>
+
+<span class="c1"># 2) docstring 更新：不再 &quot;parsing checker constants is out of scope&quot;；改为</span>
+<span class="c1">#    &quot;reads the checker&#39;s own hard band constant (CONSTELLATION_HARD_BAND);</span>
+<span class="c1">#     containment test (SKILL range must sit inside the hard band); keyword</span>
+<span class="c1">#     is mandatory (an entry without keyword validates the wrong column).&quot;</span>
+
+<span class="c1"># 3) _scan_entry 签名不变，内部：</span>
+<span class="c1">#    - lo, hi = entry[&quot;bounds&quot;]  →  lo, hi = CONSTELLATION_HARD_BAND</span>
+<span class="c1">#    - keyword 缺省处理前移：</span>
+<span class="c1">#        keyword = entry.get(&quot;keyword&quot;, &quot;&quot;)</span>
+<span class="c1">#        if not keyword:</span>
+<span class="c1">#            return (f&quot;WARN threshold_entry keyword_missing skill={entry[&#39;skill&#39;]} &quot;</span>
+<span class="c1">#                    f&quot;file={entry[&#39;file&#39;]}&quot;)   # 必填化：缺省即漂移行</span>
+<span class="c1">#      （原「keyword 在行中缺失」分支保留——那是行内漂移，同一标签）</span>
+<span class="c1">#    - 判定式：</span>
+<span class="c1">#        if not (d_lo &gt;= lo and d_hi &lt;= hi):</span>
+<span class="c1">#            return (f&quot;WARN threshold_drift skill={entry[&#39;skill&#39;]} &quot;</span>
+<span class="c1">#                    f&quot;file={entry[&#39;file&#39;]} found={d_lo}-{d_hi} expected=[{lo}, {hi}]&quot;)</span>
+
+<span class="c1"># 4) main() 保持 return 0（WARN-only；strict 在 Task 3 加）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 删 allowlist bounds 字段</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/threshold_allowlist.json — 4 条 entry 各删 &quot;bounds&quot;: [15, 40] 行</span>
+<span class="c1"># （注意：各 entry 的 &quot;checker&quot; 行因后随 bounds 而带尾逗号，删 bounds 行须同步去掉</span>
+<span class="c1">#  checker 行尾逗号——diff 形状 = 4 行删除 + 4 行逗号修正，非纯删除）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑重写测试全绿</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v</code>
+Expected: 5 PASS（strict 系用例在 Task 3 落地——本 task 中间 commit 套件须绿）</p>
+<ul>
+<li>[ ] <strong>Step 5: 实跑 lint 现状（repo 数据面）</strong></li>
+</ul>
+<p>Run: <code>uv run python tools/lint_threshold_reconciliation.py; echo exit=$?</code>
+Expected: 无输出，exit=0（四档带内+4/4 keyword）</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_threshold_reconciliation.py<span class="w"> </span>tools/threshold_allowlist.json<span class="w"> </span>tests/unit/tools/test_lint_threshold_reconciliation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #93 T1b — lint 读 CONSTELLATION_HARD_BAND+删 bounds 第三源+判定式改包含+keyword 必填&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-t1c-strict-just-lint-leaf-tdd_red_green">Task 3: T1c · --strict 模式+just lint 接线（leaf · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_threshold_reconciliation.py:80-103</code>（argparse+main）
+- Modify: <code>justfile:53</code>（<code>--strict</code> 接线；:33 NOTE 注释同步移除）
+- Test: <code>tests/unit/tools/test_lint_threshold_reconciliation.py</code>（追加 strict 用例）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 产出（keyword_missing/drift 行+<code>main(argv) -&gt; int</code>）
+- Produces: <code>--strict</code> CLI flag（无 WARN 行 → exit 0；任一 WARN 条件 → exit 1）；justfile lint 配方含 <code>--strict</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 追加 strict 测试（红——<code>--strict</code> 未实现，argparse unrecognized exit 2）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 追加到 tests/unit/tools/test_lint_threshold_reconciliation.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_repo_allowlist_strict_clean</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--strict&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strict_drift_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;50-60%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)])),</span> <span class="s2">&quot;--strict&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strict_partial_overlap_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 包含式的核心增量判据面：相交不包含 → strict FAIL（旧相交式下此断言红）</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;10-20%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)])),</span> <span class="s2">&quot;--strict&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">and</span> <span class="s2">&quot;10-20&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strict_keyword_missing_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;15-25%&quot;</span><span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;keyword&quot;</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">entry</span><span class="p">])),</span> <span class="s2">&quot;--strict&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;keyword_missing&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_non_strict_drift_still_exits_zero</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">skill</span> <span class="o">=</span> <span class="n">_skill_md</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;50-60%&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_allowlist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">[</span><span class="n">_entry</span><span class="p">(</span><span class="n">skill</span><span class="p">)]))])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="s2">&quot;threshold_drift&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v</code>
+Expected: 新增 4 用例 FAIL（<code>--strict</code> 传参 argparse unrecognized exit 2）+新增非 strict 回归 1 用例 PASS（其语义 Task 2 已落地——作 strict 不改非 strict 行为的前置基线）；Task 2 存量 5 用例仍 PASS</p>
+<ul>
+<li>[ ] <strong>Step 2: 实现 --strict</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/lint_threshold_reconciliation.py main() 改写：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point: WARN-only by default; --strict exits 1 on any warn line.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">DEFAULT_ALLOWLIST</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the allowlist JSON (default: tools/threshold_allowlist.json)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--strict&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;exit 1 if any entry drifted (spec #93 T1c; wired into `just lint`)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">allow_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">allowlist</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARN allowlist_missing path=</span><span class="si">{</span><span class="n">allow_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">strict</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">allow_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entries&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">warned</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="n">warn</span> <span class="o">=</span> <span class="n">_scan_entry</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">warn</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">warn</span><span class="p">)</span>
+            <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">strict</span> <span class="ow">and</span> <span class="n">warned</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: justfile 接线</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code># justfile :53 行改：
+-    uv run python tools/lint_threshold_reconciliation.py
++    uv run python tools/lint_threshold_reconciliation.py --strict
+# 同时删除 :33 的 NOTE 注释行（&quot;spec #93 will later add --strict ... batch-A re-anchor hook&quot; —— 本 task 兑现该钩）
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑全部 lint 测试+实跑 strict</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -v &amp;&amp; uv run python tools/lint_threshold_reconciliation.py --strict; echo exit=$?</code>
+Expected: 10 PASS；实跑无输出 exit=0</p>
+<ul>
+<li>[ ] <strong>Step 5: 红测证据——临时改常量验 FAIL 态（回滚）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 临时将 pacing_design.py 的 CONSTELLATION_HARD_BAND 改为 (18, 45) →</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_threshold_reconciliation.py<span class="w"> </span>--strict<span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">exit</span><span class="o">=</span><span class="nv">$?</span><span class="w">   </span><span class="c1"># Expected: threshold_drift 15-25 not in [18,45], exit=1</span>
+just<span class="w"> </span>lint<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">exit</span><span class="o">=</span><span class="nv">$?</span><span class="w">                                        </span><span class="c1"># Expected: exit=1（just lint 面红）</span>
+<span class="c1"># git checkout -- src/shenbi/contracts/skills/pacing_design.py 回滚 → 复跑 strict exit=0</span>
+</code></pre></div>
+<p>输出全部粘贴进 progress.md 验收证据。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_threshold_reconciliation.py<span class="w"> </span>justfile<span class="w"> </span>tests/unit/tools/test_lint_threshold_reconciliation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #93 T1c — lint --strict FAIL 态+just lint 接线（兑现 batch-A 预留钩）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-t3-pricing-infra-tdd_red_green">Task 4: T3 · pricing 模型契约单源倒置（infra · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/pricing.py:3-7,15-16,31-32,42</code>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:94-101,3741</code>
+- Test: <code>tests/unit/cost/test_pricing.py</code>（追加）+ <code>tests/unit/pipeline/test_dispatch_helper_model_source.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（pricing 现有 <code>DEFAULT_PRICING_MODEL: str</code>、<code>resolve_model(model: str | None) -&gt; str</code>）
+- Produces: <code>LLM_MODEL_ENV_VAR: str = "SHENBI_LLM_MODEL"</code>（pricing 公共常量，替换私有 <code>_ENV_LLM_MODEL</code>）；dispatch_helper <code>_DEFAULT_MODEL</code>/<code>_ENV_LLM_MODEL</code> 局部定义删除，改 import</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_dispatch_helper_model_source.py 新建</span>
+<span class="sd">&quot;&quot;&quot;Spec #93 T3 — dispatch model constants single-sourced in cost.pricing.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost</span><span class="w"> </span><span class="kn">import</span> <span class="n">pricing</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_helper_has_no_local_model_constants</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_DEFAULT_MODEL&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_ENV_LLM_MODEL&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_uses_pricing_single_source</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">dh</span><span class="o">.</span><span class="n">LLM_MODEL_ENV_VAR</span> <span class="ow">is</span> <span class="n">pricing</span><span class="o">.</span><span class="n">LLM_MODEL_ENV_VAR</span>
+    <span class="k">assert</span> <span class="n">dh</span><span class="o">.</span><span class="n">DEFAULT_PRICING_MODEL</span> <span class="ow">is</span> <span class="n">pricing</span><span class="o">.</span><span class="n">DEFAULT_PRICING_MODEL</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/cost/test_pricing.py 追加；同文件 :17 注释刷新</span>
+<span class="c1"># （原 &quot;(dispatch_helper._DEFAULT_MODEL)&quot; 指将被删的符号——改 &quot;(single source, dispatch_helper imports)&quot;）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_env_var_public_constant</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLM_MODEL_ENV_VAR</span>
+
+    <span class="k">assert</span> <span class="n">LLM_MODEL_ENV_VAR</span> <span class="o">==</span> <span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_helper_model_source.py tests/unit/cost/test_pricing.py -v</code>
+Expected: FAIL（<code>hasattr(dh, "_DEFAULT_MODEL")</code> 为 True / <code>LLM_MODEL_ENV_VAR</code> ImportError）</p>
+<ul>
+<li>[ ] <strong>Step 2: pricing 侧改写（单源方）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/cost/pricing.py：</span>
+<span class="c1"># 1) 模块 docstring（:3-7）改为（消除 dispatch_helper 引用）：</span>
+<span class="sd">&quot;&quot;&quot;USD pricing per 1M tokens, keyed to the model that actually ran (spec §3.3).</span>
+
+<span class="sd">This module is the single source for the dispatch-path model constants</span>
+<span class="sd">(``LLM_MODEL_ENV_VAR`` / ``DEFAULT_PRICING_MODEL``) — dispatch_helper</span>
+<span class="sd">imports them from here (spec #93 T3). Pricing uses that same default so</span>
+<span class="sd">cost reflects what ran; do NOT hardcode other models here.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># 2) :15-16 注释改：</span>
+<span class="c1"># The dispatch-path default model — single source; dispatch_helper imports this (spec #93 T3).</span>
+<span class="c1"># 3) :31-32 改（私有转公共）：</span>
+<span class="c1"># Env var name — single source, dispatch_helper imports this (spec #93 T3).</span>
+<span class="n">LLM_MODEL_ENV_VAR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span>
+<span class="c1"># 4) resolve_model 内 :42：</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">LLM_MODEL_ENV_VAR</span><span class="p">,</span> <span class="n">DEFAULT_PRICING_MODEL</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: dispatch_helper 侧改写（消费方）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/dispatch_helper.py：</span>
+<span class="c1"># 1) 顶部 shenbi.cost import 区（:56 一带）加：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_PRICING_MODEL</span><span class="p">,</span> <span class="n">LLM_MODEL_ENV_VAR</span>
+<span class="c1"># 2) 删 :97 `_ENV_LLM_MODEL = &quot;SHENBI_LLM_MODEL&quot;` 与 :101 `_DEFAULT_MODEL = &quot;deepseek-v4-flash&quot;  # fallback...`</span>
+<span class="c1">#    （_ENV_LLM_API_KEY/_ENV_LLM_BASE_URL 保持原地——它们本就单源于此模块）</span>
+<span class="c1"># 3) :3741 改：</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">LLM_MODEL_ENV_VAR</span><span class="p">,</span> <span class="n">DEFAULT_PRICING_MODEL</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试+全仓引用面核验</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_helper_model_source.py tests/unit/cost/ -v &amp;&amp; grep -rn "dispatch_helper" src/shenbi/cost/; echo grep_exit=$?</code>
+Expected: 测试全 PASS；grep 无输出 exit=1（AC3 判据）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/pricing.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/cost/test_pricing.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper_model_source.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: spec #93 T3 — dispatch 模型常量单源倒置（dispatch_helper 从 cost.pricing import）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-t4-executor-stat-infra-tdd_red_green">Task 5: T4 · executor 派生集缓存 stat 键失效（infra · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/dispatcher/executor.py:30-59</code>
+- Modify: <code>tests/unit/conftest.py:13-21</code>（删 autouse <code>reset_executor_caches</code> fixture——其全部目的即重置被删的两个全局；保留则每个测试静默复活死属性）
+- Test: <code>tests/unit/dispatcher/test_executor_derived_set_freshness.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>bootstrap_registry() -&gt; dict[str, str]</code>（contracts/registry.py:17-37，内部经 load_registry 的 <code>(path, mtime_ns, size)</code> stat 键缓存，自动失效）
+- Produces: <code>_truth_file_set() -&gt; set[str]</code> / <code>_decisions_file_set() -&gt; set[str]</code>（签名不变；语义变更：不再进程期冻结——每次调用重derive，成本=stat 键命中的 dict 查找+set 推导）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/dispatcher/test_executor_derived_set_freshness.py 新建</span>
+<span class="sd">&quot;&quot;&quot;Spec #93 T4 — derived truth/decisions sets follow the registry stat key.</span>
+
+<span class="sd">Editing truth-files.yaml mid-process must refresh the derived sets on the</span>
+<span class="sd">next call (loader contract: (mtime_ns, size) keyed cache), not stay frozen</span>
+<span class="sd">for the process lifetime.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.contracts.loader</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">loader_mod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OutputKind</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># 定义在 contracts/loader.py:42，经包 __init__ 再导出（executor.py:17 同路径）</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ex</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_registry</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">truth_kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 真实 schema：concepts 为 {name, kind} 列表（docs/framework/truth-files.yaml）</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;concepts:</span><span class="se">\n</span><span class="s2">  - </span><span class="se">{{</span><span class="s2">name: truth/current_state.md, kind: </span><span class="si">{</span><span class="n">truth_kind</span><span class="si">}</span><span class="se">}}\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_derived_set_refreshes_on_registry_edit</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth-files.yaml&quot;</span>
+    <span class="n">_write_registry</span><span class="p">(</span><span class="n">reg</span><span class="p">,</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">loader_mod</span><span class="p">,</span> <span class="s2">&quot;REGISTRY_PATH&quot;</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="n">ex</span><span class="p">,</span>
+        <span class="s2">&quot;load_contract&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">skill</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">ARTIFACT</span><span class="p">,</span>
+            <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">},</span>
+            <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ex</span><span class="o">.</span><span class="n">derive_file_type</span><span class="p">(</span><span class="s2">&quot;test-skill-writes&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="c1"># 同进程改 registry：kind truth → decisions（size 变 → stat 键变）</span>
+    <span class="n">_write_registry</span><span class="p">(</span><span class="n">reg</span><span class="p">,</span> <span class="s2">&quot;decisions&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ex</span><span class="o">.</span><span class="n">derive_file_type</span><span class="p">(</span><span class="s2">&quot;test-skill-writes&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;decisions&quot;</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_executor_derived_set_freshness.py -v</code>
+Expected: FAIL — 第二次断言得 <code>"truth"</code>（进程期冻结的 <code>_truth_files_cache</code>）</p>
+<ul>
+<li>[ ] <strong>Step 2: 去冻结——删两个模块级缓存，改经 bootstrap_registry 每次 derive</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/dispatcher/executor.py :30-59 替换为：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_truth_file_set</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Files listed as kind=&#39;truth&#39; in truth-files.yaml concepts.</span>
+
+<span class="sd">    Both truth and chapter edits have OutputKind.ARTIFACT, so OutputKind cannot</span>
+<span class="sd">    distinguish them; the distinction lives in truth-files.yaml (spec New-I).</span>
+<span class="sd">    Spec #93 T4: derived per call via bootstrap_registry() — the loader&#39;s</span>
+<span class="sd">    (mtime_ns, size) stat-key cache makes this cheap and keeps the derived</span>
+<span class="sd">    sets fresh when truth-files.yaml is edited mid-process (frozen module</span>
+<span class="sd">    globals violated the loader&#39;s cache contract).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">bootstrap_registry</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;truth&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decisions_file_set</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Files listed as kind=&#39;decisions&#39; in truth-files.yaml concepts.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">bootstrap_registry</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;decisions&quot;</span><span class="p">}</span>
+</code></pre></div>
+<p>（删 <code>_truth_files_cache</code>/<code>_decisions_files_cache</code> 两个全局与 <code>global</code> 语句；<code>bootstrap_registry</code> 已在 :25 import。同 commit 删 <code>tests/unit/conftest.py</code> 的 <code>reset_executor_caches</code> fixture 全体——<code>from shenbi.dispatcher import executor</code> 与 <code>import pytest</code> 两行 import 一并删，避免死 import（ruff F401 也会兜）。）</p>
+<ul>
+<li>[ ] <strong>Step 3: 跑新测+executor 存量测试+conftest 退役验证</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/ -v &amp;&amp; uv run pytest tests/unit/tools/test_lint_threshold_reconciliation.py -q</code>
+Expected: 全 PASS（后者验证 conftest 删除对其他单测零影响）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/dispatcher/executor.py<span class="w"> </span>tests/unit/conftest.py<span class="w"> </span>tests/unit/dispatcher/test_executor_derived_set_freshness.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #93 T4 — executor 派生集缓存改经 bootstrap_registry stat 键失效（契约对齐+conftest fixture 退役）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-t5-trend_columns-infra-tdd_red_green">Task 6: T5 · TREND_COLUMNS 列契约单源（infra · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/_shared.py</code>（常量+charter 扩域+<strong>all</strong>）
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2877-2906</code>
+- Modify: <code>src/shenbi/orchestration/escalation_bridge.py:10-25</code>
+- Modify: <code>src/shenbi/pipeline/confidence_calibration.py:118,129</code>
+- Test: <code>tests/unit/pipeline/test_trend_columns.py</code>（新建；escalation_bridge 存量回归经 tests/unit/orchestration/test_bridges.py 全跑覆盖）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无
+- Produces:
+  - <code>TREND_COLUMNS: tuple[str, ...]</code>（9 列名，序=<code>("chapter", "chapter_role", "情感落地", "场景临场感", "文笔质感", "读者回报", "overall", "confidence", "human_overridden")</code>——逐字对齐 skills/shenbi-review-resonance/SKILL.md:181 表头）
+  - <code>TREND_OVERALL_IDX: int</code>（=TREND_COLUMNS.index("overall")=6）/ <code>TREND_CONFIDENCE_IDX: int</code>（=TREND_COLUMNS.index("confidence")=7）
+  - <code>build_resonance_trend_row(chapter: int, overall: int) -&gt; str</code>（签名不变，输出逐字节不变）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_trend_columns.py 新建</span>
+<span class="sd">&quot;&quot;&quot;Spec #93 T5 — resonance_trend.md column contract single source.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.orchestration.escalation_bridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_resonance_scores</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TREND_COLUMNS</span><span class="p">,</span>
+    <span class="n">TREND_CONFIDENCE_IDX</span><span class="p">,</span>
+    <span class="n">TREND_OVERALL_IDX</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_resonance_trend_row</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">SKILL_HEADER</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi-review-resonance&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_columns_match_skill_contract_header</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 三源对账：常量 ↔ 技能契约表头（SKILL.md:181 prose 契约是列名的权威散文面）</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">SKILL_HEADER</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">header_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;| chapter | chapter_role&quot;</span><span class="p">))</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">header_line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="n">TREND_COLUMNS</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_indices_pin_positions</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">TREND_OVERALL_IDX</span> <span class="o">==</span> <span class="mi">6</span>
+    <span class="k">assert</span> <span class="n">TREND_CONFIDENCE_IDX</span> <span class="o">==</span> <span class="mi">7</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_writer_row_exact_string</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">build_resonance_trend_row</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">83</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;| 55 | - | - | - | - | - | 83 | - |  |&quot;</span>
+
+
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="nd">@given</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9999</span><span class="p">),</span> <span class="n">overall</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_roundtrip_writer_to_bridge</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overall</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 往返 property：writer 产出行 → bridge 解析出 overall（列位漂移即红）</span>
+    <span class="n">trend</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;resonance_trend.md&quot;</span>
+    <span class="n">trend</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|---|---|---|---|---|---|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">build_resonance_trend_row</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">overall</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parse_resonance_scores</span><span class="p">(</span><span class="n">trend</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">overall</span><span class="p">)]</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_trend_columns.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'TREND_COLUMNS'</code></p>
+<ul>
+<li>[ ] <strong>Step 2: _shared 加常量（charter 扩域）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/_shared.py — docstring 首段后追加一句：</span>
+<span class="c1"># &quot;Spec #93 T5 extends this leaf with the resonance_trend.md column contract</span>
+<span class="c1">#  (TREND_COLUMNS) — still stdlib-only, no cycle member.&quot;</span>
+<span class="c1"># 模块体追加（__all__ 同步加 TREND_COLUMNS/TREND_OVERALL_IDX/TREND_CONFIDENCE_IDX）：</span>
+
+<span class="c1">#: resonance_trend.md column contract (spec #93 T5) — single source for the</span>
+<span class="c1">#: 9-column layout. Prose authority: skills/shenbi-review-resonance/SKILL.md</span>
+<span class="c1">#: table header. Consumers: chapter_loop.build_resonance_trend_row (writer),</span>
+<span class="c1">#: orchestration/escalation_bridge.parse_resonance_scores (overall reader),</span>
+<span class="c1">#: pipeline/confidence_calibration (confidence patcher).</span>
+<span class="n">TREND_COLUMNS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;chapter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chapter_role&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;情感落地&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;场景临场感&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;文笔质感&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;读者回报&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;overall&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;confidence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;human_overridden&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1">#: cell index of the overall score — what parse_resonance_scores reads.</span>
+<span class="n">TREND_OVERALL_IDX</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">TREND_COLUMNS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;overall&quot;</span><span class="p">)</span>
+<span class="c1">#: cell index of confidence — what confidence_calibration patches.</span>
+<span class="n">TREND_CONFIDENCE_IDX</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">TREND_COLUMNS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 三消费者换装</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py — build_resonance_trend_row 顶部 import（pipeline 同包）：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">TREND_COLUMNS</span>
+
+
+<span class="c1"># 函数体改为由常量驱动（输出逐字节不变，test_writer_row_exact_string 锁死）：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_resonance_trend_row</span><span class="p">(</span><span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overall</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a 9-column markdown table row for resonance_trend.md.</span>
+
+<span class="sd">    Column layout is the TREND_COLUMNS contract (pipeline/_shared.py, spec</span>
+<span class="sd">    #93 T5) — parse_resonance_scores reads cells[TREND_OVERALL_IDX]. The</span>
+<span class="sd">    skill contract keeps a bare ``{N}`` key so framework and skill writers</span>
+<span class="sd">    dedup onto the same row (SDD #21 R1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">TREND_COLUMNS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span>
+            <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;overall&quot;</span><span class="p">:</span>
+            <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">overall</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;human_overridden&quot;</span><span class="p">:</span>
+            <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># blank like the skill&#39;s convention</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>  <span class="c1"># placeholder: role + 4 dimensions + confidence</span>
+    <span class="k">return</span> <span class="s2">&quot;| &quot;</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; |&quot;</span>
+
+
+<span class="c1"># docstring 其余段落（parse_trend/caller persist 说明）保留。</span>
+
+<span class="c1"># escalation_bridge.py — import 加：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">TREND_OVERALL_IDX</span>
+<span class="c1"># parse_resonance_scores 内：</span>
+<span class="c1">#   `if len(cells) &gt;= 7:`        → `if len(cells) &gt; TREND_OVERALL_IDX:`</span>
+<span class="c1">#   `val = float(cells[6])`      → `val = float(cells[TREND_OVERALL_IDX])`</span>
+
+<span class="c1"># confidence_calibration.py — import 加：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">TREND_CONFIDENCE_IDX</span>
+<span class="c1"># 两处 patch_markdown_table_cell(trend_path, str(chapter), &quot;chapter&quot;, 7, calibrated)</span>
+<span class="c1">#   的字面量 7 → TREND_CONFIDENCE_IDX</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑新测+三消费者存量测试</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_trend_columns.py -v</code>
+Expected: 4 PASS（新文件<strong>不过滤全跑</strong>——<code>-k</code> 按函数名过滤会 deselect 无关键词用例）</p>
+<p>Run: <code>uv run pytest tests/unit/orchestration/test_bridges.py tests/unit/pipeline/ -k "trend or resonance or calibration or bridge" -v</code>
+Expected: 全 PASS（存量面零回归）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/_shared.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/orchestration/escalation_bridge.py<span class="w"> </span>src/shenbi/pipeline/confidence_calibration.py<span class="w"> </span>tests/unit/pipeline/test_trend_columns.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: spec #93 T5 — TREND_COLUMNS 列契约单源（三消费者 import+往返 property+SKILL 表头对账）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-t6-infra-tdd_red_green">Task 7: T6 · 疲劳词门-契约键形接线（infra · tdd_red_green）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:967-977</code>
+- Test: <code>tests/unit/gates/g4/test_chapter_drafting_detect.py</code>（重写 snake 注入测试为真实 fixture 形状）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>read_genre_config(project_dir: str | Path) -&gt; dict[str, Any]</code>（gates/shared.py:731，原始 json dict）；<code>FATIGUE_BASE: list[str]</code>（gates/shared.py:873）；<code>log = get_logger(__name__)</code>（chapter_drafting.py:46 既有）
+- Produces: <code>_fatigue_word_list(gc: dict[str, Any]) -&gt; list[str]</code>（新私有助手：camel <code>fatigueWords</code> 禁用∪慎用并集；缺/畸形 → <code>list(FATIGUE_BASE)</code> 回退+structlog WARN）</p>
+<ul>
+<li>[ ] <strong>Step 1: 重写测试为真实 fixture 形状（红）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_chapter_drafting_detect.py —</span>
+<span class="c1"># test_fatigue_words_use_project_genre_config 全函数替换为：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fatigue_words_use_project_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># spec #93 T6 — 门读契约真实形状（camelCase fatigueWords 嵌套对象）。</span>
+    <span class="c1"># 眸光一凝 ∈ fixture 禁用表且与 FATIGUE_BASE 零子串碰撞（碰撞词现状即</span>
+    <span class="c1"># base 计数 FAIL，红测不红——词选约束见 spec）；真实技能产物顶层无</span>
+    <span class="c1"># snake `fatigue_words` 键（旧测试手工注入的形状技能永不写）。</span>
+    <span class="n">pd</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;pd&quot;</span>
+    <span class="n">rd</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;rd&quot;</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">rd</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">FIXTURES</span> <span class="o">/</span> <span class="s2">&quot;genre-config-example.json&quot;</span><span class="p">,</span> <span class="n">pd</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;第3章</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;眸光一凝&quot;</span> <span class="o">*</span> <span class="mi">9</span>
+    <span class="n">chapter</span> <span class="o">=</span> <span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;chapter-3-x.md&quot;</span>
+    <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>  <span class="c1"># CWD independent</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">rd</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pd</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)))</span>
+    <span class="n">must_fix</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">assert</span> <span class="s2">&quot;G4.fatigue&quot;</span> <span class="ow">in</span> <span class="n">must_fix</span> <span class="ow">and</span> <span class="s2">&quot;&gt;8&quot;</span> <span class="ow">in</span> <span class="n">must_fix</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fatigue_malformed_config_falls_back_to_base</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 形状异常（禁用非列表）→ 回退 FATIGUE_BASE + 不炸门（防御面）</span>
+    <span class="n">pd</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;pd&quot;</span>
+    <span class="n">rd</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;rd&quot;</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">rd</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">pd</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;fatigueWords&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;禁用&quot;</span><span class="p">:</span> <span class="s2">&quot;not-a-list&quot;</span><span class="p">,</span> <span class="s2">&quot;慎用&quot;</span><span class="p">:</span> <span class="p">[]}}),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;第3章</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;突然&quot;</span> <span class="o">*</span> <span class="mi">9</span>  <span class="c1"># 突然 ∈ FATIGUE_BASE</span>
+    <span class="n">chapter</span> <span class="o">=</span> <span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;chapter-3-x.md&quot;</span>
+    <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">g4_chapter_drafting</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)],</span> <span class="nb">str</span><span class="p">(</span><span class="n">rd</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pd</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)))</span>
+    <span class="n">must_fix</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;must_fix&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">assert</span> <span class="s2">&quot;G4.fatigue&quot;</span> <span class="ow">in</span> <span class="n">must_fix</span> <span class="ow">and</span> <span class="s2">&quot;&gt;8&quot;</span> <span class="ow">in</span> <span class="n">must_fix</span>
+</code></pre></div>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_chapter_drafting_detect.py -v</code>
+Expected: 第一个测试 FAIL（现状回退 FATIGUE_BASE，眸光一凝 0 命中 → 无 G4.fatigue）；第二个 PASS（现状即回退）</p>
+<ul>
+<li>[ ] <strong>Step 2: 实现键形接线</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g4/chapter_drafting.py — _check_fatigue 前加私有助手：</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fatigue_word_list</span><span class="p">(</span><span class="n">gc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fatigue word list from genre-config&#39;s contract shape (spec #93 T6).</span>
+
+<span class="sd">    The skill contract writes a camelCase nested object</span>
+<span class="sd">    ``fatigueWords: {禁用: [...], 慎用: [...], 替换建议: {...}}``</span>
+<span class="sd">    (contracts/skills/genre_config.py alias; read_genre_config returns the</span>
+<span class="sd">    raw JSON). The gate counts the 禁用∪慎用 union — the config replaces</span>
+<span class="sd">    FATIGUE_BASE entirely when present; missing/malformed shapes fall back</span>
+<span class="sd">    to FATIGUE_BASE (never crash the gate).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fw</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fatigueWords&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">words</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;禁用&quot;</span><span class="p">,</span> <span class="s2">&quot;慎用&quot;</span><span class="p">):</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">words</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">group</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">words</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">words</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;fatigue_words_config_empty_or_malformed&quot;</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">fw</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">FATIGUE_BASE</span><span class="p">)</span>
+
+    <span class="c1"># _check_fatigue 内 :970 改：</span>
+    <span class="n">fatigue_list</span> <span class="o">=</span> <span class="n">_fatigue_word_list</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+
+
+<span class="c1"># （&gt;8 阈与 FAIL/PASS 结构不变；docstring :968 的「genre-config 阈」保持——接线后为真）</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 跑重写测试+chapter_drafting 全量</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/test_chapter_drafting_detect.py tests/unit/gates/g4/ -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py<span class="w"> </span>tests/unit/gates/g4/test_chapter_drafting_detect.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: spec #93 T6 — 疲劳词门改读契约 camel 形状（禁用∪慎用并集，畸形回退 base+WARN）&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-t2-gatesmd-g4-leaf-characterization-task-7">Task 8: T2 · gates.md 裕度节+g4 双向回指（leaf · characterization · 依赖 Task 7）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/framework/gates.md</code>（文末追加节）
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:931,967-968</code>（两处注释回指）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 7 产出（T6 接线后的真实门语义）
+- Produces: gates.md <code>## 散文↔门裕度（spec #93 T2）</code> 节（转折词+疲劳词两行决策+出处）</p>
+<ul>
+<li>[ ] <strong>Step 1: gates.md 追加裕度节</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">## 散文↔门裕度（spec #93 T2）</span>
+
+散文（SKILL.md 教学面）与门（G4 执行面）的阈值**有意不同**——提示比门严是 prompt 工程设计：
+自动化生成文本在对应指标上天然偏多，门给裕度防重派风暴，散文保持高压引导模型自律。
+改任一侧前先读本节；把散文「对齐」到门值=改变 LLM 行为，属 prompt 变更须走内容批。
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**转折词**</span>：散文预算 1/3000（chapter-drafting SKILL 字面 ×5 :92-94/:108/:185＋公式形态 [字数/3000] :174）
+  / 门限 1/1000（chapter_drafting.py <span class="sb">`max(5, wc//1000)`</span>，:931 注释自认 relaxed for automated gen）——3× 裕度。
+<span class="k">-</span><span class="w"> </span><span class="gs">**疲劳词**</span>：散文面=禁用词出现即报错＋慎用词每章 &gt;3 报警（genre-config SKILL.md 疲劳词管理节）
+  / 门面=禁用∪慎用命中 &gt;8 FAIL（chapter_drafting.py <span class="sb">`_check_fatigue`</span>，spec <span class="ni">#93</span> T6 接线后门实读
+  genre-config 词表）——门对禁用词同样给自动化裕度（散文零容忍 vs 门 ≤8），与转折词同一裕度模式。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: g4 两处注释回指</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_drafting.py :931 注释行追加一句（保持原注释行不动，同注释块加行）：</span>
+    <span class="c1"># ...relaxed from 1/3000 for automated gen) — 裕度裁定见 docs/framework/gates.md §散文↔门裕度</span>
+<span class="c1"># _check_fatigue docstring（:967-968）追加：</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fatigue words &lt;= 8 (genre-config 阈). 裕度裁定见 docs/framework/gates.md §散文↔门裕度.&quot;&quot;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 双向锚验收 grep</strong></li>
+</ul>
+<p>Run: <code>grep -n "散文↔门裕度" docs/framework/gates.md src/shenbi/gates/g4/chapter_drafting.py</code>
+Expected: gates.md ≥1 命中（节标题）+ chapter_drafting.py 2 命中（g4→docs 回指锚成立；spec AC2「grep 双向锚」= 两文件互可定位）</p>
+<p>Run: <code>uv run pytest tests/unit/gates/g4/ -q</code>
+Expected: 全 PASS（注释改动零行为影响）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>docs/framework/gates.md<span class="w"> </span>src/shenbi/gates/g4/chapter_drafting.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: spec #93 T2 — gates.md 散文↔门裕度节（转折词 3×＋疲劳词并集模式）+g4 双向回指&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="7-task">收尾（阶段 7 用，非独立 task）</h2>
+<ul>
+<li><code>just check</code> 全量（阶段 7 门禁，输出+首行指纹进 progress.md）</li>
+<li>AC 汇总证据进 progress.md <code>## 验收证据</code>（各 task Step 中的命令输出汇总）</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
