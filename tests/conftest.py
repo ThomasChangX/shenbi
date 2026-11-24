@@ -8,6 +8,8 @@ import pytest
 import structlog
 from hypothesis import settings
 
+from tests.support import xdist_scheduler_fix
+
 settings.register_profile("ci", max_examples=1000, deadline=None)
 settings.register_profile("dev", max_examples=100, deadline=200)
 settings.register_profile("debug", max_examples=10, deadline=None)
@@ -34,6 +36,21 @@ os.environ.pop("SHENBI_LLM_API_KEY", None)
 from shenbi.logging import configure_logging  # noqa: E402
 
 configure_logging()
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Carry pytest-xdist's crash-replacement fixes into every distributed run.
+
+    A worker dying under ``--dist loadscope`` deadlocked the session (see
+    tests/support/xdist_scheduler_fix.py). Loading the backport here means no
+    xdist entry point — a just recipe, the pre-push hook or a direct
+    ``pytest -n`` call — depends on being remembered.
+    """
+    if config.pluginmanager.hasplugin("xdist"):
+        # Registered for its session hook (the stall watchdog); configure is
+        # not replayed for a plugin registered this late, so install here.
+        config.pluginmanager.register(xdist_scheduler_fix, "xdist_scheduler_fix")
+        xdist_scheduler_fix.install()
 
 
 @pytest.fixture(autouse=True)

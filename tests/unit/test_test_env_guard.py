@@ -10,7 +10,8 @@ triggers the next reschedule.
 
 ``tests/conftest.py`` strips the key before any shenbi module import, and the
 ``test-ci`` recipe disables worker restart so a timeout fails once, visibly.
-This file pins both halves of the contract.
+This file pins both halves of the contract. The scheduler defect itself is
+repaired in ``tests/support/xdist_scheduler_fix.py``, with its own tests.
 """
 
 import os
